@@ -30,12 +30,6 @@
 
         <div class="flexRow flexRowRestSpace" />
 
-        <serverPingInfoControl
-          v-show="!(isFastestServer || isRandomServer)"
-          :server="this.server"
-          style="margin-left: 9px; margin-right:8px"
-        />
-
         <div class="arrowRightSimple"></div>
       </div>
     </button>
@@ -44,14 +38,12 @@
 
 <script>
 import serverNameControl from "@/components/controls/control-server-name.vue";
-import serverPingInfoControl from "@/components/controls/control-server-ping.vue";
 import { VpnStateEnum } from "@/store/types";
 
 export default {
   props: ["onShowServersPressed", "isExitServer"],
   components: {
-    serverNameControl,
-    serverPingInfoControl
+    serverNameControl
   },
   computed: {
     server: function() {
