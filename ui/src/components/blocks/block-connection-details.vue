@@ -7,7 +7,7 @@
     <OnOffButtonControl
       v-bind:class="{ lowOpacity: IsPaused }"
       text="Firewall"
-      description="Ensure that all traffic is routed through VPN"
+      :description="firewallDescriptionText"
       :onChecked="firewallOnChecked"
       :isChecked="this.$store.state.vpnState.firewallState.IsEnabled"
       :checkedColor="
@@ -23,9 +23,9 @@
 
     <OnOffButtonControl
       text="AntiTracker"
-      description="Block trackers whilst connected to VPN"
+      :description="antitrackerDescriptionText"
       :onChecked="antitrackerOnChecked"
-      :isChecked="this.$store.state.settings.isAntitracker"
+      :isChecked="IsAntitracker"
       :switcherOpacity="!IsConnected ? 0.4 : 1"
       :checkedColor="
         this.$store.state.settings.isAntitrackerHardcore ? '#77152a' : null
@@ -111,6 +111,25 @@ export default {
   },
 
   computed: {
+    firewallDescriptionText: function() {
+      /*
+      let isAutoEnable = this.$store.state.settings.firewallActivateOnConnect;
+      let isAutoDisable = this.$store.state.settings.firewallActivateOnConnect;
+      let isPersistent = this.$store.state.vpnState.firewallState.IsPersistent;
+
+      if (isPersistent)
+        return "Always-on firewall enabled. Firewall is active and blocking all non-VPN traffic";
+      */
+
+      return "Ensure that all traffic is routed through VPN";
+    },
+    antitrackerDescriptionText: function() {
+      if (!this.IsAntitracker) return "AntiTracker is disabled";
+      if (this.IsConnected)
+        return "AntiTracker is enabled and actively blocking known trackers";
+
+      return "AntiTracker will be enabled when connected to VPN";
+    },
     portProtocolText: function() {
       let port = this.$store.getters["settings/getPort"];
       let protocol = this.$store.getters["settings/vpnType"];
@@ -173,6 +192,9 @@ export default {
       return (
         this.$store.state.vpnState.connectionState === VpnStateEnum.CONNECTED
       );
+    },
+    IsAntitracker: function() {
+      return this.$store.state.settings.isAntitracker;
     }
   },
 
