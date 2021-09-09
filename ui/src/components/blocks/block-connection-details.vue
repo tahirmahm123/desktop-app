@@ -124,18 +124,11 @@ export default {
       return "Ensure that all traffic is routed through VPN";
     },
     antitrackerDescriptionText: function() {
-      /*
-      if (!this.IsAntitracker) return "AntiTracker is disabled";
-      if (this.IsConnected) return "AntiTracker is enabled and active";
-
-      return "AntiTracker will be enabled on VPN connection";
-      */
       if (!this.IsAntitracker)
         return "AntiTracker is disabled. Enable to block ads, trackers and malicious websites";
       if (this.IsConnected)
-        return "AntiTracker is enabled and actively blocking known trackers";
-
-      return "AntiTracker will be enabled when connected to VPN";
+        return "AntiTracker is enabled and actively blocking ads, trackers and malicious websites";
+      return "AntiTracker will be automatically enabled when connected to VPN";
     },
     portProtocolText: function() {
       let port = this.$store.getters["settings/getPort"];
