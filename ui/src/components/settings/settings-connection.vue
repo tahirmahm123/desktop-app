@@ -187,11 +187,11 @@
       </div>
       <div v-if="openvpnManualConfig && userDefinedOvpnFile">
         <div class="description">
-          <div class="settingsGrayLongDescriptionFont">
+          <!--<div class="settingsGrayLongDescriptionFont">
             Please be aware that this is a feature for advanced users as adding
             parameters may affect the proper functioning and security of the VPN
             tunnel
-          </div>
+          </div>-->
 
           <button
             class="link"
