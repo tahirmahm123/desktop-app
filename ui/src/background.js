@@ -806,11 +806,7 @@ async function connectToDaemon(
 ) {
   // ================================================================
   // (begin) MACOS ONLY: install daemon (privileged helper) if required
-  if (
-    Platform() === PlatformEnum.macOS &&
-    doNotTryToInstall !== true &&
-    store.state.daemonAllowedToInstallMacOS != false
-  ) {
+  if (Platform() === PlatformEnum.macOS && doNotTryToInstall !== true) {
     // If it is a clean install (no demon installed) - show dialog to a user
     // with a description why the daemon installation is necessary
     let onBeforeCleanInstall = function() {
@@ -818,15 +814,21 @@ async function connectToDaemon(
       // Necessary to call InstallDaemonIfRequired with empty value of 'onBeforeInstall' parameter
       try {
         // Show dialog with description of daemon installation
-        createMacOSDaemonInstallDlgWindow();
         store.commit("daemonIsInstalling", true);
+        createMacOSDaemonInstallDlgWindow();
 
-        // Waiting to close dialog (user must press Ok or Cancel)
+        // Waiting to close dialog (user must press Ok or Cancel: store.state.daemonAllowedToInstallMacOS)
         macOSDaemonInstallRequiredWindow.on("closed", () => {
           macOSDaemonInstallRequiredWindow = null;
-          store.commit("daemonIsInstalling", false);
+
+          if (store.state.daemonAllowedToInstallMacOS == false) {
+            store.commit("daemonIsInstalling", false);
+            // Skip connection to daemon
+            return;
+          }
+
           connectToDaemon(
-            doNotTryToInstall,
+            false, //doNotTryToInstall
             isCanRetry,
             doNotTryToMacosStart,
             true // DoNotNotifyUserFirstInstall

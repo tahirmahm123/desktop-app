@@ -30,6 +30,7 @@ const sender = window.ipcSender;
 export default {
   methods: {
     onOk: function() {
+      this.$store.dispatch("daemonAllowedToInstallMacOS", true);
       this.doClose();
     },
     onCancel: function() {
