@@ -112,16 +112,19 @@ export default {
 
   computed: {
     firewallDescriptionText: function() {
-      /*
+      let fwOn = this.$store.state.vpnState.firewallState.IsEnabled;
+      let vpnOn = this.IsConnected;
       let isAutoEnable = this.$store.state.settings.firewallActivateOnConnect;
-      let isAutoDisable = this.$store.state.settings.firewallActivateOnConnect;
-      let isPersistent = this.$store.state.vpnState.firewallState.IsPersistent;
 
-      if (isPersistent)
-        return "Always-on firewall enabled. Firewall is active and blocking all non-VPN traffic";
-      */
-
-      return "Ensure that all traffic is routed through VPN";
+      if (fwOn === true) {
+        if (vpnOn === true && isAutoEnable === true)
+          return "On-demand firewall enabled. Firewall is enabled and actively blocking non-VPN traffic";
+        return "Firewall is currently enabled and actively blocking non-VPN traffic";
+      }
+      // fwOn === false
+      if (vpnOn === false && isAutoEnable === true)
+        return "On-demand firewall enabled. Firewall will be automatically enabled when connected to VPN";
+      return "Firewall is currently disabled. Enable to block non-VPN traffic";
     },
     antitrackerDescriptionText: function() {
       if (!this.IsAntitracker)
