@@ -4,8 +4,8 @@
     <p class="small_text">
       Adhering to Apple's security Best Practices, IVPN uses a privileged helper
       tool for coordinating actions that require elevated privileges (e.g.
-      updating the routing table) whilst reducing the amount of code that runs
-      with elevated privileges.
+      updating the macOS routing table when connecting to VPN) whilst reducing
+      the amount of code that runs with elevated privileges.
     </p>
     <p class="small_text">
       To install this helper tool, MacOS will prompt you for the username and
