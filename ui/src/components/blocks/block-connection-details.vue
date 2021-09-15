@@ -108,12 +108,16 @@ export default {
   computed: {
     firewallDescriptionText: function() {
       let fwOn = this.$store.state.vpnState.firewallState.IsEnabled;
+      let fwPersistent = this.$store.state.vpnState.firewallState.IsPersistent;
       let isAutoEnable = this.$store.state.settings.firewallActivateOnConnect;
       let vpnOn = this.IsConnected;
       let connecting = this.IsConnecting;
       let disconnecting = this.IsDisconnecting;
 
       if (fwOn === true) {
+        if (fwPersistent === true)
+          return "Always-on firewall is enabled and actively blocking non-VPN traffic";
+
         if (
           (vpnOn === true || connecting === true || disconnecting === true) &&
           isAutoEnable === true
