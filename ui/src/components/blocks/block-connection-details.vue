@@ -116,19 +116,19 @@ export default {
 
       if (fwOn === true) {
         if (fwPersistent === true)
-          return "Always-on firewall is enabled and actively blocking non-VPN traffic";
+          return "Always-on mode enabled. Firewall is actively blocking non-VPN traffic";
 
         if (
           (vpnOn === true || connecting === true || disconnecting === true) &&
           isAutoEnable === true
         )
-          return "On-demand firewall enabled. Firewall is enabled and actively blocking non-VPN traffic";
-        return "Firewall is currently enabled and actively blocking non-VPN traffic";
+          return "On-demand mode enabled. Firewall is actively blocking non-VPN traffic";
+        return "Firewall is enabled and actively blocking non-VPN traffic";
       }
       // fwOn === false
       if ((vpnOn === false || connecting === true) && isAutoEnable === true)
-        return "On-demand firewall enabled. Firewall will be automatically enabled when connected to VPN";
-      return "Firewall is currently disabled. Enable to block non-VPN traffic";
+        return "On-demand mode enabled. Firewall automatically enabled on connection";
+      return "Firewall disabled. Enable to block non-VPN traffic";
     },
     antitrackerDescriptionText: function() {
       if (!this.IsAntitracker)
