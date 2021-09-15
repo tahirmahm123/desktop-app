@@ -80,12 +80,7 @@ import SelectButtonControl from "@/components/controls/control-config-to-select-
 import GeolocationInfoControl from "@/components/controls/control-geolocation-info.vue";
 const sender = window.ipcSender;
 import { enumValueName } from "@/helpers/helpers";
-import {
-  VpnTypeEnum,
-  PortTypeEnum,
-  PauseStateEnum,
-  VpnStateEnum
-} from "@/store/types";
+import { VpnTypeEnum, PortTypeEnum, PauseStateEnum } from "@/store/types";
 
 function processError(e) {
   console.error(e);
@@ -113,16 +108,21 @@ export default {
   computed: {
     firewallDescriptionText: function() {
       let fwOn = this.$store.state.vpnState.firewallState.IsEnabled;
-      let vpnOn = this.IsConnected;
       let isAutoEnable = this.$store.state.settings.firewallActivateOnConnect;
+      let vpnOn = this.IsConnected;
+      let connecting = this.IsConnecting;
+      let disconnecting = this.IsDisconnecting;
 
       if (fwOn === true) {
-        if (vpnOn === true && isAutoEnable === true)
+        if (
+          (vpnOn === true || connecting === true || disconnecting === true) &&
+          isAutoEnable === true
+        )
           return "On-demand firewall enabled. Firewall is enabled and actively blocking non-VPN traffic";
         return "Firewall is currently enabled and actively blocking non-VPN traffic";
       }
       // fwOn === false
-      if (vpnOn === false && isAutoEnable === true)
+      if ((vpnOn === false || connecting === true) && isAutoEnable === true)
         return "On-demand firewall enabled. Firewall will be automatically enabled when connected to VPN";
       return "Firewall is currently disabled. Enable to block non-VPN traffic";
     },
@@ -192,9 +192,13 @@ export default {
       return this.$store.state.vpnState.pauseState == PauseStateEnum.Paused;
     },
     IsConnected: function() {
-      return (
-        this.$store.state.vpnState.connectionState === VpnStateEnum.CONNECTED
-      );
+      return this.$store.getters["vpnState/isConnected"];
+    },
+    IsConnecting: function() {
+      return this.$store.getters["vpnState/isConnecting"];
+    },
+    IsDisconnecting: function() {
+      return this.$store.getters["vpnState/isDisconnecting"];
     },
     IsAntitracker: function() {
       return this.$store.state.settings.isAntitracker;
