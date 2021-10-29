@@ -28,6 +28,8 @@ import (
 	"net"
 	"reflect"
 	"strings"
+
+	"github.com/gobwas/ws/wsutil"
 )
 
 // CommandBase is a base object for communication with daemon.
@@ -41,7 +43,7 @@ type CommandBase struct {
 }
 
 // Send sends a command to a connection : init+serialize+send
-func Send(conn net.Conn, cmd interface{}, idx int) (retErr error) {
+func Send(conn net.Conn, isUnsafeWebSocket bool, cmd interface{}, idx int) (retErr error) {
 	defer func() {
 		if retErr != nil {
 			retErr = fmt.Errorf("failed to send command to client: %w", retErr)
@@ -59,8 +61,12 @@ func Send(conn net.Conn, cmd interface{}, idx int) (retErr error) {
 	}
 
 	bytesToSend = append(bytesToSend, byte('\n'))
-	if _, err := conn.Write(bytesToSend); err != nil {
-		return err
+	if isUnsafeWebSocket {
+		return wsutil.WriteServerText(conn, bytesToSend)
+	} else {
+		if _, err := conn.Write(bytesToSend); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -136,8 +136,9 @@ type Protocol struct {
 	// connections listener
 	_connListener *net.TCPListener
 
-	_connectionsMutex sync.RWMutex
-	_connections      map[net.Conn]struct{}
+	_connectionsMutex                sync.RWMutex
+	_connections                     map[net.Conn]struct{}
+	_webSocketUnsafePluginConnection net.Conn
 
 	_service Service
 
@@ -213,6 +214,14 @@ func (p *Protocol) Start(secret uint64, startedOnPort chan<- int, service Servic
 	defer func() {
 		listener.Close()
 		log.Info("Listener closed")
+	}()
+
+	// Statring WebSocket server
+	go func() {
+		err := p.wsStart()
+		if err != nil {
+			log.Error("WebSocket server error: ", err)
+		}
 	}()
 
 	// infinite loop of processing IVPN client connection

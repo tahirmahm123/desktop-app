@@ -40,19 +40,27 @@ import (
 	"github.com/ivpn/desktop-app/daemon/vpn/wireguard"
 )
 
+func (p *Protocol) isUnsafeWsPlugin(conn net.Conn) bool {
+	return conn == p._webSocketUnsafePluginConnection
+}
+
 // connID returns connection info (required to distinguish communication between several connections in log)
 func (p *Protocol) connLogID(c net.Conn) string {
 	if c == nil {
 		return ""
 	}
-	//return ""
+
 	// not necessary to print additional data into a log when only one connection available
 	numConnections := 0
+
 	func() {
 		p._connectionsMutex.RLock()
 		defer p._connectionsMutex.RUnlock()
 		numConnections = len(p._connections)
 	}()
+	if p.isUnsafeWsPlugin(c) {
+		return "<WebSocket> "
+	}
 	if numConnections <= 1 {
 		return ""
 	}
@@ -67,6 +75,10 @@ func (p *Protocol) notifyClients(cmd interface{}) {
 	defer p._connectionsMutex.RUnlock()
 	for conn := range p._connections {
 		p.sendResponse(conn, cmd, 0)
+	}
+
+	if p._webSocketUnsafePluginConnection != nil {
+		p.sendResponse(p._webSocketUnsafePluginConnection, cmd, 0)
 	}
 }
 
@@ -102,6 +114,16 @@ func (p *Protocol) notifyClientsDaemonExiting() {
 			// closing current connection with a client
 			conn.Close()
 		}
+
+		// WebSocket
+		conn := p._webSocketUnsafePluginConnection
+		p._webSocketUnsafePluginConnection = nil
+		if conn != nil {
+			// notifying client "service is going to stop" (client application (UI) will close)
+			p.sendResponse(conn, &types.ServiceExitingResp{}, 0)
+			// closing current connection with a client
+			conn.Close()
+		}
 	}()
 
 	// erasing clients connections
@@ -126,7 +148,7 @@ func (p *Protocol) sendResponse(conn net.Conn, cmd interface{}, idx int) (retErr
 		return fmt.Errorf("%sresponse not sent (no connection to client)", p.connLogID(conn))
 	}
 
-	if err := types.Send(conn, cmd, idx); err != nil {
+	if err := types.Send(conn, p.isUnsafeWsPlugin(conn), cmd, idx); err != nil {
 		return fmt.Errorf("%sfailed to send command: %w", p.connLogID(conn), err)
 	}
 
