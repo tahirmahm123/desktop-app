@@ -201,12 +201,8 @@ type GetVPNState struct {
 // IVPN client apps have to set force to true only when customer clicks Log all other clients button.
 type SessionNew struct {
 	CommandBase
-	AccountID  string
-	ForceLogin bool
-
-	CaptchaID       string
-	Captcha         string
-	Confirmation2FA string
+	Username string
+	Password string
 }
 
 // SessionDelete logout from current device

@@ -24,13 +24,8 @@ package types
 
 // SessionNewRequest request to create new session
 type SessionNewRequest struct {
-	AccountID  string `json:"username"`
-	PublicKey  string `json:"wg_public_key"`
-	ForceLogin bool   `json:"force"`
-
-	CaptchaID       string `json:"captcha_id,omitempty"`
-	Captcha         string `json:"captcha,omitempty"`
-	Confirmation2FA string `json:"confirmation,omitempty"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 // SessionDeleteRequest request to delete session

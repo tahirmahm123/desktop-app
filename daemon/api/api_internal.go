@@ -225,7 +225,7 @@ func (a *API) doRequestUpdateHost(urlPath string, method string, contentType str
 }
 
 func (a *API) doRequestAPIHost(ipTypeRequired types.RequiredIPProtocol, isCanUseDNS bool, urlPath string, method string, contentType string, request interface{}, timeoutMs int, timeoutDialMs int) (resp *http.Response, err error) {
-	isIPv6 := ipTypeRequired == types.IPv6
+	// isIPv6 := ipTypeRequired == types.IPv6
 
 	// timeout time for full request
 	timeout := _defaultRequestTimeout
@@ -246,23 +246,23 @@ func (a *API) doRequestAPIHost(ipTypeRequired types.RequiredIPProtocol, isCanUse
 	// (to avoid certificate errors)
 	transCfg := &http.Transport{
 		// NOTE: TLSClientConfig not in use in case of DialTLS defined
-		//TLSClientConfig: &tls.Config{
-		//	ServerName: _apiHost,
-		//},
+		TLSClientConfig: &tls.Config{
+			ServerName: _apiHost,
+		},
 
 		// using certificate key pinning
-		DialTLS: makeDialer(APIIvpnHashes, false, _apiHost, timeoutDial),
+		// DialTLS: makeDialer(APIIvpnHashes, true, _apiHost, timeoutDial),
 	}
-	if len(APIIvpnHashes) == 0 {
-		log.Warning("No pinned certificates for ", _apiHost)
-		transCfg = &http.Transport{
-			// NOTE: TLSClientConfig not in use in case of DialTLS defined
-			TLSClientConfig: &tls.Config{
-				MinVersion: tls.VersionTLS12,
-				ServerName: _apiHost,
-			},
-		}
-	}
+	// if len(APIIvpnHashes) == 0 {
+	// 	log.Warning("No pinned certificates for ", _apiHost)
+	// 	transCfg = &http.Transport{
+	// 		// NOTE: TLSClientConfig not in use in case of DialTLS defined
+	// 		TLSClientConfig: &tls.Config{
+	// 			MinVersion: tls.VersionTLS12,
+	// 			ServerName: _apiHost,
+	// 		},
+	// 	}
+	// }
 
 	// configure http-client with preconfigured TLS transport
 	client := &http.Client{Transport: transCfg, Timeout: timeout}
@@ -274,75 +274,86 @@ func (a *API) doRequestAPIHost(ipTypeRequired types.RequiredIPProtocol, isCanUse
 			return nil, err
 		}
 	}
-
+	var tokenCheck types.CheckToken
+	json.Unmarshal(data, &tokenCheck)
 	bodyBuffer := bytes.NewBuffer(data)
-
+	fmt.Println("data to be sent to server", string(data))
 	// access API by last good IP (if defined)
-	lastGoodIP := a.GetLastGoodAlternateIP(isIPv6)
-	if lastGoodIP != nil {
-		req, err := newRequest(getURL_IPHost(lastGoodIP, isIPv6, urlPath), method, contentType, bodyBuffer)
-		if err != nil {
-			return nil, err
-		}
+	// lastGoodIP := a.GetLastGoodAlternateIP(isIPv6)
+	// if lastGoodIP != nil {
+	// 	req, err := newRequest(getURL_IPHost(lastGoodIP, isIPv6, urlPath), method, contentType, bodyBuffer)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
 
-		resp, err := client.Do(req)
-		if err == nil {
-			return resp, nil
-		}
-	}
+	// 	resp, err := client.Do(req)
+	// 	if err == nil {
+	// 		return resp, nil
+	// 	}
+	// }
 
 	// try to access API server by host DNS
 	var firstResp *http.Response
 	var firstErr error
-	if isCanUseDNS {
-		req, err := newRequest(getURL(_apiHost, urlPath), method, contentType, bodyBuffer)
-		if err != nil {
-			return nil, err
-		}
-		firstResp, firstErr = client.Do(req)
-		if firstErr == nil {
-			return firstResp, firstErr
-		}
-		log.Warning("Failed to access " + _apiHost)
+	// if isCanUseDNS {
+	req, err := newRequest(getURL(_apiHost, urlPath), method, contentType, bodyBuffer)
+	if tokenCheck.Session != "" {
+		req.Header.Add("Authorization", "Bearer "+tokenCheck.Session)
+		fmt.Println("\nAuthorization Header added " + tokenCheck.Session)
+	}
+	if err != nil {
+		return nil, err
 	}
 
-	isLogNotificationPrinted := false
+	firstResp, firstErr = client.Do(req)
+	if firstErr == nil {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(firstResp.Body)
+		newStr := buf.String()
+
+		fmt.Print(newStr)
+		return firstResp, firstErr
+	}
+	log.Warning("Failed to access " + _apiHost)
+	// }
+
+	// isLogNotificationPrinted := false
 
 	// try to access API server by alternate IP
-	ips := a.getAlternateIPs(isIPv6)
-	for _, ip := range ips {
-		if ip.Equal(lastGoodIP) {
-			continue
-		}
-		if firstErr != nil && !isLogNotificationPrinted {
-			isLogNotificationPrinted = true
+	// ips := a.getAlternateIPs(isIPv6)
+	// for _, ip := range ips {
+	// 	if ip.Equal(lastGoodIP) {
+	// 		continue
+	// 	}
+	// 	if firstErr != nil && !isLogNotificationPrinted {
+	// 		isLogNotificationPrinted = true
 
-			ipVerStr := ""
-			if ipTypeRequired == types.IPv6 {
-				ipVerStr = "(IPv6)"
-			}
-			log.Info(fmt.Sprintf("Trying to use alternate API IPs %s...", ipVerStr))
-		}
+	// 		ipVerStr := ""
+	// 		if ipTypeRequired == types.IPv6 {
+	// 			ipVerStr = "(IPv6)"
+	// 		}
+	// 		log.Info(fmt.Sprintf("Trying to use alternate API IPs %s...", ipVerStr))
+	// 	}
 
-		req, err := newRequest(getURL_IPHost(ip, isIPv6, urlPath), method, contentType, bodyBuffer)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := client.Do(req)
+	// 	req, err := newRequest(getURL_IPHost(ip, isIPv6, urlPath), method, contentType, bodyBuffer)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	resp, err := client.Do(req)
 
-		if err != nil {
-			if firstErr == nil {
-				firstErr = err
-			}
-			continue
-		}
+	// 	if err != nil {
+	// 		if firstErr == nil {
+	// 			firstErr = err
+	// 		}
+	// 		continue
+	// 	}
 
-		// save last good IP
-		a.SetLastGoodAlternateIP(isIPv6, ip)
+	// 	// save last good IP
+	// 	a.SetLastGoodAlternateIP(isIPv6, ip)
 
-		log.Info("Success!")
-		return resp, err
-	}
+	// 	log.Info("Success!")
+	// 	return resp, err
+	// }
 
 	return nil, fmt.Errorf("unable to access IVPN API server: %w", firstErr)
 }
@@ -370,7 +381,6 @@ func (a *API) requestEx(host string, urlPath string, method string, contentType 
 	if err != nil {
 		return err
 	}
-
 	if err := json.Unmarshal(body, responseObject); err != nil {
 		return fmt.Errorf("failed to deserialize API response: %w", err)
 	}

@@ -127,9 +127,11 @@ const daemonResponses = Object.freeze({
 });
 
 var messageBoxFunction = null;
+
 function RegisterMsgBoxFunc(mbFunc) {
   messageBoxFunction = mbFunc;
 }
+
 async function messageBox(cfg) {
   if (!cfg || !messageBoxFunction) return null;
   return await messageBoxFunction(cfg);
@@ -504,6 +506,7 @@ async function processResponse(response) {
 }
 
 let receivedBuffer = "";
+
 function onDataReceived(received) {
   if (received == "") return;
   const responses = received.toString().split("\n");
@@ -707,17 +710,18 @@ async function ConnectToDaemon(setConnState, onDaemonExitingCallback) {
   });
 }
 
-async function Login(accountID, force, captchaID, captcha, confirmation2FA) {
+async function Login(username, password) {
+  console.log("Login ", username);
   let resp = await sendRecv({
     Command: daemonRequests.SessionNew,
-    AccountID: accountID,
-    ForceLogin: force,
-    CaptchaID: captchaID,
-    Captcha: captcha,
-    Confirmation2FA: confirmation2FA,
+    Username: username,
+    Password: password,
   });
 
-  if (resp.APIStatus === API_SUCCESS) commitSession(resp.Session);
+  if (resp.APIStatus === API_SUCCESS) {
+    let { auth, active, expired } = JSON.parse(resp.RawResponse);
+    if (auth && active && !expired) commitSession(resp.Session);
+  }
 
   // Returning whole response object (even in case of error)
   // it contains details about error
@@ -830,6 +834,7 @@ async function GetAppUpdateInfo(doManualUpdateCheck) {
 }
 
 var _geoLookupLastRequestId = 0;
+
 async function GeoLookup() {
   // Save unique 'requestID'.
   // If there are already any 'doGeoLookup()' in progress - they will be stopped due to new
@@ -977,6 +982,7 @@ async function doGeoLookup(requestID, isIPv6, isRetryTry) {
 }
 
 let pingServersPromise = null;
+
 async function PingServers(RetryCount, TimeOutMs) {
   const p = pingServersPromise;
   if (p) {
@@ -1197,6 +1203,7 @@ async function Disconnect() {
 }
 
 let isFirewallEnabledBeforePause = true;
+
 async function PauseConnection(pauseSeconds) {
   if (pauseSeconds == null) return;
   const vpnState = store.state.vpnState;
@@ -1275,6 +1282,7 @@ async function KillSwitchGetStatus() {
     Command: daemonRequests.KillSwitchGetStatus,
   });
 }
+
 async function KillSwitchSetAllowApiServers(IsAllowApiServers) {
   await sendRecv({
     Command: daemonRequests.KillSwitchSetAllowApiServers,
@@ -1290,6 +1298,7 @@ async function KillSwitchSetAllowLANMulticast(AllowLANMulticast) {
     Synchronously,
   });
 }
+
 async function KillSwitchSetAllowLAN(AllowLAN) {
   const Synchronously = true;
   await sendRecv({
@@ -1298,6 +1307,7 @@ async function KillSwitchSetAllowLAN(AllowLAN) {
     Synchronously,
   });
 }
+
 async function KillSwitchSetIsPersistent(IsPersistent) {
   if (IsPersistent === true) {
     throwIfForbiddenToEnableFirewall();
@@ -1317,6 +1327,7 @@ async function SplitTunnelGetStatus() {
   );
   return ret;
 }
+
 async function SplitTunnelSetConfig(IsEnabled, doReset) {
   await sendRecv(
     {
@@ -1575,6 +1586,7 @@ async function SetDNS(antitrackerIsEnabled) {
 }
 
 import { GetSystemDohConfigurations } from "@/helpers/main_dns";
+
 async function RequestDnsPredefinedConfigs() {
   //await sendRecv({
   //  Command: daemonRequests.GetDnsPredefinedConfigs,

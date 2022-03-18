@@ -17,14 +17,14 @@
           </div>
 
           <div style="height: 21px" />
-          <img :style="capchaImageStyle" :src="captchaImage" />
+          <img :src="captchaImage" :style="capchaImageStyle" />
           <div style="height: 12px" />
           <input
-            class="styledBig"
             ref="captcha"
-            style="text-align: center"
-            placeholder="xxxxxx"
             v-model="captcha"
+            class="styledBig"
+            placeholder="xxxxxx"
+            style="text-align: center"
             v-on:keyup="keyup($event)"
           />
         </div>
@@ -42,29 +42,37 @@
           <div style="height: 21px" />
 
           <input
-            class="styledBig"
             ref="accountid"
-            style="text-align: center"
-            placeholder="xxxxxx"
             v-model="confirmation2FA"
+            class="styledBig"
+            placeholder="xxxxxx"
+            style="text-align: center"
             v-on:keyup="keyup($event)"
           />
         </div>
         <div v-else>
           <!-- ACCOUNT ID -->
           <div class="centered">
-            <div class="large_text">Enter your Account ID</div>
+            <div class="large_text">Login to Your Account</div>
             <div style="height: 12px" />
           </div>
-
+          <p ref="errorMessage" style="color: red; display: none"></p>
           <div style="height: 21px" />
 
           <input
+            ref="username"
+            v-model="username"
             class="styledBig"
-            ref="accountid"
+            placeholder="Email/Username"
+            style="text-align: center; margin-bottom: 5px"
+            v-on:keyup="keyup($event)"
+          />
+          <input
+            ref="password"
+            v-model="password"
+            class="styledBig"
+            placeholder="Password"
             style="text-align: center"
-            placeholder="i-XXXX-... or ivpnXXXXXXXX"
-            v-model="accountID"
             v-on:keyup="keyup($event)"
           />
         </div>
@@ -93,9 +101,9 @@
       </div>
 
       <SwitchProgress
-        :onChecked="firewallOnChecked"
         :isChecked="this.$store.state.vpnState.firewallState.IsEnabled"
         :isProgress="firewallIsProgress"
+        :onChecked="firewallOnChecked"
       />
     </div>
   </div>
@@ -116,6 +124,9 @@ import {
   API_CAPTCHA_INVALID,
   API_2FA_REQUIRED,
   API_2FA_TOKEN_NOT_VALID,
+  API_INVALID_CREDENTIALS,
+  API_INACTIVE_ACCOUNT,
+  API_EXPIRED_ACCOUNT,
 } from "@/api/statuscode";
 
 function processError(e) {
@@ -142,7 +153,8 @@ export default {
     return {
       firewallIsProgress: false,
 
-      accountID: "",
+      username: "",
+      password: "",
       isProcessing: false,
 
       rawResponse: null,
@@ -162,7 +174,7 @@ export default {
     });
     this.updateColorScheme();
 
-    if (this.$refs.accountid) this.$refs.accountid.focus();
+    if (this.$refs.username) this.$refs.username.focus();
 
     if (this.$route.params.forceLoginAccount != null) {
       this.accountID = this.$route.params.forceLoginAccount;
@@ -188,17 +200,9 @@ export default {
     }
   },
   methods: {
-    async Login(isForceLogout, confirmation2FA) {
+    async Login(isForceLogout /*confirmation2FA*/) {
+      console.log(this.username, this.password);
       try {
-        // check accoundID
-        var pattern = new RegExp("^(i-....-....-....)|(ivpn[a-zA-Z0-9]{7,8})$"); // fragment locator
-        if (this.accountID) this.accountID = this.accountID.trim();
-        if (pattern.test(this.accountID) !== true) {
-          throw new Error(
-            "Your account ID has to be in 'i-XXXX-XXXX-XXXX' or 'ivpnXXXXXXXX' format. You can find it on other devices where you are logged in and in the client area of the IVPN website."
-          );
-        }
-
         if (this.is2FATokenRequired && !this.confirmation2FA) {
           sender.showMessageBoxSync({
             type: "warning",
@@ -210,17 +214,9 @@ export default {
         }
 
         this.isProcessing = true;
-        const resp = await sender.Login(
-          this.accountID,
-          isForceLogout === true || this.isForceLogoutRequested === true
-            ? true
-            : false,
-          this.captchaID,
-          this.captcha,
-          confirmation2FA ? confirmation2FA : this.confirmation2FA
-        );
+        const resp = await sender.Login(this.username, this.password);
         this.isForceLogoutRequested = false;
-
+        console.log(resp);
         const oldConfirmation2FA = this.confirmation2FA;
         this.captcha = "";
         this.confirmation2FA = "";
@@ -237,6 +233,14 @@ export default {
             throw new Error(
               `Specified two-factor authentication token is not valid`
             );
+          } else if (resp.APIStatus === API_INVALID_CREDENTIALS) {
+            throw new Error(`Invalid Credentials Provided`);
+          } else if (resp.APIStatus === API_INACTIVE_ACCOUNT) {
+            throw new Error(
+              `Account has been Deactivated by Provider. Please Contact Support`
+            );
+          } else if (resp.APIStatus === API_EXPIRED_ACCOUNT) {
+            throw new Error(`Your Account has been Expired.`);
           } else if (resp.APIStatus === API_2FA_REQUIRED) {
             // UI should be updated automatically based on data from 'resp.RawResponse'
             this.isForceLogoutRequested = isForceLogout;
@@ -382,7 +386,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .leftright_margins {
   margin-left: 20px;
   margin-right: 20px;

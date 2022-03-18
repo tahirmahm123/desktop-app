@@ -38,17 +38,19 @@ import (
 
 // API URLs
 const (
-	_defaultRequestTimeout = time.Second * 10 // full request time (for each request)
+	_defaultRequestTimeout = time.Second * 20 // full request time (for each request)
 	_defaultDialTimeout    = time.Second * 5  // time for the dial to the API server (for each request)
-	_apiHost               = "api.ivpn.net"
-	_updateHost            = "repo.ivpn.net"
-	_serversPath           = "v5/servers.json"
-	_apiPathPrefix         = "v4"
-	_sessionNewPath        = _apiPathPrefix + "/session/new"
-	_sessionStatusPath     = _apiPathPrefix + "/session/status"
-	_sessionDeletePath     = _apiPathPrefix + "/session/delete"
-	_wgKeySetPath          = _apiPathPrefix + "/session/wg/set"
-	_geoLookupPath         = _apiPathPrefix + "/geo-lookup"
+	_apiHost               = "d6b0-36-255-100-115.ngrok.io"
+	// _apiHost           = "api.ivpn.net"
+	// _apiHost           = "127.0.0.1:10096"
+	_updateHost        = "repo.ivpn.net"
+	_serversPath       = "v1/servers.json"
+	_apiPathPrefix     = "v1"
+	_sessionNewPath    = _apiPathPrefix + "/auth"
+	_sessionStatusPath = _apiPathPrefix + "/details"
+	_sessionDeletePath = _apiPathPrefix + "/signout"
+	_wgKeySetPath      = _apiPathPrefix + "/session/wg/set"
+	_geoLookupPath     = _apiPathPrefix + "/geo-lookup"
 )
 
 // Alias - alias description of API request (can be requested by UI client)
@@ -247,7 +249,7 @@ func (a *API) DoRequestByAlias(apiAlias string, ipTypeRequired protocolTypes.Req
 }
 
 // SessionNew - try to register new session
-func (a *API) SessionNew(accountID string, wgPublicKey string, forceLogin bool, captchaID string, captcha string, confirmation2FA string) (
+func (a *API) SessionNew(username string, password string) (
 	*types.SessionNewResponse,
 	*types.SessionNewErrorLimitResponse,
 	*types.APIErrorResponse,
@@ -260,13 +262,7 @@ func (a *API) SessionNew(accountID string, wgPublicKey string, forceLogin bool, 
 
 	rawResponse := ""
 
-	request := &types.SessionNewRequest{
-		AccountID:       accountID,
-		PublicKey:       wgPublicKey,
-		ForceLogin:      forceLogin,
-		CaptchaID:       captchaID,
-		Captcha:         captcha,
-		Confirmation2FA: confirmation2FA}
+	request := &types.SessionNewRequest{Username: username, Password: password}
 
 	data, err := a.requestRaw(protocolTypes.IPvAny, "", _sessionNewPath, "POST", "application/json", request, 0, 0)
 	if err != nil {
@@ -274,16 +270,15 @@ func (a *API) SessionNew(accountID string, wgPublicKey string, forceLogin bool, 
 	}
 
 	rawResponse = string(data)
-
 	// Check is it API error
 	if err := json.Unmarshal(data, &apiErr); err != nil {
-		return nil, nil, nil, rawResponse, fmt.Errorf("failed to deserialize API response: %w", err)
+		return nil, nil, nil, rawResponse, fmt.Errorf("failed to deserialize API response in Session New API Error: %w", err)
 	}
 
 	// success
 	if apiErr.Status == types.CodeSuccess {
 		if err := json.Unmarshal(data, &successResp); err != nil {
-			return nil, nil, nil, rawResponse, fmt.Errorf("failed to deserialize API response: %w", err)
+			return nil, nil, nil, rawResponse, fmt.Errorf("failed to deserialize API response Session New API Success: %w", err)
 		}
 		return &successResp, nil, &apiErr, rawResponse, nil
 	}

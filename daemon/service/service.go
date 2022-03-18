@@ -1315,7 +1315,7 @@ func (s *Service) setCredentials(accountID, session, vpnUser, vpnPass, wgPublicK
 }
 
 // SessionNew creates new session
-func (s *Service) SessionNew(accountID string, forceLogin bool, captchaID string, captcha string, confirmation2FA string) (
+func (s *Service) SessionNew(username string, password string) (
 	apiCode int,
 	apiErrorMsg string,
 	accountInfo preferences.AccountStatus,
@@ -1356,7 +1356,7 @@ func (s *Service) SessionNew(accountID string, forceLogin bool, captchaID string
 
 		}
 	}()
-	successResp, errorLimitResp, apiErr, rawRespStr, err := s._api.SessionNew(accountID, publicKey, forceLogin, captchaID, captcha, confirmation2FA)
+	successResp, errorLimitResp, apiErr, rawRespStr, err := s._api.SessionNew(username, password)
 	rawResponse = rawRespStr
 
 	apiCode = 0
@@ -1387,13 +1387,12 @@ func (s *Service) SessionNew(accountID string, forceLogin bool, captchaID string
 	// get account status info
 	accountInfo = s.createAccountStatus(successResp.ServiceStatus)
 
-	s.setCredentials(accountID,
+	s.setCredentials(username,
 		successResp.Token,
 		successResp.VpnUsername,
 		successResp.VpnPassword,
 		publicKey,
-		privateKey,
-		successResp.WireGuard.IPAddress, 0)
+		privateKey, "", 0)
 
 	return apiCode, "", accountInfo, rawResponse, nil
 }

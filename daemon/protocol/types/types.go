@@ -40,6 +40,10 @@ type CommandBase struct {
 	Idx int
 }
 
+type CheckToken struct {
+	Session string `json:"session_token,omitempty"`
+}
+
 // Send sends a command to a connection : init+serialize+send
 func Send(conn net.Conn, cmd interface{}, idx int) (retErr error) {
 	defer func() {

@@ -52,20 +52,16 @@ type ServiceStatusAPIResp struct {
 // SessionNewResponse information about created session
 type SessionNewResponse struct {
 	APIErrorResponse
-	Token       string `json:"token"`
+	Token       string `json:"ApiToken"`
 	VpnUsername string `json:"vpn_username"`
 	VpnPassword string `json:"vpn_password"`
 
-	CaptchaID    string `json:"captcha_id"`
-	CaptchaImage string `json:"captcha_image"`
-
 	ServiceStatus ServiceStatusAPIResp `json:"service_status"`
 
-	WireGuard struct {
-		Status    int    `json:"status"`
-		Message   string `json:"message,omitempty"`
-		IPAddress string `json:"ip_address,omitempty"`
-	} `json:"wireguard"`
+	Authenticated bool   `json:"auth"`
+	Active        bool   `json:"active"`
+	IsExpired     bool   `json:"expired"`
+	ExpiryDate    string `json:"expiry_date"`
 }
 
 // SessionNewErrorLimitResponse information about session limit error
@@ -95,8 +91,8 @@ type GeoLookupResponse struct {
 	//country_code string
 	//city         string
 
-	Latitude  float32 `json:"latitude"`
-	Longitude float32 `json:"longitude"`
+	Latitude  float64 `json:"latitude,omitempty"`
+	Longitude float64 `json:"longitude,omitempty"`
 
 	//isIvpnServer bool
 }
