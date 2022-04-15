@@ -36,6 +36,7 @@ type IServersUpdater interface {
 	GetServers() (*types.ServersInfoResponse, error)
 	// UpdateNotifierChannel returns channel which is notifying when servers was updated
 	UpdateNotifierChannel() chan struct{}
+	startService(string)
 }
 
 // INetChangeDetector - object is detecting routing changes on a PC

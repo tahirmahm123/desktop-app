@@ -35,18 +35,10 @@ type APIErrorResponse struct {
 
 // ServiceStatusAPIResp account info
 type ServiceStatusAPIResp struct {
-	Active         bool     `json:"is_active"`
-	ActiveUntil    int64    `json:"active_until"`
-	CurrentPlan    string   `json:"current_plan"`
-	PaymentMethod  string   `json:"payment_method"`
-	IsRenewable    bool     `json:"is_renewable"`
-	WillAutoRebill bool     `json:"will_auto_rebill"`
-	IsFreeTrial    bool     `json:"is_on_free_trial"`
-	Capabilities   []string `json:"capabilities"`
-	Upgradable     bool     `json:"upgradable"`
-	UpgradeToPlan  string   `json:"upgrade_to_plan"`
-	UpgradeToURL   string   `json:"upgrade_to_url"`
-	Limit          int      `json:"limit"` // applicable for 'session limit' error
+	Active      bool   `json:"is_active"`
+	ActiveUntil int64  `json:"expiry_date"`
+	IsFreeTrial bool   `json:"trial"`
+	CurrentPlan string `json:"plan"`
 }
 
 // SessionNewResponse information about created session
@@ -56,7 +48,7 @@ type SessionNewResponse struct {
 	VpnUsername string `json:"vpn_username"`
 	VpnPassword string `json:"vpn_password"`
 
-	ServiceStatus ServiceStatusAPIResp `json:"service_status"`
+	ServiceStatus ServiceStatusAPIResp `json:"service_status:omitempty"`
 
 	Authenticated bool   `json:"auth"`
 	Active        bool   `json:"active"`

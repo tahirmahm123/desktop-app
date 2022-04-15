@@ -1,6 +1,7 @@
+//go:build darwin && libivpn
 // +build darwin,libivpn
 
-package main
+package launcher
 
 import (
 	"github.com/ivpn/desktop-app/daemon/logger"

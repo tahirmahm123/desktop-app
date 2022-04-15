@@ -96,7 +96,20 @@ type ConfigInfo struct {
 
 // ServersInfoResponse all info from servers.json
 type ServersInfoResponse struct {
-	WireguardServers []WireGuardServerInfo `json:"wireguard"`
-	OpenvpnServers   []OpenvpnServerInfo   `json:"openvpn"`
-	Config           ConfigInfo            `json:"config"`
+	OpenVPNConfig string            `json:"certificate"`
+	Servers       []ServerByCountry `json:"data"`
+}
+
+type ServerByCountry struct {
+	Flag    string         `json:"flag"`
+	Country string         `json:"country"`
+	Hosts   []ServerObject `json:"hosts"`
+}
+
+type ServerObject struct {
+	Id      int    `json:"id"`
+	Name    string `json:"name"`
+	IP      string `json:"ip"`
+	Port    int    `json:"port"`
+	Country string `json:"country"`
 }

@@ -22,6 +22,8 @@
 
 package main
 
+import "github.com/ivpn/desktop-app/daemon/launcher"
+
 func main() {
-	Launch()
+	launcher.Launch()
 }

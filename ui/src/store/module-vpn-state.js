@@ -99,7 +99,10 @@ export default {
 
     // Servers hash object: serversHashed[gateway] = server
     serversHashed: {},
-    servers: { wireguard: [], openvpn: [], config: {} },
+    servers: {
+      data: [],
+      certificate: "",
+    },
 
     // true when servers pinging in progress
     isPingingServers: false,
@@ -126,8 +129,8 @@ export default {
               host: "",
               public_key: "",
               local_ip: "",
-              ipv6: 
-              {                        
+              ipv6:
+              {
                 local_ip: "",
                 host: "",
                 multihop_port: 0
@@ -146,7 +149,7 @@ export default {
 	        longitude: 0,
           ping: ??? // property added after receiving ping info from daemon
           pingQuality: ??? // PingQuality (Good, Moderate, Bad) - property calculated after receiving ping info from daemon
-          
+
           hosts: [
             {
               hostname: "",
@@ -421,15 +424,16 @@ function updateDnsSettings(context) {
 
 function getActiveServers(state, rootState) {
   const vpnType = rootState.settings.vpnType;
-  const enableIPv6InTunnel = rootState.settings.enableIPv6InTunnel;
-  const showGatewaysWithoutIPv6 = rootState.settings.showGatewaysWithoutIPv6;
+  // const enableIPv6InTunnel = rootState.settings.enableIPv6InTunnel;
+  // const showGatewaysWithoutIPv6 = rootState.settings.showGatewaysWithoutIPv6;
+  console.log(vpnType);
+  // if (vpnType === VpnTypeEnum.OpenVPN) {
+  // IPv6 in not implemented for OpenVPN
+  console.log("Get Servers: ", JSON.stringify(state.servers.data));
+  return state.servers.data;
+  // }
 
-  if (vpnType === VpnTypeEnum.OpenVPN) {
-    // IPv6 in not implemented for OpenVPN
-    return state.servers.openvpn;
-  }
-
-  let wgServers = state.servers.wireguard;
+  /*let wgServers = state.servers.wireguard;
   if (enableIPv6InTunnel == true && showGatewaysWithoutIPv6 != true) {
     // show only servers which support IPv6
     return wgServers.filter((s) => {
@@ -437,7 +441,7 @@ function getActiveServers(state, rootState) {
     });
   }
 
-  return wgServers;
+  return wgServers;*/
 }
 
 function findServerByIp(servers, ip) {
@@ -477,7 +481,7 @@ function updateServersPings(state, pings) {
 
   let funcGetPing = function (s) {
     for (let i = 0; i < s.hosts.length; i++) {
-      let pingValFoHost = hashedPings[s.hosts[i].host];
+      let pingValFoHost = hashedPings[s.hosts[i].ip];
       if (pingValFoHost != null) {
         s.ping = pingValFoHost;
         s.pingQuality = getPingQuality(s.ping);
@@ -486,11 +490,11 @@ function updateServersPings(state, pings) {
     }
   };
 
-  state.servers.wireguard.forEach((s) => {
-    funcGetPing(s);
-  });
+  // state.servers.wireguard.forEach((s) => {
+  //   funcGetPing(s);
+  // });
 
-  state.servers.openvpn.forEach((s) => {
+  state.servers.data.forEach((s) => {
     funcGetPing(s);
   });
 }
@@ -507,18 +511,11 @@ function isServerSupportIPv6(server) {
 
 function updateServers(state, newServers) {
   if (newServers == null) return;
-
+  console.log("new servers", newServers);
   // ensure all required properties are defined (even with empty values)
   let serversEmpty = {
-    wireguard: [],
-    openvpn: [],
-    config: {
-      antitracker: {
-        default: {},
-        hardcore: {},
-      },
-      api: { ips: [], ipv6s: [] },
-    },
+    data: [],
+    certificate: "",
   };
   newServers = Object.assign(serversEmpty, newServers);
 
@@ -531,13 +528,14 @@ function updateServers(state, newServers) {
       svr.ping = null; // initialize 'ping' field to support VUE reactivity for it
       svr.pingQuality = null;
       svr.isIPv6 = isServerSupportIPv6(svr);
-      retObj[svr.gateway] = svr; // hash
+      retObj[svr.flag] = svr; // hash
     }
     return retObj;
   }
 
-  let hash = initNewServersAndCreateHash(null, newServers.wireguard);
-  state.serversHashed = initNewServersAndCreateHash(hash, newServers.openvpn);
+  // let hash = initNewServersAndCreateHash(null, newServers.wireguard);
+  state.serversHashed = initNewServersAndCreateHash(null, newServers.data);
+  console.log(state.serversHashed);
 
   // copy ping value from old objects
   function copySvrsDataFromOld(oldServers, newServersHashed) {
@@ -551,17 +549,17 @@ function updateServers(state, newServers) {
       newSrv.pingQuality = oldSrv.pingQuality;
     }
   }
-  copySvrsDataFromOld(state.servers.wireguard, state.serversHashed);
-  copySvrsDataFromOld(state.servers.openvpn, state.serversHashed);
+
+  copySvrsDataFromOld(state.servers.data, state.serversHashed);
 
   // sort new servers (by country/city)
-  function compare(a, b) {
-    let ret = a.country_code.localeCompare(b.country_code);
-    if (ret != 0) return ret;
-    return a.city.localeCompare(b.city);
-  }
-  newServers.wireguard.sort(compare);
-  newServers.openvpn.sort(compare);
+  // function compare(a, b) {
+  //   let ret = a.country_code.localeCompare(b.country_code);
+  //   if (ret != 0) return ret;
+  //   return a.city.localeCompare(b.city);
+  // }
+
+  // newServers.data.sort(compare);
 
   // save servers
   state.servers = newServers;

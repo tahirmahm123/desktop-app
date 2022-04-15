@@ -63,6 +63,7 @@ const daemonRequests = Object.freeze({
 
   PingServers: "PingServers",
   SessionNew: "SessionNew",
+  ServerList: "ServerList",
   SessionDelete: "SessionDelete",
   AccountStatus: "AccountStatus",
   Connect: "Connect",
@@ -288,8 +289,8 @@ async function processResponse(response) {
 
   if (obj != null && obj.Command != null) {
     // TODO: Full logging is only for debug. Must be removed from production!
-    //log.log(`<== ${obj.Command} ${response.length > 512 ? " ..." : response}`);
-    //log.log(`<== ${response}`);
+    log.log(`<== ${obj.Command} ${response.length > 512 ? " ..." : response}`);
+    log.log(`<== ${response}`);
     log.debug(`<== ${obj.Command} [${obj.Idx}]`);
   } else log.error(`<== ${response}`);
 
@@ -326,6 +327,7 @@ async function processResponse(response) {
         !store.getters["account/isAccountStateExists"]
       ) {
         AccountStatus();
+        ServerList();
       }
 
       if (obj.DisabledFunctions) {
@@ -407,7 +409,7 @@ async function processResponse(response) {
       if (obj.PingResults == null) break;
       store.commit(`vpnState/serversPingStatus`, obj.PingResults);
       // update ping time info for selected servers
-      store.dispatch("settings/notifySelectedServersPropsUpdated");
+      // store.dispatch("settings/notifySelectedServersPropsUpdated");
       break;
 
     case daemonResponses.SetAlternateDNSResp:
@@ -648,8 +650,9 @@ async function ConnectToDaemon(setConnState, onDaemonExitingCallback) {
           try {
             await promiseWaiterServers;
           } catch (e) {
-            disconnectDaemonFunc(Error(`Timeout: obtaining servers list`)); // REJECT
-            return;
+            // disconnectDaemonFunc(Error(`Timeout: obtaining servers list`)); // REJECT
+            // return;
+            console.log(`Timeout: obtaining servers list`);
           }
 
           // Saving 'connected' state to a daemon
@@ -674,9 +677,9 @@ async function ConnectToDaemon(setConnState, onDaemonExitingCallback) {
             }
           }, 0);
 
-          const pingRetryCount = 5;
-          const pingTimeOutMs = 5000;
-          PingServers(pingRetryCount, pingTimeOutMs);
+          // const pingRetryCount = 5;
+          // const pingTimeOutMs = 5000;
+          // PingServers(pingRetryCount, pingTimeOutMs);
 
           resolve(); // RESOLVE
         } catch (e) {
@@ -722,6 +725,18 @@ async function Login(username, password) {
     let { auth, active, expired } = JSON.parse(resp.RawResponse);
     if (auth && active && !expired) commitSession(resp.Session);
   }
+
+  // Returning whole response object (even in case of error)
+  // it contains details about error
+  return resp;
+}
+
+async function ServerList() {
+  let resp = await sendRecv({
+    Command: daemonRequests.ServerList,
+  });
+
+  log.info("server list requested");
 
   // Returning whole response object (even in case of error)
   // it contains details about error
@@ -849,9 +864,9 @@ async function GeoLookup() {
   store.commit("locationIPv6", null);
 
   // IPv4 request...
-  doGeoLookup(_geoLookupLastRequestId);
-  // IPv6 request ...
-  doGeoLookup(_geoLookupLastRequestId, true);
+  // doGeoLookup(_geoLookupLastRequestId);
+  // // IPv6 request ...
+  // doGeoLookup(_geoLookupLastRequestId, true);
 }
 
 async function doGeoLookup(requestID, isIPv6, isRetryTry) {
@@ -932,6 +947,7 @@ async function doGeoLookup(requestID, isIPv6, isRetryTry) {
         log.warn(`Skip geo-lookup result ${ipVerStr} (conn. state changed)`);
       } else {
         // {"ip_address":"","isp":"","organization":"","country":"","country_code":"","city":"","latitude": 0.0,"longitude":0.0,"isIvpnServer":false}
+        console.warn("trying to get data", resp);
         retLocation = JSON.parse(`${resp.ResponseData}`);
         if (!retLocation || !retLocation.latitude || !retLocation.longitude) {
           log.warn(`API ERROR: bad geo-lookup response`);
@@ -948,7 +964,7 @@ async function doGeoLookup(requestID, isIPv6, isRetryTry) {
       }
     }
   } catch (e) {
-    log.warn(`geo-lookup error ${ipVerStr}`, e.toString());
+    log.warn(`line 951 geo-lookup error ${ipVerStr}`, e.toString());
     setCorrectGeoIPView();
   } finally {
     store.commit(propName_IsRequestingLocation, false); // un-mark 'Checking geolookup...'
@@ -1648,6 +1664,8 @@ export default {
   Login,
   Logout,
   AccountStatus,
+
+  ServerList,
 
   GetAppUpdateInfo,
 

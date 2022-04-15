@@ -98,6 +98,9 @@ export default {
   Login: async (username, password) => {
     return await invoke("renderer-request-login", username, password);
   },
+  ServerList: async () => {
+    return await invoke("renderer-request-serverlist");
+  },
   Logout: async (
     needToResetSettings,
     needToDisableFirewall,

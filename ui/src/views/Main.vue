@@ -18,32 +18,32 @@
               <img src="@/assets/settings.svg" />
             </button>
 
-            <button v-on:click="onMaximize(true)">
-              <img src="@/assets/maximize.svg" />
-            </button>
+            <!--            <button v-on:click="onMaximize(true)">
+                          <img src="@/assets/maximize.svg" />
+                        </button>-->
           </div>
         </transition>
       </div>
       <div class="flexColumn" style="min-height: 0px">
-        <transition name="fade" mode="out-in">
+        <transition mode="out-in" name="fade">
           <component
             v-bind:is="currentViewComponent"
-            :onConnectionSettings="onConnectionSettings"
-            :onWifiSettings="onWifiSettings"
-            :onDefaultView="onDefaultLeftView"
             id="left"
+            :onConnectionSettings="onConnectionSettings"
+            :onDefaultView="onDefaultLeftView"
+            :onWifiSettings="onWifiSettings"
           ></component>
         </transition>
       </div>
     </div>
-    <div id="right" v-if="!isMinimizedUI">
-      <transition name="fade" appear>
-        <Map
-          :isBlured="isMapBlured"
-          :onAccountSettings="onAccountSettings"
-          :onSettings="onSettings"
-          :onMinimize="() => onMaximize(false)"
-        />
+    <div v-if="!isMinimizedUI" id="right">
+      <transition appear name="fade">
+        <!--        <Map
+                  :isBlured="isMapBlured"
+                  :onAccountSettings="onAccountSettings"
+                  :onMinimize="() => onMaximize(false)"
+                  :onSettings="onSettings"
+                />-->
       </transition>
     </div>
   </div>
@@ -140,7 +140,7 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "@/components/scss/constants";
 
 #flexview {
@@ -154,6 +154,7 @@ export default {
   min-width: 320px;
   max-width: 320px;
 }
+
 #right {
   width: 0%; // ???
   flex-grow: 1;

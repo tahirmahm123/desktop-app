@@ -12,7 +12,6 @@ rem ==================================================
 SET INSTALLER_OUT_DIR=%SCRIPTDIR%bin
 set INSTALLER_TMP_DIR=%INSTALLER_OUT_DIR%\temp
 SET FILE_LIST=%SCRIPTDIR%Installer\release-files.txt
-SET FILE_LIST_CI_TEST=%SCRIPTDIR%Installer\release-files-CI-build-Test.txt
 
 set APPVER=???
 set SERVICE_REPO=%SCRIPTDIR%..\..\..\daemon
@@ -53,20 +52,20 @@ goto :success
 
 	set VERSTR=???
 	set PackageJsonFile=%SCRIPTDIR%..\..\package.json
-	set VerRegExp=^ *\"version\": *\".*\", *
+	set VerRegExp=^ *\"version\": *\".*\", *$
 
 	set cmd=findstr /R /C:"%VerRegExp%" "%PackageJsonFile%"
 	rem Find string in file
 	FOR /F "tokens=* USEBACKQ" %%F IN (`%cmd%`) DO SET VERSTR=%%F
 	if	"%VERSTR%" == "???" (
-		echo [!] ERROR: The file shall contain '"version": "X.X.X"' string
+		echo "[!] ERROR: The file shall contain '"version": "X.X.X"' string"
 		exit /b 1
  	)
 	rem Get substring in quotes
 	for /f tokens^=3^ delims^=^" %%a in ("%VERSTR%") do (
 			set APPVER=%%a
 	)
-
+ 
 	goto :eof
 
 :build_service
@@ -125,16 +124,8 @@ goto :success
 	set BIN_FOLDER_SERVICE_REFS=%SERVICE_REPO%\References\Windows\
 	set BIN_FOLDER_CLI=%CLI_REPO%\bin\x86_64\
 
-	set FILES_TO_INTEGRATE=%FILE_LIST%
-	if "%GITHUB_ACTIONS%" == "true" (
-	  echo "! GITHUB_ACTIONS detected ! It is just a build test."
-	  echo "! Skipped compilation integration of some binatires into installer !"
-
-		set FILES_TO_INTEGRATE=%FILE_LIST_CI_TEST%
-	)
-
 	setlocal EnableDelayedExpansion
-	for /f "tokens=*" %%i in (%FILES_TO_INTEGRATE%) DO (
+	for /f "tokens=*" %%i in (%FILE_LIST%) DO (
 		set SRCPATH=???
 		if exist "%BIN_FOLDER_SERVICE%%%i" set SRCPATH=%BIN_FOLDER_SERVICE%%%i
 		if exist "%BIN_FOLDER_CLI%%%i" set SRCPATH=%BIN_FOLDER_CLI%%%i

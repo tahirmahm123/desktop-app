@@ -176,12 +176,12 @@ export default {
       state.isMultiHop = isMH;
     },
     serverEntry(state, srv) {
-      if (srv == null || srv.gateway == null)
+      if (srv == null)
         throw new Error("Unable to change server. Wrong server object.");
       state.serverEntry = srv;
     },
     serverExit(state, srv) {
-      if (srv == null || srv.gateway == null)
+      if (srv == null)
         throw new Error("Unable to change server. Wrong server object.");
       state.serverExit = srv;
     },
@@ -565,7 +565,7 @@ function updateSelectedServers(context) {
   const state = context.state;
   const servers = context.rootGetters["vpnState/activeServers"];
   const serversHashed = context.rootState.vpnState.serversHashed;
-  if (servers.length <= 0) return;
+  if (servers == null || servers.length <= 0) return;
 
   let serverEntry = state.serverEntry;
   let serverExit = state.serverExit;
@@ -581,6 +581,7 @@ function updateSelectedServers(context) {
     }
     return null;
   }
+
   function findServerFromLocation(servers, countryCode, city) {
     let retServerByCountry = null;
     for (let i = 0; i < servers.length; i++) {
@@ -595,10 +596,10 @@ function updateSelectedServers(context) {
 
   // ensure if selected servers exists in a servers list and using latest data
   if (serverEntry != null) {
-    serverEntry = serversHashed[serverEntry.gateway];
+    serverEntry = serversHashed[serverEntry.flag];
   }
   if (serverExit != null) {
-    serverExit = serversHashed[serverExit.gateway];
+    serverExit = serversHashed[serverExit.flag];
   }
 
   // ensure selected servers have correct VPN type (if not - use correct server from same location)

@@ -29,7 +29,6 @@ import (
 	"net"
 	"os"
 	"reflect"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -202,24 +201,27 @@ func (s *Service) init() error {
 	s.updateAPIAddrInFWExceptions()
 	// servers updated notifier
 	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Error("PANIC in Servers update notifier!: ", r)
-				if err, ok := r.(error); ok {
-					log.ErrorTrace(err)
+		session := s.Preferences().Session
+		if session.IsLoggedIn() {
+			s._serversUpdater.startService(session.Session)
+			defer func() {
+				if r := recover(); r != nil {
+					log.Error("PANIC in Servers update notifier!: ", r)
+					if err, ok := r.(error); ok {
+						log.ErrorTrace(err)
+					}
+				}
+			}()
+			log.Info("Servers update notifier started")
+			for {
+				// wait for 'servers updated' event
+				<-s._serversUpdater.UpdateNotifierChannel()
+				// notify clients
+				servers, err := s._serversUpdater.GetServers()
+				if err != nil {
+					s._evtReceiver.OnServersUpdated(servers)
 				}
 			}
-		}()
-
-		log.Info("Servers update notifier started")
-		for {
-			// wait for 'servers updated' event
-			<-s._serversUpdater.UpdateNotifierChannel()
-			// notify clients
-			svrs, _ := s.ServersList()
-			s._evtReceiver.OnServersUpdated(svrs)
-			// update firewall rules: notify firewall about new IP addresses of IVPN API
-			s.updateAPIAddrInFWExceptions()
 		}
 	}()
 
@@ -252,7 +254,7 @@ func (s *Service) SetVpnSessionInfo(i VpnSessionInfo) {
 }
 
 func (s *Service) updateAPIAddrInFWExceptions() {
-	svrs, _ := s.ServersList()
+	/*svrs, _ := s.ServersList()
 
 	ivpnAPIAddr := svrs.Config.API.IPAddresses
 
@@ -277,7 +279,7 @@ func (s *Service) updateAPIAddrInFWExceptions() {
 		} else {
 			firewall.RemoveHostsFromExceptions(apiAddrs, onlyForICMP, isPersistent)
 		}
-	}
+	}*/
 }
 
 // OnControlConnectionClosed - Perform reqired operations when protocol (controll channel with UI application) was closed
@@ -297,9 +299,9 @@ func (s *Service) OnControlConnectionClosed() (isServiceMustBeClosed bool, err e
 }
 
 // ServersList - get VPN servers info
-func (s *Service) ServersList() (*types.ServersInfoResponse, error) {
-	return s._serversUpdater.GetServers()
-}
+//func (s *Service) ServersList() (*types.ServersInfoResponse, error) {
+//	return s._serversUpdater.GetServers()
+//}
 
 // APIRequest do custom request to API
 func (s *Service) APIRequest(apiAlias string, ipTypeRequired protocolTypes.RequiredIPProtocol) (responseData []byte, err error) {
@@ -1020,40 +1022,18 @@ func (s *Service) getHostsToPing(currentLocation *types.GeoLookupResponse) ([]ne
 		host      net.IP
 	}
 
-	hosts := make([]hostInfo, 0, uint16(len(servers.OpenvpnServers)+len(servers.WireguardServers)))
+	hosts := make([]hostInfo, 0, uint16(len(servers.Servers)))
 
 	// OpenVPN servers
-	for _, s := range servers.OpenvpnServers {
+	for _, s := range servers.Servers {
 		if len(s.Hosts) <= 0 {
 			continue
 		}
 
-		ip := net.ParseIP(s.Hosts[0].Host)
+		ip := net.ParseIP(s.Hosts[0].IP)
 		if ip != nil {
-			hosts = append(hosts, hostInfo{Latitude: s.Latitude, Longitude: s.Longitude, host: ip})
+			hosts = append(hosts, hostInfo{host: ip})
 		}
-	}
-
-	// ping each WireGuard server
-	for _, s := range servers.WireguardServers {
-		if len(s.Hosts) <= 0 {
-			continue
-		}
-
-		ip := net.ParseIP(s.Hosts[0].Host)
-		if ip != nil {
-			hosts = append(hosts, hostInfo{Latitude: s.Latitude, Longitude: s.Longitude, host: ip})
-		}
-	}
-
-	if currentLocation != nil {
-		cLat := float64(currentLocation.Latitude)
-		cLot := float64(currentLocation.Longitude)
-		sort.Slice(hosts, func(i, j int) bool {
-			di := helpers.GetDistanceFromLatLonInKm(cLat, cLot, float64(hosts[i].Latitude), float64(hosts[i].Longitude))
-			dj := helpers.GetDistanceFromLatLonInKm(cLat, cLot, float64(hosts[j].Latitude), float64(hosts[j].Longitude))
-			return di < dj
-		})
 	}
 	ret := make([]net.IP, 0, len(hosts))
 	for _, h := range hosts {
@@ -1274,7 +1254,7 @@ func (s *Service) SplitTunnelling_RemoveApp(pid int, exec string) (err error) {
 	return s.implSplitTunnelling_RemoveApp(pid, exec)
 }
 
-// Inform the daemon about started process in ST environment
+// SplitTunnelling_AddedPidInfo Inform the daemon about started process in ST environment
 // Parameters:
 // pid 			- process PID
 // exec 		- Command executed in ST environment (e.g. binary + arguments)
@@ -1375,7 +1355,6 @@ func (s *Service) SessionNew(username string, password string) (
 		if apiErr != nil {
 			return apiCode, apiErr.Message, accountInfo, rawResponse, err
 		}
-
 		// not API error
 		return apiCode, "", accountInfo, rawResponse, err
 	}
@@ -1395,6 +1374,25 @@ func (s *Service) SessionNew(username string, password string) (
 		privateKey, "", 0)
 
 	return apiCode, "", accountInfo, rawResponse, nil
+}
+
+func (s *Service) ServersList() (
+	response *types.ServersInfoResponse,
+	rawResponse string,
+	err error) {
+	session := s.Preferences().Session
+	if !session.IsLoggedIn() {
+		return nil, "", srverrors.ErrorNotLoggedIn{}
+	}
+	resp, list, err := s._api.ServersList(session.Session)
+	if err != nil {
+		return nil, "", err
+	}
+	err = writeServersToCache(resp)
+	if err != nil {
+		fmt.Println("unable to write servers data to file.")
+	}
+	return resp, list, err
 }
 
 // SessionDelete removes session info
@@ -1483,7 +1481,7 @@ func (s *Service) RequestSessionStatus() (
 
 	log.Info("Requesting session status...")
 	stat, apiErr, err := s._api.SessionStatus(session.Session)
-	log.Info("Session status request: done")
+	log.Info(fmt.Sprintf("Session status request: done code: %d", apiCode))
 
 	currSession := s.Preferences().Session
 	if currSession.Session != session.Session {
@@ -1496,7 +1494,6 @@ func (s *Service) RequestSessionStatus() (
 	apiCode = 0
 	if apiErr != nil {
 		apiCode = apiErr.Status
-
 		// Session not found - can happens when user forced to logout from another device
 		if apiCode == types.SessionNotFound {
 			s.OnSessionNotFound()
@@ -1535,18 +1532,10 @@ func (s *Service) RequestSessionStatus() (
 
 func (s *Service) createAccountStatus(apiResp types.ServiceStatusAPIResp) preferences.AccountStatus {
 	return preferences.AccountStatus{
-		Active:         apiResp.Active,
-		ActiveUntil:    apiResp.ActiveUntil,
-		CurrentPlan:    apiResp.CurrentPlan,
-		PaymentMethod:  apiResp.PaymentMethod,
-		IsRenewable:    apiResp.IsRenewable,
-		WillAutoRebill: apiResp.WillAutoRebill,
-		IsFreeTrial:    apiResp.IsFreeTrial,
-		Capabilities:   apiResp.Capabilities,
-		Upgradable:     apiResp.Upgradable,
-		UpgradeToPlan:  apiResp.UpgradeToPlan,
-		UpgradeToURL:   apiResp.UpgradeToURL,
-		Limit:          apiResp.Limit}
+		Active:      apiResp.Active,
+		ActiveUntil: apiResp.ActiveUntil,
+		CurrentPlan: apiResp.CurrentPlan,
+		IsFreeTrial: apiResp.IsFreeTrial}
 }
 
 func (s *Service) startSessionChecker() {

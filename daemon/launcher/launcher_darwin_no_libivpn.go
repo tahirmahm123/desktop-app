@@ -1,6 +1,7 @@
+//go:build darwin && !libivpn
 // +build darwin,!libivpn
 
-package main
+package launcher
 
 // inform OS-specific implementation about listener port
 func implStartedOnPort(openedPort int, secret uint64) {

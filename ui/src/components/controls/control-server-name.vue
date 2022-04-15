@@ -2,24 +2,24 @@
   <div class="main">
     <div class="flexColumn" style="min-width: 22px">
       <img
+        v-show="isImgLoadError !== true"
+        :src="serverImage"
         class="pic"
         v-bind:class="{
           flag: isCountryFlagInUse,
         }"
-        :src="serverImage"
-        v-show="isImgLoadError !== true"
         @error="onImgLoadError"
       />
     </div>
 
     <div
-      class="textBloack text"
       v-if="isShowSingleLine"
+      class="textBloack text"
       v-bind:class="{ text_large: isLargeText, firstLine: !isSingleLine }"
     >
       {{ singleLine }}
     </div>
-    <div class="textBloack text" v-else>
+    <div v-else class="textBloack text">
       <div class="text firstLine">
         {{ multilineFirstLine }}
       </div>
@@ -113,7 +113,7 @@ export default {
       if (this.isRandomServer === true) return Image_shuffle;
       if (!this.server) return `/flags/unk.svg`;
       try {
-        const ccode = this.server.country_code.toUpperCase();
+        const ccode = this.server.flag.toUpperCase();
         return `/flags/svg/${ccode}.svg`;
       } catch (e) {
         console.log(e);
@@ -143,8 +143,9 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "@/components/scss/constants";
+
 .main {
   display: flex;
 }

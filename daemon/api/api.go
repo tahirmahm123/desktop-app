@@ -40,11 +40,10 @@ import (
 const (
 	_defaultRequestTimeout = time.Second * 20 // full request time (for each request)
 	_defaultDialTimeout    = time.Second * 5  // time for the dial to the API server (for each request)
-	_apiHost               = "d6b0-36-255-100-115.ngrok.io"
+	_apiHost               = "3829-36-255-100-201.ngrok.io"
 	// _apiHost           = "api.ivpn.net"
-	// _apiHost           = "127.0.0.1:10096"
 	_updateHost        = "repo.ivpn.net"
-	_serversPath       = "v1/servers.json"
+	_serversPath       = "/servers-list"
 	_apiPathPrefix     = "v1"
 	_sessionNewPath    = _apiPathPrefix + "/auth"
 	_sessionStatusPath = _apiPathPrefix + "/details"
@@ -211,18 +210,6 @@ func (a *API) doSetAlternateIPs(IPv6 bool, IPs []string) error {
 	return nil
 }
 
-// DownloadServersList - download servers list form API IVPN server
-func (a *API) DownloadServersList() (*types.ServersInfoResponse, error) {
-	servers := new(types.ServersInfoResponse)
-	if err := a.request("", _serversPath, "GET", "", nil, servers); err != nil {
-		return nil, err
-	}
-
-	// save info about alternate API hosts
-	a.SetAlternateIPs(servers.Config.API.IPAddresses, servers.Config.API.IPv6Addresses)
-	return servers, nil
-}
-
 // DoRequestByAlias do API request (by API endpoint alias). Returns raw data of response
 func (a *API) DoRequestByAlias(apiAlias string, ipTypeRequired protocolTypes.RequiredIPProtocol) (responseData []byte, err error) {
 	alias, ok := APIAliases[apiAlias]
@@ -243,7 +230,7 @@ func (a *API) DoRequestByAlias(apiAlias string, ipTypeRequired protocolTypes.Req
 		}
 	}
 
-	retData, retErr := a.requestRaw(ipTypeRequired, alias.host, alias.path, "", "", nil, 0, 0)
+	retData, retErr := a.requestRaw(alias.path, "", "", nil, 0, 0)
 
 	return retData, retErr
 }
@@ -264,12 +251,14 @@ func (a *API) SessionNew(username string, password string) (
 
 	request := &types.SessionNewRequest{Username: username, Password: password}
 
-	data, err := a.requestRaw(protocolTypes.IPvAny, "", _sessionNewPath, "POST", "application/json", request, 0, 0)
+	data, err := a.requestRaw(_sessionNewPath, "POST", "application/json", request, 0, 0)
 	if err != nil {
+		//fmt.Printf("Error from Server %s", err)
 		return nil, nil, nil, rawResponse, err
 	}
 
 	rawResponse = string(data)
+	//fmt.Printf("Data from Server %s", rawResponse)
 	// Check is it API error
 	if err := json.Unmarshal(data, &apiErr); err != nil {
 		return nil, nil, nil, rawResponse, fmt.Errorf("failed to deserialize API response in Session New API Error: %w", err)
@@ -305,11 +294,10 @@ func (a *API) SessionStatus(session string) (
 
 	request := &types.SessionStatusRequest{Session: session}
 
-	data, err := a.requestRaw(protocolTypes.IPvAny, "", _sessionStatusPath, "POST", "application/json", request, 0, 0)
+	data, err := a.requestRaw(_sessionStatusPath, "POST", "application/json", request, 0, 0)
 	if err != nil {
 		return nil, nil, err
 	}
-
 	// Check is it API error
 	if err := json.Unmarshal(data, &apiErr); err != nil {
 		return nil, nil, fmt.Errorf("failed to deserialize API response: %w", err)
@@ -329,14 +317,14 @@ func (a *API) SessionStatus(session string) (
 // SessionDelete - remove session
 func (a *API) SessionDelete(session string) error {
 	request := &types.SessionDeleteRequest{Session: session}
-	resp := &types.APIErrorResponse{}
-	if err := a.request("", _sessionDeletePath, "POST", "application/json", request, resp); err != nil {
+	resp, err := a.requestRaw(_sessionDeletePath, "POST", "application/json", request, 0, 0)
+	if err != nil {
 		return err
 	}
-	if resp.Status != types.CodeSuccess {
-		return types.CreateAPIError(resp.Status, resp.Message)
+	if string(resp) == "" {
+		return nil
 	}
-	return nil
+	return err
 }
 
 // WireGuardKeySet - update WG key
@@ -368,9 +356,24 @@ func (a *API) WireGuardKeySet(session string, newPublicWgKey string, activePubli
 func (a *API) GeoLookup(timeoutMs int) (location *types.GeoLookupResponse, err error) {
 	resp := &types.GeoLookupResponse{}
 
-	if err := a.requestEx("", _geoLookupPath, "GET", "", nil, resp, timeoutMs, 0); err != nil {
+	if err := a.requestEx(_geoLookupPath, "GET", "", nil, resp, timeoutMs, 0); err != nil {
 		return nil, err
 	}
 
 	return resp, nil
+}
+
+func (a *API) ServersList(token string) (servers *types.ServersInfoResponse, rawResponse string, err error) {
+	resp := &types.ServersInfoResponse{}
+	req := &types.ServersListRequest{Session: token}
+	response, err := a.requestRaw(_serversPath, "GET", "application/json", req, 0, 0)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if err := json.Unmarshal(response, resp); err != nil {
+		return nil, "", fmt.Errorf("failed to deserialize API response: %w", err)
+	}
+
+	return resp, string(response), nil
 }

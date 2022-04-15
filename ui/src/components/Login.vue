@@ -265,7 +265,7 @@ export default {
           } else throw new Error(`[${resp.APIStatus}] ${resp.APIErrorMessage}`);
         } else {
           try {
-            await sender.GeoLookup();
+            await sender.ServerList();
           } catch (e) {
             console.error(e);
           }

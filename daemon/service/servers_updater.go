@@ -40,6 +40,7 @@ type serversUpdater struct {
 	servers           *types.ServersInfoResponse
 	api               *api.API
 	updatedNotifyChan chan struct{}
+	token             string
 }
 
 // CreateServersUpdater - constructor for serversUpdater object
@@ -48,18 +49,17 @@ func CreateServersUpdater(apiObj *api.API) (IServersUpdater, error) {
 
 	updater.updatedNotifyChan = make(chan struct{}, 1)
 
-	servers, err := updater.GetServers()
-	if err == nil && servers != nil {
-		// save alternate API IP's
-		apiObj.SetAlternateIPs(servers.Config.API.IPAddresses, servers.Config.API.IPv6Addresses)
-	}
+	return updater, nil
+}
+
+func (updater *serversUpdater) startService(token string) {
+	updater.token = token
+	updater.GetServers()
 
 	// update servers list in background
 	if err := updater.startUpdater(); err != nil {
 		log.Error("Failed to start servers-list updater: ", err)
-		return nil, err
 	}
-	return updater, nil
 }
 
 // GetServers - get servers list.
@@ -69,19 +69,7 @@ func (s *serversUpdater) GetServers() (*types.ServersInfoResponse, error) {
 		return s.servers, nil
 	}
 
-	servers, apiIPsV4, apiIPsV6, err := readServersFromCache()
-	if err != nil {
-		log.Warning(err)
-
-		if s.api.IsAlternateIPsInitialized(false) == false && s.api.IsAlternateIPsInitialized(true) == false {
-			// Probably we can not use servers info because servers.json has wrong privileges (potential vulnerability)
-			// Trying to initialize only API IP addresses
-			// It is safe, because we are checking TLS server name for "api.ivpn.net" when accessing API (https)
-			if (apiIPsV4 != nil && len(apiIPsV4) > 0) || (apiIPsV6 != nil && len(apiIPsV6) > 0) {
-				s.api.SetAlternateIPs(apiIPsV4, apiIPsV6)
-			}
-		}
-	}
+	servers, _, _, err := readServersFromCache()
 
 	if servers != nil && err == nil {
 		s.servers = servers
@@ -115,11 +103,11 @@ func (s *serversUpdater) startUpdater() error {
 
 // UpdateServers - download servers list
 func (s *serversUpdater) updateServers() (*types.ServersInfoResponse, error) {
-	servers, err := s.api.DownloadServersList()
+	servers, _, err := s.api.ServersList(s.token)
 	if err != nil {
 		return servers, fmt.Errorf("failed to download servers list: %w", err)
 	}
-	log.Info(fmt.Sprintf("Updated servers info (%d OpenVPN; %d WireGuard)\n", len(servers.OpenvpnServers), len(servers.WireguardServers)))
+	log.Info(fmt.Sprintf("Updated servers info (%d OpenVPN)\n", len(servers.Servers)))
 
 	s.servers = servers
 	if err := writeServersToCache(servers); err != nil {
@@ -169,10 +157,10 @@ func readServersFromCache() (svrs *types.ServersInfoResponse, apiIPsV4 []string,
 		// we can not use servers info from this file
 		// but we can try to get IP addresses of alternate IP's
 		// It is safe, because we are checking TLS server name for "api.ivpn.net" when accessing API (https)
-		return nil, servers.Config.API.IPAddresses, servers.Config.API.IPv6Addresses, fmt.Errorf("skip reading servers cache file: %w", err)
+		return nil, nil, nil, fmt.Errorf("skip reading servers cache file: %w", err)
 	}
 
-	return servers, servers.Config.API.IPAddresses, servers.Config.API.IPv6Addresses, nil
+	return servers, nil, nil, nil
 }
 
 func writeServersToCache(servers *types.ServersInfoResponse) error {

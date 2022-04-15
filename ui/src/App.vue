@@ -65,6 +65,7 @@ html * {
 input {
   background: var(--input-background);
 }
+
 textarea {
   background: var(--input-background);
 }
@@ -72,6 +73,7 @@ textarea {
 body {
   background: var(--background-color);
 }
+
 /*
 button:hover {
   opacity: 80%;
@@ -98,6 +100,7 @@ button:hover {
 
   position: absolute;
 }
+
 .border {
   // For no-bordered windows: print border manually -
   // show transparent but bordered div top of the window

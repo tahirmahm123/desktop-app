@@ -3,21 +3,21 @@
     <!-- HEADER -->
     <div class="flexRow serversButtonsHeader">
       <div>
-        <button v-on:click="goBack" class="stateButtonOff">
+        <button class="stateButtonOff" v-on:click="goBack">
           <imgArrowLeft class="serversButtonsBack" />
         </button>
       </div>
 
       <div class="serversButtonsSpace" />
 
-      <div style="width: 100%" v-if="isFastestServerConfig === false">
+      <div v-if="isFastestServerConfig === false" style="width: 100%">
         <div class="flexRow" style="flex-grow: 1">
           <div style="flex-grow: 1">
             <button
-              style="width: 100%"
-              v-on:click="showAll"
               class="stateButtonOff stateButtonLeft"
+              style="width: 100%"
               v-bind:class="{ stateButtonOn: !isFavoritesView }"
+              v-on:click="showAll"
             >
               all servers
             </button>
@@ -25,10 +25,10 @@
 
           <div style="flex-grow: 1">
             <button
-              style="width: 100%"
-              v-on:click="showFavorites"
               class="stateButtonOff stateButtonRight"
+              style="width: 100%"
               v-bind:class="{ stateButtonOn: isFavoritesView }"
+              v-on:click="showFavorites"
             >
               favorites
             </button>
@@ -36,14 +36,14 @@
         </div>
       </div>
 
-      <div style="width: 100%" v-if="isFastestServerConfig">
+      <div v-if="isFastestServerConfig" style="width: 100%">
         <div class="flexRow" style="flex-grow: 1">
           <div style="flex-grow: 1">
             <button
-              style="width: 100%"
-              v-on:click="showAll"
               class="stateButtonOff"
+              style="width: 100%"
               v-bind:class="{ stateButtonOn: !isFavoritesView }"
+              v-on:click="showAll"
             >
               fastest server settings
             </button>
@@ -61,20 +61,20 @@
     </div>
 
     <!-- FILTER -->
-    <div class="commonMargins flexRow" v-if="!isShowFavoriteDescriptionBlock">
+    <div v-if="!isShowFavoriteDescriptionBlock" class="commonMargins flexRow">
       <input
         id="filter"
+        v-model="filter"
         class="styled"
         placeholder="Search for a server"
-        v-model="filter"
         v-bind:style="{ backgroundImage: 'url(' + searchImage + ')' }"
       />
 
       <div class="buttonWithPopup">
         <button
+          v-click-outside="onSortMenuClickedOutside"
           class="noBordersBtn sortBtn sortBtnPlatform"
           v-on:click="onSortMenuClicked()"
-          v-click-outside="onSortMenuClickedOutside"
         >
           <img :src="sortImage" />
         </button>
@@ -96,7 +96,7 @@
           >
             <div class="popup_menu_block">
               <div class="sortSelectedImg">
-                <img :src="selectedImage" v-if="sortTypeStr === 'City'" />
+                <img v-if="sortTypeStr === 'City'" :src="selectedImage" />
               </div>
               <button class="flexRowRestSpace" v-on:click="onSortType('City')">
                 City
@@ -106,7 +106,7 @@
             <div class="popup_dividing_line" />
             <div class="popup_menu_block">
               <div class="sortSelectedImg">
-                <img :src="selectedImage" v-if="sortTypeStr === 'Country'" />
+                <img v-if="sortTypeStr === 'Country'" :src="selectedImage" />
               </div>
               <button
                 class="flexRowRestSpace"
@@ -119,7 +119,7 @@
             <div class="popup_dividing_line" />
             <div class="popup_menu_block">
               <div class="sortSelectedImg">
-                <img :src="selectedImage" v-if="sortTypeStr === 'Latency'" />
+                <img v-if="sortTypeStr === 'Latency'" :src="selectedImage" />
               </div>
               <button
                 class="flexRowRestSpace"
@@ -132,7 +132,7 @@
             <div class="popup_dividing_line" />
             <div class="popup_menu_block">
               <div class="sortSelectedImg">
-                <img :src="selectedImage" v-if="sortTypeStr === 'Proximity'" />
+                <img v-if="sortTypeStr === 'Proximity'" :src="selectedImage" />
               </div>
               <button
                 class="flexRowRestSpace"
@@ -157,17 +157,17 @@
     <!-- SERVERS LIST BLOCK -->
     <div
       ref="scrollArea"
-      @scroll="recalcScrollButtonVisiblity()"
       class="commonMargins flexColumn scrollableColumnContainer"
+      @scroll="recalcScrollButtonVisiblity()"
     >
       <!-- FASTEST & RANDOMM SERVER -->
       <div v-if="isFavoritesView == false && isFastestServerConfig === false">
-        <div class="flexRow" v-if="!isMultihop">
+        <div v-if="!isMultihop" class="flexRow">
           <button
             class="serverSelectBtn flexRow"
             v-on:click="onFastestServerClicked()"
           >
-            <serverNameControl class="serverName" :isFastestServer="true" />
+            <serverNameControl :isFastestServer="true" class="serverName" />
           </button>
           <button class="noBordersBtn" v-on:click="onFastestServerConfig()">
             <img :src="settingsImage" />
@@ -178,37 +178,37 @@
           class="serverSelectBtn flexRow"
           v-on:click="onRandomServerClicked()"
         >
-          <serverNameControl class="serverName" :isRandomServer="true" />
+          <serverNameControl :isRandomServer="true" class="serverName" />
         </button>
       </div>
 
       <!-- SERVERS LIST -->
       <div
-        class="flexRow"
         v-for="server of filteredServers"
         v-bind:key="server.gateway"
+        class="flexRow"
       >
         <button
           class="serverSelectBtn flexRow"
-          v-on:click="onServerSelected(server)"
           v-bind:class="{ disabledButton: isInaccessibleServer(server) }"
+          v-on:click="onServerSelected(server)"
         >
           <serverNameControl
-            class="serverName"
-            :server="server"
             :isCountryFirst="sortTypeStr === 'Country'"
+            :server="server"
+            class="serverName"
           />
 
           <div
-            class="flexColumn"
             v-if="isFastestServerConfig === false"
+            class="flexColumn"
             style="margin-top: 11px"
           >
             <div class="flexRow">
               <serverPingInfoControl
-                class="pingInfo"
-                :server="server"
                 :isShowPingTime="true"
+                :server="server"
+                class="pingInfo"
               />
 
               <img
@@ -219,15 +219,15 @@
           </div>
         </button>
 
-        <div class="flexRow" v-if="isFastestServerConfig">
+        <div v-if="isFastestServerConfig" class="flexRow">
           <!-- CONFIG -->
           <SwitchProgress
+            :isChecked="!isSvrExcludedFomFastest(server)"
             :onChecked="
               (value, event) => {
                 configFastestSvrClicked(server, event);
               }
             "
-            :isChecked="!isSvrExcludedFomFastest(server)"
           />
         </div>
       </div>
@@ -235,8 +235,8 @@
       <!-- SCROOL DOWN BUTTON -->
       <transition name="fade">
         <button
-          class="btnScrollDown"
           v-if="isShowScrollButton"
+          class="btnScrollDown"
           v-on:click="onScrollDown()"
         >
           <img src="@/assets/arrow-bottom.svg" />
@@ -254,7 +254,7 @@ import SwitchProgress from "@/components/controls/control-switch-small.vue";
 import imgArrowLeft from "@/components/images/arrow-left.vue";
 import { isStrNullOrEmpty } from "@/helpers/helpers";
 import { Platform, PlatformEnum } from "@/platform/platform";
-import { enumValueName, getDistanceFromLatLonInKm } from "@/helpers/helpers";
+import { enumValueName } from "@/helpers/helpers";
 import { ServersSortTypeEnum } from "@/store/types";
 
 import Image_arrow_left_windows from "@/assets/arrow-left-windows.svg";
@@ -344,9 +344,10 @@ export default {
     },
 
     filteredServers: function () {
-      let store = this.$store;
-      let sType = store.state.settings.serversSortType;
-      function compare(a, b) {
+      // let store = this.$store;
+      // let sType = store.state.settings.serversSortType;
+
+      /*function compare(a, b) {
         switch (sType) {
           case ServersSortTypeEnum.City:
             return a.city.localeCompare(b.city);
@@ -392,23 +393,25 @@ export default {
             return 1;
           }
         }
-      }
+      }*/
 
       let servers = this.servers;
+      console.log("servers in server.vue", JSON.stringify(servers));
       if (this.isFavoritesView) servers = this.favoriteServers;
 
-      if (this.filter == null || this.filter.length == 0)
-        return servers.slice().sort(compare);
+      // if (this.filter == null || this.filter.length === 0)
+      //   return (servers ? servers : []).slice().sort(compare);
 
-      let filter = this.filter.toLowerCase();
-      let filtered = servers.filter(
+      // let filter = this.filter.toLowerCase();
+      let filtered = servers ? servers : []; /*.filter(
+      let filtered = servers ? servers : []; /*.filter(
         (s) =>
           (s.city && s.city.toLowerCase().includes(filter)) ||
           (s.country && s.country.toLowerCase().includes(filter)) ||
           (s.country_code && s.country_code.toLowerCase().includes(filter))
-      );
+      )*/
 
-      return filtered.slice().sort(compare);
+      return filtered.slice() /*.sort(compare)*/;
     },
 
     arrowLeftImagePath: function () {
@@ -542,7 +545,7 @@ export default {
 
       let favorites = this.$store.state.settings.serversFavoriteList.slice();
       let serversHashed = this.$store.state.vpnState.serversHashed;
-      let gateway = server.gateway;
+      let gateway = server.ip;
 
       if (favorites.includes(gateway)) {
         // remove
@@ -623,7 +626,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "@/components/scss/constants";
 @import "@/components/scss/popup";
 

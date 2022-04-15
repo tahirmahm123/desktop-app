@@ -52,6 +52,9 @@ ipcMain.handle("renderer-request-refresh-storage", async () => {
 ipcMain.handle("renderer-request-login", async (event, username, password) => {
   return await client.Login(username, password);
 });
+ipcMain.handle("renderer-request-serverlist", async () => {
+  return await client.ServerList();
+});
 
 ipcMain.handle(
   "renderer-request-logout",

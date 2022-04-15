@@ -68,7 +68,7 @@ type Service interface {
 	// (e.g. obfsproxy or WireGuard on Linux)
 	GetDisabledFunctions() (wgErr, ovpnErr, obfspErr, splitTunErr error)
 
-	ServersList() (*apitypes.ServersInfoResponse, error)
+	ServersList() (servers *apitypes.ServersInfoResponse, rawResponse string, err error)
 	PingServers(retryCount int, timeoutMs int) (map[string]int, error)
 
 	APIRequest(apiAlias string, ipTypeRequired types.RequiredIPProtocol) (responseData []byte, err error)
@@ -386,9 +386,15 @@ func (p *Protocol) processRequest(conn net.Conn, message string) {
 		p.sendResponse(conn, p.createHelloResponse(), req.Idx)
 
 		if req.GetServersList {
-			serv, _ := p._service.ServersList()
-			if serv != nil {
-				p.sendResponse(conn, &types.ServerListResp{VpnServers: *serv}, req.Idx)
+			session := p._service.Preferences().Session
+			if session.IsLoggedIn() {
+				serversList, _, err := p._service.ServersList()
+				if err != nil {
+					log.Error(err.Error())
+				}
+				if serversList != nil {
+					p.sendResponse(conn, &types.ServerListResp{VpnServers: *serversList}, req.Idx)
+				}
 			}
 		}
 
@@ -423,7 +429,7 @@ func (p *Protocol) processRequest(conn net.Conn, message string) {
 		sendState(reqCmd.Idx, false)
 
 	case "GetServers":
-		serv, err := p._service.ServersList()
+		serv, _, err := p._service.ServersList()
 		if err != nil {
 			p.sendErrorResponse(conn, reqCmd, err)
 			break
@@ -823,6 +829,13 @@ func (p *Protocol) processRequest(conn net.Conn, message string) {
 		// send response
 		p.sendResponse(conn, &resp, reqCmd.Idx)
 
+	case "ServerList":
+		data, _, err := p._service.ServersList()
+		if err != nil {
+			p.sendErrorResponse(conn, reqCmd, err)
+			break
+		}
+		p.sendResponse(conn, data, reqCmd.Idx)
 	case "WireGuardGenerateNewKeys":
 		var req types.WireGuardGenerateNewKeys
 		if err := json.Unmarshal(messageData, &req); err != nil {

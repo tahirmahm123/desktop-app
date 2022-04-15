@@ -40,6 +40,7 @@ import {
 } from "vue-cli-plugin-electron-builder/lib";
 
 import { SentryInit } from "./sentry/sentry.js";
+
 SentryInit();
 
 // start waiting for events from Renderer processes
@@ -706,6 +707,7 @@ function closeSettingsWindow() {
   if (settingsWindow == null) return;
   settingsWindow.destroy(); // close();
 }
+
 // UPDATE WINDOW
 function createUpdateWindow() {
   if (updateWindow != null) {
@@ -945,10 +947,12 @@ function menuOnShow() {
     console.error(e);
   }
 }
+
 function menuOnAccount() {
   menuOnShow();
   showSettings("account");
 }
+
 function menuOnPreferences() {
   menuOnShow();
   showSettings("general");

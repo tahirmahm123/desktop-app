@@ -48,7 +48,7 @@ type CheckToken struct {
 func Send(conn net.Conn, cmd interface{}, idx int) (retErr error) {
 	defer func() {
 		if retErr != nil {
-			retErr = fmt.Errorf("failed to send command to client: %w", retErr)
+			retErr = fmt.Errorf("failed to send command to client: %w %s", retErr, retErr.Error())
 			log.Error(retErr)
 		}
 	}()
