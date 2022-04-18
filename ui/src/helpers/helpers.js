@@ -104,6 +104,7 @@ export function simpleSin(k) {
 export function easeInOutQuart(x) {
   return x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2;
 }
+
 // https://easings.net/
 export function easeOutQuart(x) {
   return 1 - Math.pow(1 - x, 4);
@@ -114,6 +115,7 @@ export function easeOutQuart(x) {
 function toRadian(value) {
   return (value * Math.PI) / 180.0;
 }
+
 export function getCoordinatesBy(
   longitude,
   latitude,

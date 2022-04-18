@@ -99,6 +99,7 @@ func ExecAndProcessOutput(logger *logger.Logger, outProcessFunc func(text string
 		for {
 			select {
 			case outText, ok := <-outChan:
+				logger.Info("got Text from output", outText)
 				if !ok {
 					isOutClosed = true
 				} else {

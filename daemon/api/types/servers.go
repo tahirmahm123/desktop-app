@@ -53,8 +53,8 @@ type WireGuardServerInfo struct {
 // OpenVPNServerHostInfo contains info about OpenVPN server host
 type OpenVPNServerHostInfo struct {
 	Hostname     string `json:"hostname"`
-	Host         string `json:"host"`
-	MultihopPort int    `json:"multihop_port"`
+	Host         string `json:"ip"`
+	MultihopPort int    `json:"multihop_port:omitempty"`
 }
 
 // OpenvpnServerInfo contains all info about OpenVPN server

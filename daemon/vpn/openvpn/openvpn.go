@@ -81,12 +81,12 @@ func GetOpenVPNVersion(ovpnBinary string) []int {
 
 // OpenVPN structure represents all data of OpenVPN connection
 type OpenVPN struct {
-	binaryPath      string
-	configPath      string
-	logFile         string
-	isObfsProxy     bool
-	extraParameters string // user-defined extra-parameters of OpenVPN configuration
-	connectParams   ConnectionParams
+	binaryPath         string
+	configPath         string
+	logFile            string
+	isObfsProxy        bool
+	openVpnCertificate string // user-defined extra-parameters of OpenVPN configuration
+	connectParams      ConnectionParams
 
 	managementInterface *ManagementInterface
 	obfsproxy           *obfsproxy.Obfsproxy
@@ -116,7 +116,7 @@ func NewOpenVpnObject(
 	configPath string,
 	logFile string,
 	isObfsProxy bool,
-	extraParameters string,
+	openVpnCertificate string,
 	connectionParams ConnectionParams) (*OpenVPN, error) {
 
 	if len(connectionParams.username) == 0 || len(connectionParams.password) == 0 {
@@ -124,13 +124,13 @@ func NewOpenVpnObject(
 	}
 
 	return &OpenVPN{
-			state:           vpn.DISCONNECTED,
-			binaryPath:      binaryPath,
-			configPath:      configPath,
-			logFile:         logFile,
-			isObfsProxy:     isObfsProxy,
-			extraParameters: extraParameters,
-			connectParams:   connectionParams},
+			state:              vpn.DISCONNECTED,
+			binaryPath:         binaryPath,
+			configPath:         configPath,
+			logFile:            logFile,
+			isObfsProxy:        isObfsProxy,
+			openVpnCertificate: openVpnCertificate,
+			connectParams:      connectionParams},
 		nil
 }
 
@@ -340,7 +340,7 @@ func (o *OpenVPN) Connect(stateChan chan<- vpn.StateInfo) (retErr error) {
 		miIP, miPort,
 		o.logFile,
 		obfsproxyPort,
-		o.extraParameters,
+		o.openVpnCertificate,
 		o.implIsCanUseParamsV24())
 
 	if err != nil {
@@ -386,7 +386,7 @@ func (o *OpenVPN) Connect(stateChan chan<- vpn.StateInfo) (retErr error) {
 			log.Info(fmt.Sprintf("OpenVPN start ERROR. Errors output : %s...", strErr.String()))
 		}
 
-		if len(o.extraParameters) > 0 {
+		if len(o.openVpnCertificate) > 0 {
 			return fmt.Errorf("failed to start OpenVPN process: %w. Please, ensure that user-defined OpenVPN configuration parameters are correct", err)
 		}
 		return fmt.Errorf("failed to start OpenVPN process: %w", err)

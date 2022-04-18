@@ -1,38 +1,38 @@
 <template>
   <div class="flexColumn">
-    <transition name="fade-super-quick" mode="out-in">
+    <transition mode="out-in" name="fade-super-quick">
       <div
-        class="flexColumn"
         v-if="uiView === 'serversEntry'"
         key="entryServers"
+        class="flexColumn"
       >
         <Servers
           :onBack="backToMainView"
-          :onServerChanged="onServerChanged"
           :onFastestServer="onFastestServer"
           :onRandomServer="onRandomServer"
+          :onServerChanged="onServerChanged"
         />
       </div>
 
       <div
-        class="flexColumn"
         v-else-if="uiView === 'serversExit'"
         key="exitServers"
+        class="flexColumn"
       >
         <Servers
           :onBack="backToMainView"
-          isExitServer="true"
-          :onServerChanged="onServerChanged"
           :onRandomServer="() => onRandomServer(true)"
+          :onServerChanged="onServerChanged"
+          isExitServer="true"
         />
       </div>
 
       <div v-else class="flexColumn">
         <div>
           <ConnectBlock
-            :onChecked="switchChecked"
             :isChecked="isConnected"
             :isProgress="isInProgress"
+            :onChecked="switchChecked"
             :onPauseResume="onPauseResume"
             :pauseState="this.$store.state.vpnState.pauseState"
           />
@@ -66,8 +66,8 @@
 
           <transition name="fade">
             <button
-              class="btnScrollDown"
               v-if="isShowScrollButton"
+              class="btnScrollDown"
               v-on:click="onScrollDown()"
             >
               <img src="@/assets/arrow-bottom.svg" />
@@ -267,7 +267,7 @@ export default {
       if (!isExitServer) {
         if (
           !this.$store.state.settings.serverEntry ||
-          this.$store.state.settings.serverEntry.gateway !== server.gateway ||
+          this.$store.state.settings.serverEntry.flag !== server.flag ||
           this.$store.state.settings.isRandomServer !== false
         ) {
           this.$store.dispatch("settings/isRandomServer", false);
@@ -277,7 +277,7 @@ export default {
       } else {
         if (
           !this.$store.state.settings.serverExit ||
-          this.$store.state.settings.serverExit.gateway !== server.gateway ||
+          this.$store.state.settings.serverExit.flag !== server.flag ||
           this.$store.state.settings.isRandomExitServer !== false
         ) {
           this.$store.dispatch("settings/isRandomExitServer", false);
@@ -290,7 +290,7 @@ export default {
         needReconnect = true;
       }
 
-      if (needReconnect == true && connected(this)) connect(this, true);
+      if (needReconnect === true && connected(this)) connect(this, true);
     },
     onFastestServer() {
       this.$store.dispatch("settings/isFastestServer", true);
@@ -338,6 +338,6 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "@/components/scss/constants";
 </style>

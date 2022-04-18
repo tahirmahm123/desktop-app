@@ -23,14 +23,14 @@
 package service
 
 import (
-	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"os"
 	"reflect"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -371,51 +371,27 @@ func (s *Service) ConnectOpenVPN(connectionParams openvpn.ConnectionParams, manu
 
 		connectionParams.SetCredentials(prefs.Session.OpenVPNUser, prefs.Session.OpenVPNPass)
 
-		openVpnExtraParameters := ""
+		openVpnCertificate := ""
 		// read user-defined extra parameters for OpenVPN configuration (if exists)
-		extraParamsFile := platform.OpenvpnUserParamsFile()
+		certificate := platform.ServersFile()
 
-		if helpers.FileExists(extraParamsFile) {
-			if err := filerights.CheckFileAccessRightsConfig(extraParamsFile); err != nil {
+		if helpers.FileExists(certificate) {
+			if err := filerights.CheckFileAccessRightsConfig(certificate); err != nil {
 				log.Info("NOTE! User-defined OpenVPN parameters are ignored! %w", err)
-				os.Remove(extraParamsFile)
+				//os.Remove(extraParamsFile)
 			} else {
-				// read file line by line
-				openVpnExtraParameters = func() string {
-					var allParams strings.Builder
-
-					file, err := os.Open(extraParamsFile)
-					if err != nil {
-						log.Error(err)
-						return ""
+				var cert = &openvpn.Certificate{}
+				content, ioErr := ioutil.ReadFile(certificate)
+				if ioErr == nil {
+					if err := json.Unmarshal(content, cert); err != nil {
+						log.Error("unable to get certificate from file")
 					}
-					defer file.Close()
+					openVpnCertificate = cert.Certificate
+				}
 
-					scanner := bufio.NewScanner(file)
-					for scanner.Scan() {
-						line := scanner.Text()
-						line = strings.TrimSpace(line)
-						if len(line) <= 0 {
-							continue
-						}
-						if strings.HasPrefix(line, "#") {
-							continue // comment
-						}
-						if strings.HasPrefix(line, ";") {
-							continue // comment
-						}
-						allParams.WriteString(line + "\n")
-					}
+				if len(openVpnCertificate) > 0 {
 
-					if err := scanner.Err(); err != nil {
-						log.Error("Failed to parse '%s': %s", extraParamsFile, err)
-						return ""
-					}
-					return allParams.String()
-				}()
-
-				if len(openVpnExtraParameters) > 0 {
-					log.Info(fmt.Sprintf("WARNING! User-defined OpenVPN parameters loaded from file '%s'!", extraParamsFile))
+					log.Info(fmt.Sprintf("WARNING! User-defined OpenVPN parameters loaded from file '%s'!", certificate))
 				}
 			}
 		}
@@ -426,7 +402,7 @@ func (s *Service) ConnectOpenVPN(connectionParams openvpn.ConnectionParams, manu
 			platform.OpenvpnConfigFile(),
 			platform.OpenvpnLogFile(),
 			prefs.IsObfsproxy,
-			openVpnExtraParameters,
+			openVpnCertificate,
 			connectionParams)
 
 		if err != nil {

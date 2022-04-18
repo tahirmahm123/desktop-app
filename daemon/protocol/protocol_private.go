@@ -246,6 +246,7 @@ func (p *Protocol) processConnectRequest(messageData []byte, stateChan chan<- vp
 	}
 
 	var r types.Connect
+	log.Info("got message data in connect", string(messageData))
 	if err := json.Unmarshal(messageData, &r); err != nil {
 		return fmt.Errorf("failed to unmarshal json 'Connect' request: %w", err)
 	}
@@ -255,6 +256,7 @@ func (p *Protocol) processConnectRequest(messageData []byte, stateChan chan<- vp
 	if vpn.Type(r.VpnType) == vpn.OpenVPN {
 		// PARAMETERS VALIDATION
 		// parsing hosts
+
 		var hosts []net.IP
 		for _, v := range r.OpenVpnParameters.EntryVpnServer.Hosts {
 			hosts = append(hosts, net.ParseIP(v.Host))
@@ -269,7 +271,7 @@ func (p *Protocol) processConnectRequest(messageData []byte, stateChan chan<- vp
 				host = hosts[rnd.Int64()]
 			}
 		}
-
+		log.Info("Ip Found " + host.String())
 		// only one-line parameter is allowed
 		multihopExitSrvID := strings.Split(r.OpenVpnParameters.MultihopExitSrvID, "\n")[0]
 		// nothing from supported proxy types should be in this parameter

@@ -25,14 +25,14 @@ package openvpn
 import (
 	"errors"
 	"fmt"
+	"github.com/ivpn/desktop-app/daemon/logger"
+	"github.com/ivpn/desktop-app/daemon/netinfo"
+	"github.com/ivpn/desktop-app/daemon/service/platform"
 	"io/ioutil"
 	"net"
 	"os"
 	"strings"
 
-	"github.com/ivpn/desktop-app/daemon/logger"
-	"github.com/ivpn/desktop-app/daemon/netinfo"
-	"github.com/ivpn/desktop-app/daemon/service/platform"
 	"github.com/ivpn/desktop-app/daemon/service/platform/filerights"
 )
 
@@ -49,6 +49,9 @@ type ConnectionParams struct {
 	proxyPort         int
 	proxyUsername     string
 	proxyPassword     string
+}
+type Certificate struct {
+	Certificate string `json:"certificate"`
 }
 
 // SetCredentials update WG credentials
@@ -95,15 +98,13 @@ func (c *ConnectionParams) WriteConfigFile(
 	miPort int,
 	logFile string,
 	obfsproxyPort int,
-	extraParameters string,
+	openVpnCertificate string,
 	isCanUseV24Params bool) error {
 
-	cfg, err := c.generateConfiguration(localPort, miAddr, miPort, logFile, obfsproxyPort, extraParameters, isCanUseV24Params)
+	configText, err := c.generateConfiguration(openVpnCertificate, miAddr, miPort)
 	if err != nil {
 		return fmt.Errorf("failed to generate openvpn configuration : %w", err)
 	}
-
-	configText := strings.Join(cfg, "\n")
 
 	err = ioutil.WriteFile(filePathToSave, []byte(configText), 0600) // read\write only for privileged user
 	if err != nil {
@@ -122,14 +123,34 @@ func (c *ConnectionParams) WriteConfigFile(
 
 	return nil
 }
+func (c *ConnectionParams) generateConfiguration(openVpnCertificate string, miAddr string, miPort int) (cfg string, err error) {
+	proto := "udp"
+	if c.tcp {
+		proto = "tcp"
+	}
 
-func (c *ConnectionParams) generateConfiguration(
+	cfgArr := make([]string, 0, 32)
+	cfgArr = append(cfgArr, fmt.Sprintf("management %s %d", miAddr, miPort))
+	cfgArr = append(cfgArr, "management-client")
+
+	cfgArr = append(cfgArr, "management-hold")
+	cfgArr = append(cfgArr, "auth-user-pass")
+	cfgArr = append(cfgArr, "auth-nocache")
+
+	cfgArr = append(cfgArr, "management-query-passwords")
+
+	cfgArr = append(cfgArr, "management-signal")
+	cfgArr = append(cfgArr, fmt.Sprintf("remote %s %d %s", c.hostIP, c.hostPort, proto))
+	return strings.Replace(openVpnCertificate, "[REMOTES]", strings.Join(cfgArr, "\n"), 1), nil
+}
+
+func (c *ConnectionParams) generateConfigurationx(
 	localPort int,
 	miAddr string,
 	miPort int,
 	logFile string,
 	obfsproxyPort int,
-	extraParameters string,
+	openVpnCertificate string,
 	isCanUseV24Params bool) (cfg []string, err error) {
 
 	if obfsproxyPort > 0 {
@@ -271,7 +292,7 @@ func (c *ConnectionParams) generateConfiguration(
 		}
 	}
 
-	cfg, err = addUserDefinedParameters(cfg, extraParameters)
+	cfg, err = addUserDefinedParameters(cfg, openVpnCertificate)
 	if err != nil {
 		return nil, fmt.Errorf("failed to add user-defined parameters: %w", err)
 	}
@@ -285,7 +306,7 @@ func addUserDefinedParameters(currParams []string, userParams string) ([]string,
 		return currParams, nil
 	}
 
-	// loop trough all extraParameters defined by user
+	// loop trough all openVpnCertificate defined by user
 	// (looking if user-defined parameters overlap an existing parameters)
 	tmpCfg := make([]string, 1)
 	userLines := strings.Split(userParams, "\n")

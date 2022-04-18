@@ -60,13 +60,8 @@ export const PingQuality = Object.freeze({ Good: 0, Moderate: 1, Bad: 2 });
 export const PortTypeEnum = Object.freeze({ UDP: 0, TCP: 1 });
 export const Ports = Object.freeze({
   OpenVPN: [
-    { port: 2049, type: PortTypeEnum.UDP },
-    { port: 2050, type: PortTypeEnum.UDP },
-    { port: 53, type: PortTypeEnum.UDP },
     { port: 1194, type: PortTypeEnum.UDP },
     { port: 443, type: PortTypeEnum.TCP },
-    { port: 1443, type: PortTypeEnum.TCP },
-    { port: 80, type: PortTypeEnum.TCP },
   ],
   WireGuard: [
     { port: 2049, type: PortTypeEnum.UDP },

@@ -429,7 +429,6 @@ function getActiveServers(state, rootState) {
   console.log(vpnType);
   // if (vpnType === VpnTypeEnum.OpenVPN) {
   // IPv6 in not implemented for OpenVPN
-  console.log("Get Servers: ", JSON.stringify(state.servers.data));
   return state.servers.data;
   // }
 

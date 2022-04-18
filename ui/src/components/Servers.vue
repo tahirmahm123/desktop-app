@@ -396,7 +396,6 @@ export default {
       }*/
 
       let servers = this.servers;
-      console.log("servers in server.vue", JSON.stringify(servers));
       if (this.isFavoritesView) servers = this.favoriteServers;
 
       // if (this.filter == null || this.filter.length === 0)
@@ -474,7 +473,7 @@ export default {
         });
         return;
       }
-
+      console.log("trying to update server");
       this.onServerChanged(server, this.isExitServer != null);
       this.onBack();
     },

@@ -6,55 +6,55 @@
     <div>
       <div class="settingsRadioBtn">
         <input
-          type="radio"
           id="openvpn"
-          name="vpntype"
-          value="openvpn"
           :checked="isOpenVPN"
+          name="vpntype"
+          type="radio"
+          value="openvpn"
           @click="onVpnChange"
         />
         <label class="defColor" for="openvpn">OpenVPN</label>
       </div>
 
-      <div class="settingsRadioBtn">
-        <input
-          type="radio"
-          id="wireguard"
-          name="vpntype"
-          value="wireguard"
-          :checked="!isOpenVPN"
-          @click="onVpnChange"
-        />
-        <label class="defColor" for="wireguard">Wireguard</label>
-      </div>
+      <!--      <div class="settingsRadioBtn">
+              <input
+                id="wireguard"
+                :checked="!isOpenVPN"
+                name="vpntype"
+                type="radio"
+                value="wireguard"
+                @click="onVpnChange"
+              />
+              <label class="defColor" for="wireguard">Wireguard</label>
+            </div>-->
     </div>
 
     <!-- IPv6 -->
-    <div>
-      <div class="param">
-        <input
-          type="checkbox"
-          id="enableIPv6InTunnel"
-          v-model="enableIPv6InTunnel"
-          :disabled="!isCanUseIPv6InTunnel"
-        />
-        <label class="defColor" for="enableIPv6InTunnel"
-          >Enable IPv6 in VPN tunnel</label
-        >
-      </div>
+    <!--    <div>
+          <div class="param">
+            <input
+              id="enableIPv6InTunnel"
+              v-model="enableIPv6InTunnel"
+              :disabled="!isCanUseIPv6InTunnel"
+              type="checkbox"
+            />
+            <label class="defColor" for="enableIPv6InTunnel"
+              >Enable IPv6 in VPN tunnel</label
+            >
+          </div>
 
-      <div class="param">
-        <input
-          type="checkbox"
-          id="showGatewaysWithoutIPv6"
-          v-model="showGatewaysWithoutIPv6"
-          :disabled="!isCanUseIPv6InTunnel || enableIPv6InTunnel === false"
-        />
-        <label class="defColor" for="showGatewaysWithoutIPv6"
-          >Show servers without IPv6 support</label
-        >
-      </div>
-    </div>
+          <div class="param">
+            <input
+              id="showGatewaysWithoutIPv6"
+              v-model="showGatewaysWithoutIPv6"
+              :disabled="!isCanUseIPv6InTunnel || enableIPv6InTunnel === false"
+              type="checkbox"
+            />
+            <label class="defColor" for="showGatewaysWithoutIPv6"
+              >Show servers without IPv6 support</label
+            >
+          </div>
+        </div>-->
 
     <!-- OpenVPN -->
     <div v-if="isOpenVPN">
@@ -65,8 +65,8 @@
         <select v-model="port" style="background: var(--background-color)">
           <option
             v-for="item in prefferedPorts"
-            :value="item.port"
             :key="item.text"
+            :value="item.port"
           >
             {{ item.text }}
           </option>
@@ -78,30 +78,30 @@
           <div class="defColor paramName">Network proxy:</div>
           <div class="settingsRadioBtnProxy">
             <input
-              type="radio"
               id="proxyNone"
-              name="proxy"
               v-model="ovpnProxyType"
+              name="proxy"
+              type="radio"
               value=""
             />
             <label class="defColor" for="proxyNone">None</label>
           </div>
           <div class="settingsRadioBtnProxy">
             <input
-              type="radio"
               id="proxyHTTP"
-              name="proxy"
               v-model="ovpnProxyType"
+              name="proxy"
+              type="radio"
               value="http"
             />
             <label class="defColor" for="proxyHTTP">HTTP</label>
           </div>
           <div class="settingsRadioBtnProxy">
             <input
-              type="radio"
               id="proxySocks"
-              name="proxy"
               v-model="ovpnProxyType"
+              name="proxy"
+              type="radio"
               value="socks"
             />
             <label class="defColor" for="proxySocks">Socks</label>
@@ -113,31 +113,31 @@
             <div class="paramBlockText">
               <div>Server:</div>
               <input
+                v-model="ovpnProxyServer"
                 class="settingsTextInput proxyParam"
                 placeholder="0.0.0.0"
-                v-model="ovpnProxyServer"
               />
             </div>
             <div class="paramBlockText">
               <div>Port:</div>
               <input
-                class="settingsTextInput proxyParam"
                 v-model="ovpnProxyPort"
+                class="settingsTextInput proxyParam"
               />
             </div>
             <div class="paramBlockText">
               <div>Login:</div>
               <input
-                class="settingsTextInput proxyParam"
                 v-model="ovpnProxyUser"
+                class="settingsTextInput proxyParam"
               />
             </div>
             <div class="paramBlockText">
               <div>Password:</div>
               <input
-                type="password"
-                class="settingsTextInput proxyParam"
                 v-model="ovpnProxyPass"
+                class="settingsTextInput proxyParam"
+                type="password"
               />
             </div>
           </div>
@@ -147,9 +147,9 @@
       <div class="settingsBoldFont">Additional settings:</div>
       <div class="param">
         <input
-          type="checkbox"
           id="connectionUseObfsproxy"
           v-model="connectionUseObfsproxy"
+          type="checkbox"
         />
         <label class="defColor" for="connectionUseObfsproxy"
           >Use obfsproxy</label
@@ -157,11 +157,11 @@
       </div>
       <div class="description">Only enable if you have trouble connecting</div>
 
-      <div class="param" v-if="userDefinedOvpnFile">
+      <div v-if="userDefinedOvpnFile" class="param">
         <input
-          type="checkbox"
           id="openvpnManualConfig"
           v-model="openvpnManualConfig"
+          type="checkbox"
         />
         <label class="defColor" for="openvpnManualConfig"
           >Add additional OpenVPN configuration parameters</label
@@ -175,8 +175,8 @@
             tunnel
           </div>
           <button
-            style="margin-top: 4px"
             class="settingsButton"
+            style="margin-top: 4px"
             v-on:click="onVPNConfigFileLocation"
           >
             Open configuration file location ...
@@ -200,95 +200,96 @@
     </div>
 
     <!-- Wireguard -->
-    <div v-if="!isOpenVPN">
-      <div class="settingsBoldFont">Wireguard configuration:</div>
+    <!--    <div v-if="!isOpenVPN">
+          <div class="settingsBoldFont">Wireguard configuration:</div>
 
-      <div class="flexRow paramBlock">
-        <div class="defColor paramName">Preferred port:</div>
-        <select v-model="port" style="background: var(--background-color)">
-          <option
-            v-for="item in prefferedPorts"
-            :value="item.port"
-            :key="item.text"
-          >
-            {{ item.text }}
-          </option>
-        </select>
-      </div>
+          <div class="flexRow paramBlock">
+            <div class="defColor paramName">Preferred port:</div>
+            <select v-model="port" style="background: var(&#45;&#45;background-color)">
+              <option
+                v-for="item in prefferedPorts"
+                :value="item.port"
+                :key="item.text"
+              >
+                {{ item.text }}
+              </option>
+            </select>
+          </div>
 
-      <div class="flexRow paramBlock">
-        <div class="defColor paramName">Rotate key every:</div>
-        <select
-          v-model="wgKeyRegenerationInterval"
-          style="background: var(--background-color)"
-        >
-          <option
-            v-for="item in wgRegenerationIntervals"
-            :value="item.seconds"
-            :key="item.seconds"
-          >
-            {{ item.text }}
-          </option>
-        </select>
-      </div>
+          <div class="flexRow paramBlock">
+            <div class="defColor paramName">Rotate key every:</div>
+            <select
+              v-model="wgKeyRegenerationInterval"
+              style="background: var(&#45;&#45;background-color)"
+            >
+              <option
+                v-for="item in wgRegenerationIntervals"
+                :value="item.seconds"
+                :key="item.seconds"
+              >
+                {{ item.text }}
+              </option>
+            </select>
+          </div>
 
-      <div v-if="IsAccountActive">
-        <div class="settingsBoldFont">Wireguard key information:</div>
+          <div v-if="IsAccountActive">
+            <div class="settingsBoldFont">Wireguard key information:</div>
 
-        <spinner :loading="isProcessing" />
-        <div class="flexRow paramBlock">
-          <div class="defColor paramName">Local IP Address:</div>
-          <div class="detailedParamValue">
-            {{ this.$store.state.account.session.WgLocalIP }}
-          </div>
-        </div>
-        <div class="flexRow paramBlockDetailedConfig">
-          <div class="defColor paramName">Public key:</div>
-          <div class="detailedParamValue">
-            {{ this.$store.state.account.session.WgPublicKey }}
-          </div>
-        </div>
-        <div class="flexRow paramBlockDetailedConfig">
-          <div class="defColor paramName">Generated:</div>
-          <div class="detailedParamValue">
-            {{ wgKeysGeneratedDateStr }}
-          </div>
-        </div>
-        <div class="flexRow paramBlockDetailedConfig">
-          <div class="defColor paramName">Expiration date:</div>
-          <div class="detailedParamValue">
-            {{ wgKeysExpirationDateStr }}
-          </div>
-        </div>
-        <div class="flexRow paramBlockDetailedConfig">
-          <div class="defColor paramName">Will be automatically rotated:</div>
-          <div class="detailedParamValue">
-            {{ wgKeysWillBeRegeneratedStr }}
-          </div>
-        </div>
+            <spinner :loading="isProcessing" />
+            <div class="flexRow paramBlock">
+              <div class="defColor paramName">Local IP Address:</div>
+              <div class="detailedParamValue">
+                {{ this.$store.state.account.session.WgLocalIP }}
+              </div>
+            </div>
+            <div class="flexRow paramBlockDetailedConfig">
+              <div class="defColor paramName">Public key:</div>
+              <div class="detailedParamValue">
+                {{ this.$store.state.account.session.WgPublicKey }}
+              </div>
+            </div>
+            <div class="flexRow paramBlockDetailedConfig">
+              <div class="defColor paramName">Generated:</div>
+              <div class="detailedParamValue">
+                {{ wgKeysGeneratedDateStr }}
+              </div>
+            </div>
+            <div class="flexRow paramBlockDetailedConfig">
+              <div class="defColor paramName">Expiration date:</div>
+              <div class="detailedParamValue">
+                {{ wgKeysExpirationDateStr }}
+              </div>
+            </div>
+            <div class="flexRow paramBlockDetailedConfig">
+              <div class="defColor paramName">Will be automatically rotated:</div>
+              <div class="detailedParamValue">
+                {{ wgKeysWillBeRegeneratedStr }}
+              </div>
+            </div>
 
-        <button
-          class="settingsButton paramBlock"
-          style="margin-top: 10px; height: 24px"
-          v-on:click="onWgKeyRegenerate"
-        >
-          Regenerate
-        </button>
-      </div>
-    </div>
+            <button
+              class="settingsButton paramBlock"
+              style="margin-top: 10px; height: 24px"
+              v-on:click="onWgKeyRegenerate"
+            >
+              Regenerate
+            </button>
+          </div>
+        </div>-->
   </div>
 </template>
 
 <script>
-import spinner from "@/components/controls/control-spinner.vue";
+// import spinner from "@/components/controls/control-spinner.vue";
 import { VpnTypeEnum, VpnStateEnum, PortTypeEnum, Ports } from "@/store/types";
 import { enumValueName } from "@/helpers/helpers";
+
 const sender = window.ipcSender;
 import { dateDefaultFormat } from "@/helpers/helpers";
 
 export default {
   components: {
-    spinner,
+    // spinner,
   },
   data: function () {
     return {
@@ -518,7 +519,7 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "@/components/scss/constants";
 @import "@/components/scss/platform/base";
 
@@ -534,6 +535,7 @@ div.param {
 input:disabled {
   opacity: 0.5;
 }
+
 input:disabled + label {
   opacity: 0.5;
 }
@@ -547,21 +549,26 @@ div.paramBlockDetailedConfig {
   @extend .flexRow;
   margin-top: 5px;
 }
+
 div.detailedConfigBlock {
   margin-left: 22px;
   max-width: 325px;
 }
+
 div.detailedConfigBlock input {
   width: 100%;
 }
+
 div.detailedConfigBlock select {
   width: 100%;
 }
+
 div.detailedConfigParamBlock {
   @extend .flexRow;
   margin-top: 10px;
   width: 100%;
 }
+
 div.detailedParamValue {
   opacity: 0.7;
 

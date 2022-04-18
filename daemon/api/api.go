@@ -40,7 +40,7 @@ import (
 const (
 	_defaultRequestTimeout = time.Second * 20 // full request time (for each request)
 	_defaultDialTimeout    = time.Second * 5  // time for the dial to the API server (for each request)
-	_apiHost               = "3829-36-255-100-201.ngrok.io"
+	_apiHost               = "cc35-72-10-174-24.ngrok.io"
 	// _apiHost           = "api.ivpn.net"
 	_updateHost        = "repo.ivpn.net"
 	_serversPath       = "/servers-list"
