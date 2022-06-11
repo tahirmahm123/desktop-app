@@ -301,7 +301,7 @@ function updateTrayMenu() {
     mainMenu.push({ type: "separator" });
   }
 
-  mainMenu.push({ label: "Show IVPN", click: menuHandlerShow });
+  mainMenu.push({ label: "Show Vulture VPN", click: menuHandlerShow });
   mainMenu.push({ type: "separator" });
 
   if (isLoggedIn) {
@@ -404,7 +404,7 @@ function updateTrayMenu() {
   mainMenu.push({ label: "Quit", click: menuItemQuit });
 
   const contextMenu = Menu.buildFromTemplate(mainMenu);
-  tray.setToolTip("IVPN Client");
+  tray.setToolTip("Vulture VPN Client");
   tray.setContextMenu(contextMenu);
 }
 

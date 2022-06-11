@@ -1,10 +1,20 @@
 <template>
-  <div class="flexColumn">
-    <transition mode="out-in" name="fade-super-quick">
+  <div class="flexRow" style="align-items:center;">
+    <div>
+      <Sidebar />
+    </div>
+    <div class="mainControl">
+          <ConnectBlock
+            :isChecked="isConnected"
+            :isProgress="isInProgress"
+            :onChecked="switchChecked"
+            :onPauseResume="onPauseResume"
+            :pauseState="this.$store.state.vpnState.pauseState"
+          />
       <div
-        v-if="uiView === 'serversEntry'"
+        v-if="false&& uiView === 'serversEntry'"
         key="entryServers"
-        class="flexColumn"
+        
       >
         <Servers
           :onBack="backToMainView"
@@ -15,7 +25,7 @@
       </div>
 
       <div
-        v-else-if="uiView === 'serversExit'"
+        v-else-if="false && uiView === 'serversExit'"
         key="exitServers"
         class="flexColumn"
       >
@@ -27,55 +37,29 @@
         />
       </div>
 
-      <div v-else class="flexColumn">
+      <div v-else>
         <div>
-          <ConnectBlock
-            :isChecked="isConnected"
-            :isProgress="isInProgress"
-            :onChecked="switchChecked"
-            :onPauseResume="onPauseResume"
-            :pauseState="this.$store.state.vpnState.pauseState"
-          />
+
           <div class="horizontalLine hopButtonsSeparator" />
         </div>
 
-        <div
-          ref="scrollArea"
-          class="scrollableColumnContainer"
-          @scroll="recalcScrollButtonVisiblity()"
-        >
-          <div v-if="isMultihopAllowed">
-            <HopButtonsBlock />
-            <div class="horizontalLine hopButtonsSeparator" />
-          </div>
-
           <SelectedServerBlock :onShowServersPressed="onShowServersPressed" />
 
-          <div v-if="this.$store.state.settings.isMultiHop">
+          <!-- <div v-if="this.$store.state.settings.isMultiHop">
             <div class="horizontalLine" />
             <SelectedServerBlock
               :onShowServersPressed="onShowServersPressed"
               isExitServer="true"
             />
-          </div>
+          </div> -->
 
           <ConnectionDetailsBlock
             :onShowPorts="onShowPorts"
             :onShowWifiConfig="onShowWifiConfig"
           />
-
-          <transition name="fade">
-            <button
-              v-if="isShowScrollButton"
-              class="btnScrollDown"
-              v-on:click="onScrollDown()"
-            >
-              <img src="@/assets/arrow-bottom.svg" />
-            </button>
-          </transition>
-        </div>
       </div>
-    </transition>
+    </div>
+
   </div>
 </template>
 
@@ -84,11 +68,11 @@ import Servers from "./Servers.vue";
 import ConnectBlock from "./blocks/block-connect.vue";
 import ConnectionDetailsBlock from "./blocks/block-connection-details.vue";
 import SelectedServerBlock from "@/components/blocks/block-selected-server.vue";
-import HopButtonsBlock from "./blocks/block-hop-buttons.vue";
-
+// import HopButtonsBlock from "./blocks/block-hop-buttons.vue";
 const sender = window.ipcSender;
 import { VpnStateEnum, VpnTypeEnum, PauseStateEnum } from "@/store/types";
 import { isStrNullOrEmpty } from "@/helpers/helpers";
+import Sidebar from "./Sidebar.vue";
 
 const viewTypeEnum = Object.freeze({
   default: "default",
@@ -125,12 +109,13 @@ export default {
   },
 
   components: {
-    HopButtonsBlock,
+    // HopButtonsBlock,
     Servers,
     ConnectBlock,
     SelectedServerBlock,
     ConnectionDetailsBlock,
-  },
+    Sidebar
+},
   mounted() {
     this.recalcScrollButtonVisiblity();
 
@@ -340,4 +325,8 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 @import "@/components/scss/constants";
+.mainControl{
+  height:100vw;
+  width:100vh;
+}
 </style>

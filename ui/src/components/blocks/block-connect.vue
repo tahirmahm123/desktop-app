@@ -1,5 +1,5 @@
 <template>
-  <div class="main">
+  <div>
     <div align="left">
       <div class="small_text">Your status is</div>
       <div>
@@ -72,7 +72,15 @@
     </div>
 
     <div class="buttons">
-      <div class="buttonWithPopup" style="margin-right: 17px">
+            <div style="min-width: 50px; margin-left: auto; margin-right: 0">
+        <SwitchProgress
+          v-bind:class="{ lowOpacity: isCanResume }"
+          :onChecked="onChecked"
+          :isChecked="isChecked"
+          :isProgress="isProgress"
+        />
+      </div>
+      <div class="buttonWithPopup">
         <transition name="fade">
           <button
             class="settingsBtn"
@@ -81,7 +89,7 @@
             v-on:click="onPauseMenu"
             v-click-outside="onPauseMenuClickOutside"
           >
-            <imgPause />
+            <imgPause /> <span style="margin-left:5px;">Pause</span>  
           </button>
 
           <button
@@ -134,14 +142,7 @@
         </div>
       </div>
 
-      <div style="min-width: 50px; margin-left: auto; margin-right: 0">
-        <SwitchProgress
-          v-bind:class="{ lowOpacity: isCanResume }"
-          :onChecked="onChecked"
-          :isChecked="isChecked"
-          :isProgress="isProgress"
-        />
-      </div>
+
     </div>
   </div>
 </template>
@@ -284,15 +285,13 @@ $shadow: 0px 3px 1px rgba(0, 0, 0, 0.06),
 
 .main {
   @extend .left_panel_block;
-  display: flex;
-  justify-content: space-between;
+
+
   align-items: center;
-  min-height: 97px;
 }
 
 .buttons {
-  display: flex;
-  justify-content: space-between;
+
   align-items: center;
   min-height: 92px;
 }
@@ -318,23 +317,18 @@ $shadow: 0px 3px 1px rgba(0, 0, 0, 0.06),
 
 .settingsBtn {
   float: right;
-
-  width: 32px;
-  height: 32px;
-
-  padding: 0px;
+  padding: 8px;
   border: none;
-  border-radius: 50%;
   background-color: #ffffff;
   outline-width: 0;
   cursor: pointer;
-
   box-shadow: $shadow;
 
   // centering content
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 5px;
 }
 
 .settingsBtn:hover {

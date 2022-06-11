@@ -1,17 +1,12 @@
 <template>
   <transition name="fade-quick" appear>
     <div id="main" class="row">
-      <div id="leftPanel" class="settingsLeftPanel">
-        <div class="flexColumn">
-          <div class="row settingsLeftPanelHeader" id="leftPanelHeader">
             <button id="backBtn" class="noBordersBtn" v-on:click="goBack">
               <!-- ARROW LEFT -->
               <imgArrowLeft />
             </button>
-            <div class="Header settingsHeader">Settings</div>
-          </div>
-
-          <!-- TABS -->
+      <div class="rightPanel">
+        <div>
           <div class="row" style="flex-grow: 1">
             <div id="tabsTitle">
               <button
@@ -54,7 +49,7 @@
                   activeBtn: view === 'firewall',
                 }"
               >
-                IVPN Firewall
+                Kill Switch
               </button>
               <button
                 v-if="isLoggedIn && isSplitTunnelVisible"
@@ -65,27 +60,6 @@
                 }"
               >
                 Split Tunnel
-              </button>
-              <button
-                v-if="isLoggedIn"
-                class="noBordersBtn tabTitleBtn"
-                v-on:click="onView('networks')"
-                v-bind:class="{
-                  activeBtn: view === 'networks',
-                }"
-              >
-                WiFi control
-              </button>
-
-              <button
-                v-if="isLoggedIn"
-                class="noBordersBtn tabTitleBtn"
-                v-on:click="onView('antitracker')"
-                v-bind:class="{
-                  activeBtn: view === 'antitracker',
-                }"
-              >
-                AntiTracker
               </button>
               <button
                 v-if="isLoggedIn"
@@ -110,28 +84,7 @@
           -->
             </div>
           </div>
-
-          <!-- VERSION -->
-          <div class="flexRow" style="flex-grow: 1">
-            <div class="flexRow" style="margin: 20px; flex-grow: 1">
-              <div style="flex-grow: 1; text-align: center">
-                <div v-if="versionSingle" class="version">
-                  <!-- single version -->
-                  {{ versionSingle }}
-                </div>
-
-                <div v-else>
-                  <!-- daemon and UI versions different-->
-                  <div class="version">{{ versionUI }}</div>
-                  <div class="version">daemon {{ versionDaemon }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-
-      <div class="rightPanel">
         <div class="flexColumn" v-if="view === 'connection'">
           <connectionView />
         </div>
@@ -189,7 +142,7 @@ export default {
     networksView,
     antitrackerView,
     dnsView,
-    imgArrowLeft,
+    imgArrowLeft
   },
   mounted() {
     this.onBeforeViewCloseHandler = null;
@@ -291,14 +244,13 @@ div.row {
   padding-bottom: 38px;
 }
 #tabsTitle {
-  width: 100%;
-
+  align-items: center;
+  flex-direction: row;
+  margin-bottom: 30px;
   display: flex;
-  flex-flow: column;
   overflow: auto;
-
-  margin-left: $back-btn-width;
 }
+
 .rightPanel {
   margin-top: 58px;
   margin-left: 34px;
@@ -326,7 +278,6 @@ div.row {
   font-weight: 800;
   font-size: 24px;
   line-height: 29px;
-
   letter-spacing: -0.3px;
   text-transform: capitalize;
 }
@@ -336,14 +287,11 @@ button.noBordersBtn {
   background-color: inherit;
   outline-width: 0;
   cursor: pointer;
-  width: 100%;
+  width: auto;
 }
 button.tabTitleBtn {
   display: flex;
-  padding: 0px;
-
-  margin-bottom: 19px;
-
+  padding: 6px 10px;;
   font-size: 14px;
   line-height: 17px;
 
@@ -352,6 +300,10 @@ button.tabTitleBtn {
 button.activeBtn {
   font-weight: 500;
   color: #3b99fc;
+  background-color: #fff ;
+  box-shadow: 1px 1px 48px -21px rgba(0,0,0,0.4);
+-webkit-box-shadow: 1px 1px 48px -21px rgba(0,0,0,0.4);
+-moz-box-shadow: 1px 1px 48px -21px rgba(0,0,0,0.4);
 }
 div.version {
   color: gray;

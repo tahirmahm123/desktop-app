@@ -1,51 +1,25 @@
 <template>
-  <div id="flexview">
-    <div class="flexColumn">
+  <div>
       <div class="leftPanelTopSpace">
-        <transition :name="minimizedButtonsTransition">
           <div
-            v-if="isMinimizedButtonsVisible"
-            class="minimizedButtonsPanel leftPanelTopMinimizedButtonsPanel"
-            v-bind:class="{
-              minimizedButtonsPanelRightElements: isWindowHasFrame,
-            }"
-          >
+            class="minimizedButtonsPanel leftPanelTopMinimizedButtonsPanel">
             <button v-on:click="onAccountSettings()">
               <img src="@/assets/user.svg" />
             </button>
-
-            <button v-on:click="onSettings()">
-              <img src="@/assets/settings.svg" />
-            </button>
-
-            <!--            <button v-on:click="onMaximize(true)">
-                          <img src="@/assets/maximize.svg" />
-                        </button>-->
           </div>
-        </transition>
       </div>
-      <div class="flexColumn" style="min-height: 0px">
+
+      <div style="min-height: 0px">
         <transition mode="out-in" name="fade">
           <component
             v-bind:is="currentViewComponent"
-            id="left"
             :onConnectionSettings="onConnectionSettings"
             :onDefaultView="onDefaultLeftView"
             :onWifiSettings="onWifiSettings"
           ></component>
         </transition>
       </div>
-    </div>
-    <div v-if="!isMinimizedUI" id="right">
-      <transition appear name="fade">
-        <!--        <Map
-                  :isBlured="isMapBlured"
-                  :onAccountSettings="onAccountSettings"
-                  :onMinimize="() => onMaximize(false)"
-                  :onSettings="onSettings"
-                />-->
-      </transition>
-    </div>
+
   </div>
 </template>
 
@@ -58,6 +32,7 @@ import Init from "@/components/Init.vue";
 import Login from "@/components/Login.vue";
 import Control from "@/components/Control.vue";
 import Map from "@/components/Map.vue";
+import Sidebar from "@/components/Sidebar.vue";
 
 export default {
   components: {
@@ -65,6 +40,7 @@ export default {
     Login,
     Control,
     Map,
+    Sidebar
   },
   data: function () {
     return {
@@ -150,9 +126,9 @@ export default {
 }
 
 #left {
-  width: 320px;
-  min-width: 320px;
-  max-width: 320px;
+  width: 690px;
+  min-width: 690px;
+  max-width: 690px;
 }
 
 #right {

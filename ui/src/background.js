@@ -233,7 +233,7 @@ if (gotTheLock) {
     daemonClient.RegisterMsgBoxFunc(dialog.showMessageBox);
 
     // MACOS: Check is application is located in correct place (path)
-    if (Platform() === PlatformEnum.macOS && !process.env.IS_DEBUG) {
+    if (false && Platform() === PlatformEnum.macOS && !process.env.IS_DEBUG) {
       let appPath = app.getAppPath();
       if (!appPath.startsWith("/Applications/IVPN.app/")) {
         console.log(`Failed to start. Wrong application path: ${appPath}`);
@@ -559,7 +559,7 @@ function createWindow(doNotShowWhenReady) {
       store.state.settings.showAppInSystemDock !== false ? false : true,
 
     center: true,
-    title: "IVPN",
+    title: "Vulture VPN",
 
     frame: IsWindowHasFrame(),
     titleBarStyle: "hidden", // applicable only for macOS
@@ -729,7 +729,7 @@ function createUpdateWindow() {
     minimizable: false,
 
     center: true,
-    title: "IVPN Update",
+    title: "Vulture  Update",
 
     autoHideMenuBar: true,
 

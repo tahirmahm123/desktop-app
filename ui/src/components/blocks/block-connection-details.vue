@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <!-- <div>
       <div class="horizontalLine" />
       <div id="connection_header">
         <div style="height: 24px"></div>
@@ -8,7 +8,7 @@
         <span class="block datails_text"> CONNECTION DETAILS </span>
       </div>
       <div class="horizontalLine" />
-    </div>
+    </div> -->
 
     <!-- FIREWALL -->
 
@@ -26,7 +26,7 @@
       :isProgress="firewallIsProgress"
     />
 
-    <!-- ANTITRACKER -->
+    <!-- ANTITRACKER
     <div class="horizontalLine" />
 
     <OnOffButtonControl
@@ -39,7 +39,7 @@
         this.$store.state.settings.isAntitrackerHardcore ? '#77152a' : null
       "
       :isProgress="antitrackerIsProgress"
-    />
+    /> -->
 
     <!-- PROTOCOL -->
     <div class="horizontalLine" />

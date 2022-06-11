@@ -5,7 +5,7 @@
 
       <div class="column">
         <div class="centered" style="margin-top: -50px; margin-bottom: 50px">
-          <img src="@/assets/logo.svg" />
+          <h1>Vulture VPN</h1>
         </div>
 
         <div v-if="isCaptchaRequired">
