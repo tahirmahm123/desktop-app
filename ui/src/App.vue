@@ -97,8 +97,6 @@ button:hover {
   -webkit-app-region: drag;
   height: 24px;
   width: 100%;
-
-  position: absolute;
 }
 
 .border {

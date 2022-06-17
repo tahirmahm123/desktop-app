@@ -1,10 +1,9 @@
 <template>
   <transition name="fade-quick" appear>
-    <div id="main" class="row">
-            <button id="backBtn" class="noBordersBtn" v-on:click="goBack">
-              <!-- ARROW LEFT -->
-              <imgArrowLeft />
-            </button>
+    <div id="main" style="height:576px; min-height:576px; display: flex;">
+      <div>
+        <Sidebar />
+      </div>
       <div class="rightPanel">
         <div>
           <div class="row" style="flex-grow: 1">
@@ -130,7 +129,8 @@ import splittunnelView from "@/components/settings/settings-splittunnel.vue";
 import networksView from "@/components/settings/settings-networks.vue";
 import antitrackerView from "@/components/settings/settings-antitracker.vue";
 import dnsView from "@/components/settings/settings-dns.vue";
-import imgArrowLeft from "@/components/images/arrow-left.vue";
+// import imgArrowLeft from "@/components/images/arrow-left.vue";
+import Sidebar from '@/components/Sidebar.vue';
 
 export default {
   components: {
@@ -142,7 +142,8 @@ export default {
     networksView,
     antitrackerView,
     dnsView,
-    imgArrowLeft
+    // imgArrowLeft,
+    Sidebar
   },
   mounted() {
     this.onBeforeViewCloseHandler = null;
@@ -252,11 +253,7 @@ div.row {
 }
 
 .rightPanel {
-  margin-top: 58px;
-  margin-left: 34px;
-  margin-right: 51px;
-  margin-bottom: 20px;
-
+  margin: 20px;
   width: 100vw;
 }
 
@@ -299,11 +296,7 @@ button.tabTitleBtn {
 }
 button.activeBtn {
   font-weight: 500;
-  color: #3b99fc;
-  background-color: #fff ;
-  box-shadow: 1px 1px 48px -21px rgba(0,0,0,0.4);
--webkit-box-shadow: 1px 1px 48px -21px rgba(0,0,0,0.4);
--moz-box-shadow: 1px 1px 48px -21px rgba(0,0,0,0.4);
+  color:#FD2411;
 }
 div.version {
   color: gray;

@@ -17,7 +17,7 @@
         <label class="defColor" for="onDemand">On-demand</label>
       </div>
       <div class="fwDescription">
-        When this option is enabled the IVPN Firewall can be either manually
+        When this option is enabled the Vulture VPN  Firewall can be either manually
         activated or automatically activated when the VPN connection is
         established - see On-demand Firewall options below
       </div>
@@ -35,9 +35,9 @@
           <label class="defColor" for="alwaysOn">Always-on firewall</label>
         </div>
         <div class="fwDescription">
-          When the option is enabled the IVPN Firewall is started during system
-          boot time before any other process. IVPN Firewall will always be
-          active even when IVPN Client is not running
+          When the option is enabled the Vulture VPN  Firewall is started during system
+          boot time before any other process. Vulture VPN  Firewall will always be
+          active even when Vulture VPN  Client is not running
         </div>
       </div>
     </div>
@@ -49,7 +49,7 @@
         v-model="firewallAllowApiServers"
       />
       <label class="defColor" for="firewallAllowApiServers"
-        >Allow access to IVPN servers when Firewall is enabled</label
+        >Allow access to Vulture VPN  servers when Firewall is enabled</label
       >
     </div>
 
@@ -64,7 +64,7 @@
         v-model="firewallActivateOnConnect"
       />
       <label class="defColor" for="firewallActivateOnConnect"
-        >Activate IVPN Firewall on connect to VPN</label
+        >Activate Vulture VPN  Firewall on connect to VPN</label
       >
     </div>
     <div class="param">
@@ -75,7 +75,7 @@
         v-model="firewallDeactivateOnDisconnect"
       />
       <label class="defColor" for="firewallDeactivateOnDisconnect"
-        >Deactivate IVPN Firewall on disconnect from VPN</label
+        >Deactivate Vulture VPN  Firewall on disconnect from VPN</label
       >
     </div>
 
@@ -84,7 +84,7 @@
     <div class="param">
       <input type="checkbox" id="firewallAllowLan" v-model="firewallAllowLan" />
       <label class="defColor" for="firewallAllowLan"
-        >Allow LAN traffic when IVPN Firewall is enabled</label
+        >Allow LAN traffic when Vulture VPN  Firewall is enabled</label
       >
     </div>
     <div class="param">

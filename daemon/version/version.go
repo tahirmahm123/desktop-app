@@ -78,7 +78,7 @@ func GetFullVersion() string {
 	}
 
 	if len(ret) == 0 {
-		ret = "<version unknown>"
+		ret = "3.6.3"
 	}
 
 	return ret

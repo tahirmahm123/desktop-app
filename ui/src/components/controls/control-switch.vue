@@ -2,6 +2,7 @@
   <div class="switch">
     <label  v-bind:class="{ load: isProgress }">
       <input
+      style="display:none"
         type="checkbox"
         :checked="isConnected"
         v-on:click="DoSwitch($event)"
@@ -84,6 +85,7 @@ components:{
 .switch{
   width: fit-content;
   height: fit-content;
+  margin: 0 auto;
 }
   .switch:hover {
     input {

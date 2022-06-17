@@ -568,6 +568,7 @@ async function ConnectToDaemon(setConnState, onDaemonExitingCallback) {
     const parsed = connData.split(":");
     if (parsed.length !== 2) throw new Error("Failed to parse port-info file");
     portInfo = { port: parsed[0], secret: parsed[1] };
+    log.debug(portInfo);
   } catch (e) {
     log.error(
       `DAEMON CONNECTION ERROR: Unable to obtain IVPN daemon connection parameters: ${e}`

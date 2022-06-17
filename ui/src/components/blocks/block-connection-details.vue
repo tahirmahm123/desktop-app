@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flexRow">
     <!-- <div>
       <div class="horizontalLine" />
       <div id="connection_header">
@@ -14,7 +14,7 @@
 
     <OnOffButtonControl
       v-bind:class="{ lowOpacity: IsPaused }"
-      text="Firewall"
+      text="Kill Switch"
       description="Ensure that all traffic is routed through VPN"
       :onChecked="firewallOnChecked"
       :isChecked="this.$store.state.vpnState.firewallState.IsEnabled"
@@ -42,7 +42,6 @@
     /> -->
 
     <!-- PROTOCOL -->
-    <div class="horizontalLine" />
 
     <SelectButtonControl
       class="leftPanelBlock"
@@ -56,36 +55,23 @@
       name="fade"
       v-if="isTrustedNetworksControlActive || isConnectVPNOnInsecureNetwork"
     >
-      <div v-if="wifiSSID">
-        <div class="horizontalLine" />
-
-        <SelectButtonControl
-          class="leftPanelBlock"
-          :click="onShowWifiConfig"
-          v-bind:text="wifiSSID"
-          :description="wifiSSID == '' ? 'No WiFi connection' : 'WiFi network'"
-          :markerText="WiFiMarkerText"
-          :markerColor="WiFiMarkerColor"
-          :markerTextColor="'var(--text-color-details)'"
-        />
-      </div>
     </transition>
 
     <!-- GEOLOCATOIN INFO -->
-    <transition name="fade">
-      <div v-if="$store.state.settings.minimizedUI">
+    <!-- <transition name="fade">
+      <div >
         <div class="horizontalLine" />
 
         <GeolocationInfoControl class="blockWithMrgings" />
       </div>
-    </transition>
+    </transition> -->
   </div>
 </template>
 
 <script>
 import OnOffButtonControl from "@/components/controls/control-config-on-off-button.vue";
 import SelectButtonControl from "@/components/controls/control-config-to-select-button.vue";
-import GeolocationInfoControl from "@/components/controls/control-geolocation-info.vue";
+// import GeolocationInfoControl from "@/components/controls/control-geolocation-info.vue";
 const sender = window.ipcSender;
 import { enumValueName } from "@/helpers/helpers";
 import {
@@ -108,7 +94,7 @@ export default {
   components: {
     OnOffButtonControl,
     SelectButtonControl,
-    GeolocationInfoControl,
+    // GeolocationInfoControl,
   },
   props: ["onShowPorts", "onShowWifiConfig"],
   data: function () {

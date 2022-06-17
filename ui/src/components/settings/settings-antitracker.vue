@@ -3,10 +3,10 @@
     <div class="settingsTitle">ANTITRACKER SETTINGS</div>
 
     <div class="defColor" style="margin-bottom: 24px">
-      When AntiTracker is enabled, IVPN blocks ads, malicious websites, and
+      When AntiTracker is enabled, Vulture VPN blocks ads, malicious websites, and
       third-party trackers using our private DNS servers.
       <button class="link" v-on:click="onLearnMoreLink">Learn more</button>
-      about how IVPN AntiTracker is implemented.
+      about how Vulture VPN AntiTracker is implemented.
     </div>
 
     <div class="param">

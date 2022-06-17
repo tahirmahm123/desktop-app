@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mainScreenCards">
     <div class="switchButton">
       <div align="left">
         <div class="large_text">{{ text }}</div>
@@ -67,5 +67,12 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.mainScreenCards {
+border:1px solid rgba(0,0,0, 0.1);    
+border-radius: 12px;    
+width: 50%;    
+margin: 10px;
+  
 }
 </style>

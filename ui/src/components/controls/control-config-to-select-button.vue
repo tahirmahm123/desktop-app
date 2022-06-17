@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mainScreenCards">
     <button id="selectBtn" class="flexRow" v-on:click="click">
       <div align="left" class="flexRowRestSpace">
         <div class="small_text">{{ description }}</div>
@@ -62,11 +62,17 @@ export default {
   background-color: inherit;
   outline-width: 0;
   cursor: pointer;
-
+margin: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   width: 100%;
+}
+.mainScreenCards {
+border:1px solid rgba(0,0,0, 0.1);    
+border-radius: 12px;    
+width: 50%;    
+margin: 10px;
 }
 </style>

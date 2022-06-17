@@ -187,11 +187,13 @@
         v-for="server of filteredServers"
         v-bind:key="server.gateway"
         class="flexRow"
+        
       >
         <button
           class="serverSelectBtn flexRow"
           v-bind:class="{ disabledButton: isInaccessibleServer(server) }"
           v-on:click="onServerSelected(server)"
+          style="justify-content:space-between;"
         >
           <serverNameControl
             :isCountryFirst="sortTypeStr === 'Country'"
@@ -648,15 +650,15 @@ input#filter {
 }
 
 .serverSelectBtn {
-  border: none;
+  border: 1px solid rgba(139, 154, 171, 0.17);
   background-color: inherit;
   outline-width: 0;
   cursor: pointer;
-
+  margin: 10px 0;
   height: 48px;
   width: 100%;
 
-  padding: 0px;
+  padding: 10px;
 }
 
 .serverName {

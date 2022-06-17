@@ -1,111 +1,120 @@
 <template>
-  <div class="flexColumn">
-    <div class="flexRow flexRowRestSpace">
-      <spinner :loading="isProcessing" />
+  <div class="flexRow" >
+    <div style="width:400px; text-align: center; padding: 20px;">
+        <img src="@/assets/auth-illustration.svg" alt="">
+        <h3>Lorem ipsum dolor</h3>
+        <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod. tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.</p>
+    </div>
+    <div class="login-form">
+      <div class="flexRow flexRowRestSpace">
+        <spinner :loading="isProcessing" />
 
-      <div class="column">
-        <div class="centered" style="margin-top: -50px; margin-bottom: 50px">
-          <h1>Vulture VPN</h1>
-        </div>
-
-        <div v-if="isCaptchaRequired">
-          <!-- CAPTCHA -->
-          <div class="centered">
-            <div class="large_text">Captcha Required</div>
-            <div style="height: 12px" />
-            <div class="small_text">Please enter number you see below</div>
+        <div class="column">
+          <div class="centered" style="margin-top: 50px; margin-bottom: 50px">
+            <img src="@/assets/auth-card-logo.svg" alt="">
           </div>
 
-          <div style="height: 21px" />
-          <img :src="captchaImage" :style="capchaImageStyle" />
-          <div style="height: 12px" />
-          <input
-            ref="captcha"
-            v-model="captcha"
-            class="styledBig"
-            placeholder="xxxxxx"
-            style="text-align: center"
-            v-on:keyup="keyup($event)"
-          />
-        </div>
-        <div v-else-if="is2FATokenRequired">
-          <!-- 2FA TOKEN -->
-          <div class="centered">
-            <div class="large_text">2-Factor Authentication</div>
-            <div style="height: 12px" />
-            <div class="small_text">
-              Account has two-factor authentication enabled. Please enter TOTP
-              token to login
+          <div v-if="isCaptchaRequired">
+            <!-- CAPTCHA -->
+            <div class="centered">
+              <div class="large_text">Captcha Required</div>
+              <div style="height: 12px" />
+              <div class="small_text">Please enter number you see below</div>
             </div>
-          </div>
 
-          <div style="height: 21px" />
-
-          <input
-            ref="accountid"
-            v-model="confirmation2FA"
-            class="styledBig"
-            placeholder="xxxxxx"
-            style="text-align: center"
-            v-on:keyup="keyup($event)"
-          />
-        </div>
-        <div v-else>
-          <!-- ACCOUNT ID -->
-          <div class="centered">
-            <div class="large_text">Login to Your Account</div>
+            <div style="height: 21px" />
+            <img :src="captchaImage" :style="capchaImageStyle" />
             <div style="height: 12px" />
+            <input
+              ref="captcha"
+              v-model="captcha"
+              class="styledBig"
+              placeholder="xxxxxx"
+              style="text-align: center"
+              v-on:keyup="keyup($event)"
+            />
           </div>
-          <p ref="errorMessage" style="color: red; display: none"></p>
-          <div style="height: 21px" />
+          <div v-else-if="is2FATokenRequired">
+            <!-- 2FA TOKEN -->
+            <div class="centered">
+              <div class="large_text">2-Factor Authentication</div>
+              <div style="height: 12px" />
+              <div class="small_text">
+                Account has two-factor authentication enabled. Please enter TOTP
+                token to login
+              </div>
+            </div>
 
-          <input
-            ref="username"
-            v-model="username"
-            class="styledBig"
-            placeholder="Email/Username"
-            style="text-align: center; margin-bottom: 5px"
-            v-on:keyup="keyup($event)"
-          />
-          <input
-            ref="password"
-            v-model="password"
-            class="styledBig"
-            placeholder="Password"
-            style="text-align: center"
-            v-on:keyup="keyup($event)"
-          />
+            <div style="height: 21px" />
+
+            <input
+              ref="accountid"
+              v-model="confirmation2FA"
+              class="styledBig"
+              placeholder="xxxxxx"
+              style="text-align: center"
+              v-on:keyup="keyup($event)"
+            />
+          </div>
+          <div v-else>
+            <!-- ACCOUNT ID -->
+            <div class="centered">
+              <div class="large_text">Login to Your Account</div>
+              <div style="height: 12px" />
+            </div>
+            <p ref="errorMessage" style="color: red; display: none"></p>
+            <div style="height: 21px" />
+
+            <input
+              ref="username"
+              v-model="username"
+              class="styledBig"
+              placeholder="Email/Username"
+              style="text-align: center; margin-bottom: 5px"
+              v-on:keyup="keyup($event)"
+            />
+            <input
+              ref="password"
+              v-model="password"
+              class="styledBig"
+              placeholder="Password"
+              style="text-align: center"
+              v-on:keyup="keyup($event)"
+            />
+          </div>
+
+          <div style="height: 24px" />
+          <button class="master" v-on:click="Login">Log In</button>
+          <div style="height: 12px" />
+
+          <button
+            v-if="!isCaptchaRequired && !is2FATokenRequired"
+            class="slave"
+            v-on:click="CreateAccount"
+          >
+            Create an account
+          </button>
+          <button v-else class="slave" v-on:click="Cancel">Cancel</button>
+        </div>
+      </div>
+
+      <div class="flexRow leftright_margins" style="margin: 20px;">
+        <div
+          class="flexRow flexRowRestSpace switcher_small_text"
+          style="margin-right: 10px"
+        >
+          {{ firewallStatusText }}
         </div>
 
-        <div style="height: 24px" />
-        <button class="master" v-on:click="Login">Log In</button>
-        <div style="height: 12px" />
-
-        <button
-          v-if="!isCaptchaRequired && !is2FATokenRequired"
-          class="slave"
-          v-on:click="CreateAccount"
-        >
-          Create an account
-        </button>
-        <button v-else class="slave" v-on:click="Cancel">Cancel</button>
+        <SwitchProgress
+          :isChecked="this.$store.state.vpnState.firewallState.IsEnabled"
+          :isProgress="firewallIsProgress"
+          :onChecked="firewallOnChecked"
+        />
       </div>
     </div>
 
-    <div class="flexRow leftright_margins" style="margin-bottom: 20px">
-      <div
-        class="flexRow flexRowRestSpace switcher_small_text"
-        style="margin-right: 10px"
-      >
-        {{ firewallStatusText }}
-      </div>
 
-      <SwitchProgress
-        :isChecked="this.$store.state.vpnState.firewallState.IsEnabled"
-        :isProgress="firewallIsProgress"
-        :onChecked="firewallOnChecked"
-      />
-    </div>
   </div>
 </template>
 
@@ -169,7 +178,7 @@ export default {
   },
   mounted() {
     // COLOR SCHEME
-    window.matchMedia("(prefers-color-scheme: dark)").addListener(() => {
+    window.matchMedia("(prefers-color-scheme: light)").addListener(() => {
       this.updateColorScheme();
     });
     this.updateColorScheme();
@@ -283,7 +292,7 @@ export default {
       }
     },
     CreateAccount() {
-      sender.shellOpenExternal(`https://www.ivpn.net/signup`);
+      sender.shellOpenExternal(`https://www.vulturevpn.com/signup`);
     },
     Cancel() {
       this.rawResponse = null;
@@ -420,5 +429,13 @@ export default {
   font-size: 11px;
   line-height: 13px;
   color: var(--text-color-details);
+}
+.login-form{
+width:340px; 
+background-color: white; 
+border-radius: 10px;
+-webkit-box-shadow: 0px 0px 41px -18px rgba(0,0,0,0.5);
+-moz-box-shadow: 0px 0px 41px -18px rgba(0,0,0,0.5);
+box-shadow: 0px 0px 41px -18px rgba(0,0,0,0.5);
 }
 </style>

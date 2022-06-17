@@ -1,16 +1,15 @@
 <template>
-  <div>
-    <div align="left">
+  <div style="height:220px; margin-top: 30px;">
+    <div align="center">
       <div class="small_text">Your status is</div>
       <div>
-        <div class="large_text">
+        <div>
           {{ protectedText }}
         </div>
 
         <div
           v-if="isCanResume"
           class="buttonWithPopup"
-          style="position: absolute"
         >
           <button
             class="noBordersBtn"
@@ -18,7 +17,7 @@
             v-on:click="onAddPauseTimeMenu"
             v-click-outside="onPauseMenuClickOutside"
           >
-            <div class="small_text" align="left" style="min-width: 80px">
+            <div class="small_text" align="center" style="min-width: 80px">
               {{ pauseTimeLeftText }}
             </div>
           </button>
@@ -193,9 +192,9 @@ export default {
     },
     protectedText: function () {
       if (this.$store.state.vpnState.pauseState === PauseStateEnum.Paused)
-        return "paused";
-      if (this.isChecked !== true || this.isCanResume) return "disconnected";
-      return "connected";
+        return "Paused";
+      if (this.isChecked !== true || this.isCanResume) return "Disconnected";
+      return "Connected";
     },
     isConnected: function () {
       return this.$store.getters["vpnState/isConnected"];
@@ -337,10 +336,10 @@ $shadow: 0px 3px 1px rgba(0, 0, 0, 0.06),
 
 .settingsBtnResume {
   @extend .settingsBtn;
-  background-color: #449cf8;
+  background-color: #FD2411;
 }
 
 .settingsBtnResume:hover {
-  background-color: #3377ff;
+  background-color: #A80004;
 }
 </style>

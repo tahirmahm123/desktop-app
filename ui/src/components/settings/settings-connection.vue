@@ -307,9 +307,9 @@ export default {
       sender.showMessageBoxSync({
         type: "info",
         buttons: ["OK"],
-        message: "You are now connected to IVPN",
+        message: "You are now connected to Vulture VPN",
         detail:
-          "You can change VPN protocol settings only when IVPN is disconnected.",
+          "You can change VPN protocol settings only when Vulture VPN is disconnected.",
       });
 
       return false;

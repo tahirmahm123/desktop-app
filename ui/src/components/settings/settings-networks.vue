@@ -384,7 +384,7 @@ button.selectableButtonOff {
 
 button.selectableButtonOn {
   @extend .selectableButtonOff;
-  border-bottom: 2px solid #449cf8;
+  border-bottom: 2px solid #FD2411;
 }
 
 button.selectableButtonSeparator {

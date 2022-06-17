@@ -142,6 +142,7 @@ func Launch() {
 			defer file.Close()
 			file.WriteString(fmt.Sprintf("%d:%x", openedPort, secret))
 		}
+		logger.Debug(fmt.Sprintf("Open Port: %d", openedPort))
 		// inform OS-specific implementation about listener port
 		doStartedOnPort(openedPort, secret)
 	}()

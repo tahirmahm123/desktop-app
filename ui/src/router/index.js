@@ -26,6 +26,7 @@ import Main from "../views/Main.vue";
 import AccountLimit from "../views/AccountLimit.vue";
 import Settings from "../views/Settings.vue";
 import Update from "../views/dialogs/Update.vue";
+import Servers from "../views/Servers.vue";
 
 Vue.use(VueRouter);
 
@@ -39,6 +40,11 @@ const mainRoutes = [
     path: "/account_limit",
     name: "AccountLimit",
     component: AccountLimit,
+  },
+  {
+    path: "/servers",
+    name: "servers",
+    component: Servers,
   },
   {
     path: "/settings/:view",

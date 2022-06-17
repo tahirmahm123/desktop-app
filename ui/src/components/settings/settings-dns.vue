@@ -5,7 +5,7 @@
     <div class="param">
       <input type="checkbox" id="dnsIsCustom" v-model="dnsIsCustom" />
       <label class="defColor" for="dnsIsCustom"
-        >Use custom DNS server when connected to IVPN</label
+        >Use custom DNS server when connected to Vulture VPN</label
       >
     </div>
 

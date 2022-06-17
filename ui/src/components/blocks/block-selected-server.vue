@@ -3,7 +3,7 @@
     <button class="serverSelectBtn" v-on:click="showServersList()">
       <div class="flexRow" style="height: 100%">
         <div class="flexColumn" align="left">
-          <div class="small_text" style="margin-top: 8px">
+          <div class="small_text">
             {{
               this.isExitServer
                 ? "Exit server"
@@ -102,6 +102,10 @@ export default {
 
 #main {
   @extend .left_panel_block;
+  border:1px solid rgba(0,0,0, 0.1);    
+  border-radius: 12px;        
+  margin: 10px;
+  
 }
 
 .small_text {
@@ -116,8 +120,8 @@ export default {
   border: none;
   background-color: inherit;
   outline-width: 0;
+  margin: 5px 20px;
   cursor: pointer;
-
   height: 82px;
   width: 100%;
 

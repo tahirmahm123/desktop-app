@@ -1,25 +1,21 @@
 <template>
-  <div  style="align-items:center; margin: 20px 20 20px 0;  width: 100%;">
-  <img src="@/assets/top-logo.svg" alt="" style="margin-left:10px">
+  <div style="height:576px; min-height:576px; display: flex;">
     <div>
-          <ConnectBlock
-            :isChecked="isConnected"
-            :isProgress="isInProgress"
-            :onChecked="switchChecked"
-            :onPauseResume="onPauseResume"
-            :pauseState="this.$store.state.vpnState.pauseState"
-          />
-        <div
-          v-if="uiView === 'serversEntry'"
-          key="entryServers"
-        >
-          <Servers
-            :onBack="backToMainView"
-            :onFastestServer="onFastestServer"
-            :onRandomServer="onRandomServer"
-            :onServerChanged="onServerChanged"
-          />
-        </div>
+      <Sidebar />
+    </div>
+    <div class="mainControl">
+      <div
+        v-if="uiView === 'serversEntry'"
+        key="entryServers"
+        
+      >
+        <Servers
+          :onBack="backToMainView"
+          :onFastestServer="onFastestServer"
+          :onRandomServer="onRandomServer"
+          :onServerChanged="onServerChanged"
+        />
+      </div>
 
       <div
         v-else-if="uiView === 'serversExit'"
@@ -35,8 +31,16 @@
       </div>
 
       <div v-else>
+        <div>
+                  <Servers
+          :onBack="backToMainView"
+          :onFastestServer="onFastestServer"
+          :onRandomServer="onRandomServer"
+          :onServerChanged="onServerChanged"
+        />
+        </div>
 
-          <SelectedServerBlock :onShowServersPressed="onShowServersPressed" />
+          <!-- <SelectedServerBlock :onShowServersPressed="onShowServersPressed" /> -->
 
           <!-- <div v-if="this.$store.state.settings.isMultiHop">
             <div class="horizontalLine" />
@@ -46,10 +50,6 @@
             />
           </div> -->
 
-          <ConnectionDetailsBlock
-            :onShowPorts="onShowPorts"
-            :onShowWifiConfig="onShowWifiConfig"
-          />
       </div>
     </div>
 
@@ -57,14 +57,12 @@
 </template>
 
 <script>
-import Servers from "./Servers.vue";
-import ConnectBlock from "./blocks/block-connect.vue";
-import ConnectionDetailsBlock from "./blocks/block-connection-details.vue";
-import SelectedServerBlock from "@/components/blocks/block-selected-server.vue";
+import Servers from "@/components/Servers.vue";
 // import HopButtonsBlock from "./blocks/block-hop-buttons.vue";
 const sender = window.ipcSender;
 import { VpnStateEnum, VpnTypeEnum, PauseStateEnum } from "@/store/types";
 import { isStrNullOrEmpty } from "@/helpers/helpers";
+import Sidebar from "@/components/Sidebar.vue";
 
 const viewTypeEnum = Object.freeze({
   default: "default",
@@ -103,9 +101,8 @@ export default {
   components: {
     // HopButtonsBlock,
     Servers,
-    ConnectBlock,
-    SelectedServerBlock,
-    ConnectionDetailsBlock,
+
+    Sidebar
 },
   mounted() {
     this.recalcScrollButtonVisiblity();

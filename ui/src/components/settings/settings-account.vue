@@ -1,5 +1,5 @@
 <template>
-  <div class="flexColumn">
+  <div>
     <div class="settingsTitle">ACCOUNT SETTINGS</div>
 
     <div class="flexColumn">
@@ -108,7 +108,7 @@
     </div>
 
     <div class="flexRow">
-      <button id="logoutButton" v-on:click="logOut()">LOG OUT</button>
+      <button id="logoutButton" class="master" v-on:click="logOut()">LOG OUT</button>
     </div>
   </div>
 </template>
@@ -171,7 +171,7 @@ export default {
       // show dialog ("confirm to logout")
       let needToDisableFirewall = true;
       let needToResetSettings = false;
-      const mes = "Do you really want to log out IVPN account?";
+      const mes = "Do you really want to log out Vulture VPN account?";
       const mesResetSettings = "Reset application settings to defaults";
 
       if (isNeedPromptFirewallStatus == true) {
@@ -370,13 +370,11 @@ export default {
   padding: 5px;
   margin-right: auto;
   margin-left: auto;
-
   font-weight: 500;
   font-size: 10px;
   line-height: 12px;
-
   letter-spacing: 1px;
-
-  color: #8b9aab;
+  background: rgb(253, 36, 17,0.4);
+  color: #fd2411;
 }
 </style>
