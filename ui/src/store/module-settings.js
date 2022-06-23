@@ -40,7 +40,7 @@ const getDefaultState = () => {
 
     // VPN
     enableIPv6InTunnel: false,
-    vpnType: VpnTypeEnum.WireGuard,
+    vpnType: VpnTypeEnum.OpenVpn,
     isMultiHop: false,
     serverEntry: null,
     serverExit: null,
@@ -64,7 +64,6 @@ const getDefaultState = () => {
 
     port: {
       OpenVPN: Ports.OpenVPN[0],
-      WireGuard: Ports.WireGuard[0],
     },
 
     ovpnProxyType: "",
@@ -119,7 +118,7 @@ const getDefaultState = () => {
     minimizeToTray: true,
     showAppInSystemDock: false,
     serversSortType: ServersSortTypeEnum.City,
-    colorTheme: ColorTheme.system,
+    colorTheme: ColorTheme.light,
     connectSelectedMapLocation: false,
     windowRestorePosition: null, // {x=xxx, y=xxx}
 
