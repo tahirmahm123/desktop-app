@@ -187,13 +187,12 @@
         v-for="server of filteredServers"
         v-bind:key="server.gateway"
         class="flexRow"
-        
       >
         <button
           class="serverSelectBtn flexRow"
           v-bind:class="{ disabledButton: isInaccessibleServer(server) }"
           v-on:click="onServerSelected(server)"
-          style="justify-content:space-between;"
+          style="justify-content: space-between"
         >
           <serverNameControl
             :isCountryFirst="sortTypeStr === 'Country'"
@@ -280,7 +279,6 @@ export default {
     ClickOutside,
   },
   props: [
-    "onBack",
     "onServerChanged",
     "isExitServer",
     "onFastestServer",
@@ -456,6 +454,9 @@ export default {
   },
 
   methods: {
+    onBack: function () {
+      this.$router.push("/");
+    },
     goBack: function () {
       if (this.isFastestServerConfig) {
         this.filter = "";

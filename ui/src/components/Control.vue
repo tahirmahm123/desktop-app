@@ -1,63 +1,61 @@
 <template>
-  <div  style="align-items:center; margin: 20px 20 20px 0;  width: 100%;">
-  <img src="@/assets/top-logo.svg" alt="" style="margin-left:10px">
+  <div style="align-items: center; margin: 20px 20 20px 0; width: 100%">
+    <img src="@/assets/top-logo.svg" alt="" style="margin-left: 10px" />
     <div>
-          <ConnectBlock
-            :isChecked="isConnected"
-            :isProgress="isInProgress"
-            :onChecked="switchChecked"
-            :onPauseResume="onPauseResume"
-            :pauseState="this.$store.state.vpnState.pauseState"
-          />
-        <div
-          v-if="uiView === 'serversEntry'"
-          key="entryServers"
-        >
-          <Servers
-            :onBack="backToMainView"
-            :onFastestServer="onFastestServer"
-            :onRandomServer="onRandomServer"
-            :onServerChanged="onServerChanged"
-          />
-        </div>
+      <ConnectBlock
+        :isChecked="isConnected"
+        :isProgress="isInProgress"
+        :onChecked="switchChecked"
+        :onPauseResume="onPauseResume"
+        :pauseState="this.$store.state.vpnState.pauseState"
+      />
+      <!--        <div
+                v-if="uiView === 'serversEntry'"
+                key="entryServers"
+              >
+                <Servers
+                  :onBack="backToMainView"
+                  :onFastestServer="onFastestServer"
+                  :onRandomServer="onRandomServer"
+                  :onServerChanged="onServerChanged"
+                />
+              </div>
 
-      <div
-        v-else-if="uiView === 'serversExit'"
-        key="exitServers"
-        class="flexColumn"
-      >
-        <Servers
-          :onBack="backToMainView"
-          :onRandomServer="() => onRandomServer(true)"
-          :onServerChanged="onServerChanged"
-          isExitServer="true"
+            <div
+              v-else-if="uiView === 'serversExit'"
+              key="exitServers"
+              class="flexColumn"
+            >
+              <Servers
+                :onBack="backToMainView"
+                :onRandomServer="() => onRandomServer(true)"
+                :onServerChanged="onServerChanged"
+                isExitServer="true"
+              />
+            </div>-->
+
+      <div>
+        <SelectedServerBlock :onShowServersPressed="onShowServersPressed" />
+
+        <!-- <div v-if="this.$store.state.settings.isMultiHop">
+          <div class="horizontalLine" />
+          <SelectedServerBlock
+            :onShowServersPressed="onShowServersPressed"
+            isExitServer="true"
+          />
+        </div> -->
+
+        <ConnectionDetailsBlock
+          :onShowPorts="onShowPorts"
+          :onShowWifiConfig="onShowWifiConfig"
         />
       </div>
-
-      <div v-else>
-
-          <SelectedServerBlock :onShowServersPressed="onShowServersPressed" />
-
-          <!-- <div v-if="this.$store.state.settings.isMultiHop">
-            <div class="horizontalLine" />
-            <SelectedServerBlock
-              :onShowServersPressed="onShowServersPressed"
-              isExitServer="true"
-            />
-          </div> -->
-
-          <ConnectionDetailsBlock
-            :onShowPorts="onShowPorts"
-            :onShowWifiConfig="onShowWifiConfig"
-          />
-      </div>
     </div>
-
   </div>
 </template>
 
 <script>
-import Servers from "./Servers.vue";
+// import Servers from "./Servers.vue";
 import ConnectBlock from "./blocks/block-connect.vue";
 import ConnectionDetailsBlock from "./blocks/block-connection-details.vue";
 import SelectedServerBlock from "@/components/blocks/block-selected-server.vue";
@@ -102,11 +100,11 @@ export default {
 
   components: {
     // HopButtonsBlock,
-    Servers,
+    // Servers,
     ConnectBlock,
     SelectedServerBlock,
     ConnectionDetailsBlock,
-},
+  },
   mounted() {
     this.recalcScrollButtonVisiblity();
 
@@ -207,11 +205,12 @@ export default {
       }
     },
     onShowServersPressed(isExitServers) {
-      this.uiView = isExitServers
+      console.log(isExitServers);
+      /*this.uiView = isExitServers
         ? viewTypeEnum.serversExit
         : viewTypeEnum.serversEntry;
 
-      if (this.onDefaultView) this.onDefaultView(false);
+      if (this.onDefaultView) this.onDefaultView(false);*/
 
       // request servers ping not more often than once per 30 seconds
       if (
@@ -223,6 +222,7 @@ export default {
         sender.PingServers();
         this.lastServersPingRequestTime = new Date();
       }
+      this.$router.push("/servers");
     },
     onShowPorts() {
       if (this.onConnectionSettings != null) this.onConnectionSettings();
@@ -316,8 +316,9 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 @import "@/components/scss/constants";
-.mainControl{
-  height:100vw;
-  width:100vh;
+
+.mainControl {
+  height: 100vw;
+  width: 100vh;
 }
 </style>
