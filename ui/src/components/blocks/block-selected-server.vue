@@ -1,7 +1,7 @@
 <template>
   <div id="main">
     <button class="serverSelectBtn" v-on:click="showServersList()">
-      <div class="flexRow" style="height: 100%">
+      <div class="flexRow" style="height: 100%; justify-content: space-between;">
         <div class="flexColumn" align="left">
           <div class="small_text">
             {{
@@ -27,9 +27,6 @@
             />
           </div>
         </div>
-
-        <div class="flexRow flexRowRestSpace" />
-
         <serverPingInfoControl
           v-show="!(isFastestServer || isRandomServer)"
           :server="this.server"
@@ -102,7 +99,7 @@ export default {
 
 #main {
   @extend .left_panel_block;
-  border:1px solid rgba(0,0,0, 0.1);    
+  border:1px solid rgba(139, 154, 171, 0.17);    
   border-radius: 12px;        
   margin: 10px;
   
@@ -116,16 +113,12 @@ export default {
 }
 
 .serverSelectBtn {
-  padding: 0px;
+  padding: 16px;
   border: none;
   background-color: inherit;
   outline-width: 0;
-  margin: 5px 20px;
   cursor: pointer;
-  height: 82px;
   width: 100%;
-
-  padding-bottom: 4px;
 }
 
 .serverName {

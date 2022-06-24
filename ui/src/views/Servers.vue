@@ -1,7 +1,7 @@
 <template>
   <div style="height:576px; min-height:576px; display: flex;">
     <div>
-      <Sidebar />
+      <Sidebar active="location"/>
     </div>
     <div class="mainControl">
       <div

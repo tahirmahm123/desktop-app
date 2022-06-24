@@ -1,7 +1,7 @@
 <template>
   <div style="height:576px; min-height:576px; display: flex;">
     <div >
-      <Sidebar v-if="showSidebar"/>
+      <Sidebar v-if="showSidebar" active="connect"/>
     </div>
     <div style="width:100%; margin: 20px 20px 20px 0;">
       <transition mode="out-in" name="fade">

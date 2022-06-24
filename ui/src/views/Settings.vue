@@ -1,8 +1,7 @@
 <template>
-  <transition name="fade-quick" appear>
     <div id="main" style="height:576px; min-height:576px; display: flex;">
       <div>
-        <Sidebar />
+        <Sidebar active="settings" />
       </div>
       <div class="rightPanel">
         <div>
@@ -115,7 +114,6 @@
         </div>
       </div>
     </div>
-  </transition>
 </template>
 
 <script>

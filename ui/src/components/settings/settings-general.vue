@@ -46,7 +46,7 @@
         >Connect to location when selecting it on map screen</label
       >
     </div>
-
+<!--
     <div class="settingsBoldFont">View:</div>
     <div class="flexRow paramBlock">
       <div class="defColor paramName">Color theme:</div>
@@ -65,7 +65,7 @@
         </option>
       </select>
     </div>
-
+-->
     <!--
     <div v-if="isLinux && colorScheme === colorThemeEnum.system">
       <div class="description" style="margin-left: 0px;">

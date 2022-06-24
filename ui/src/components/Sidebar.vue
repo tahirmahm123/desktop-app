@@ -4,19 +4,19 @@
       <img src="@/assets/icon-white.svg"  >
       <div class="sidebar-btn-outer">
         <router-link to="/">
-          <button class="sidebarBtn">
+          <button :class="['sidebarBtn', active == 'connect' ? 'active' : '']">
               <img src="@/assets/connect-ico.svg" alt="">
               <p class="sidebar-item-title">Connect</p>
           </button> 
         </router-link>
         <router-link to="/servers"  >
-          <button class="sidebarBtn"  >
+          <button :class="['sidebarBtn', active == 'location' ? 'active' : '']" >
               <img src="@/assets/location-ico.svg" alt="">
-              <p class="sidebar-item-title">Location</p>
+              <p class="sidebar-item-title">Locations</p>
           </button> 
         </router-link>
         <router-link to="/settings/general">
-          <button class="sidebarBtn">
+          <button :class="['sidebarBtn', active == 'settings' ? 'active' : '']">
               <img src="@/assets/setting-ico.svg" alt="">
               <p class="sidebar-item-title">Settings</p>
           </button>
@@ -27,10 +27,12 @@
   </div>
 </template>
 <script>
-//Register a global custom directive called v-ripple
 
 
 export default {
+  props: [
+    "active"
+  ]
 }
 </script>
 
@@ -55,7 +57,7 @@ export default {
     background: transparent;
     margin: 5px 0;
     width: 100%;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     padding: 10px 5px;
     border-radius: 5px;
     cursor: pointer;
@@ -67,19 +69,10 @@ export default {
     font-weight: 500;
 }
 .sidebarBtn:hover{
-  border: 2px solid #fff;
+  border: 1px solid #fff;
 }
-.sidebarBtn .active{
-  background: #6F0305;
+.sidebarBtn.active{
+  background: #ffffff55;
 }
-// .sidebarBtn:active {
-//   width: 0;
-//   height: 0;
-//   border-radius: 50%;
-//   background: rgba(255, 255, 255, 0.9);
-//   transform: scale(0);
-//   position: absolute;
-//   opacity: 1;
-// }
 
 </style>

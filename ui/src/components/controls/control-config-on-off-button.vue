@@ -69,7 +69,7 @@ export default {
   align-items: center;
 }
 .mainScreenCards {
-border:1px solid rgba(0,0,0, 0.1);    
+border:1px solid rgba(139, 154, 171, 0.17);    
 border-radius: 12px;    
 width: 50%;    
 margin: 10px;
