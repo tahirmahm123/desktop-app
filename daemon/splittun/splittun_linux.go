@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2021 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 //go:build linux
@@ -33,8 +33,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ivpn/desktop-app/daemon/service/platform"
-	"github.com/ivpn/desktop-app/daemon/shell"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/shell"
 )
 
 var (
@@ -47,7 +47,7 @@ var (
 // (map[<PID>]<command>)
 var _addedRootProcesses map[int]string = map[int]string{}
 
-const stPidsFile = "/sys/fs/cgroup/net_cls/ivpn-exclude/cgroup.procs"
+const stPidsFile = "/sys/fs/cgroup/net_cls/vpn-exclude/cgroup.procs"
 
 func implInitialize() error {
 	funcNotAvailableError = nil
@@ -212,11 +212,11 @@ func implGetRunningApps() (allProcesses []RunningApp, err error) {
 			}
 		}
 		cmdline := string(cmdlineBytes)
-		// TODO: do not forget update prefixes to trim in case if IVPN CLI arguments change name ('exclude' or 'splittun -execute')
-		cmdline = strings.TrimPrefix(cmdline, "/usr/bin/ivpn exclude ")
-		cmdline = strings.TrimPrefix(cmdline, "/usr/bin/ivpn splittun -execute ")
-		cmdline = strings.TrimPrefix(cmdline, "ivpn exclude ")
-		cmdline = strings.TrimPrefix(cmdline, "ivpn splittun -execute ")
+		// TODO: do not forget update prefixes to trim in case if VPNguments change name ('exclude' or 'splittun -execute')
+		cmdline = strings.TrimPrefix(cmdline, "/usr/bin/vpn exclude ")
+		cmdline = strings.TrimPrefix(cmdline, "/usr/bin/vpn splittun -execute ")
+		cmdline = strings.TrimPrefix(cmdline, "vpn exclude ")
+		cmdline = strings.TrimPrefix(cmdline, "vpn splittun -execute ")
 		cmdline = strings.TrimSpace(cmdline)
 		retMapAll[pid] = RunningApp{
 			Pid:     pid,
@@ -250,9 +250,9 @@ func implGetRunningApps() (allProcesses []RunningApp, err error) {
 		if value.ExtIvpnRootPid == 0 {
 			// Could happen a situations when we can not to determine to which command the process belongs.
 			// It occurs when ppid->pid->... sequence not ending by any element from '_addedRootProcesses'.
-			// In such situations, we are trying to read environment variable 'IVPN_STARTED_ST_ID' of that process,
+			// In such situations, we are trying to read environment variable 'VPND_ST_ID' of that process,
 			// it contains the PID of the initial (root) process.
-			// The IVPN CLI sets this variable for each process it starting in ST environment.
+			// The VPNts this variable for each process it starting in ST environment.
 			pidEnv, err := readProcEnvVarIvpnId(value.Pid)
 			if err != nil {
 				log.Warning(err)
@@ -261,7 +261,7 @@ func implGetRunningApps() (allProcesses []RunningApp, err error) {
 					value.ExtIvpnRootPid = pidEnv
 				} else {
 					// For the situations when the root process id not exist anymore -
-					// mark as root a process with minimum PID which has correspond value of IVPN_STARTED_ST_ID
+					// mark as root a process with minimum PID which has correspond value of VPND_ST_ID
 					// Here we are looking for a minimal PID.
 					if minPid, ok := detachedProcessesMinPid[pidEnv]; ok {
 						if minPid > pid {
@@ -278,7 +278,7 @@ func implGetRunningApps() (allProcesses []RunningApp, err error) {
 	}
 
 	// For the situations when the root process id not exist anymore -
-	// mark as root a process with minimum PID which has correspond value of IVPN_STARTED_ST_ID
+	// mark as root a process with minimum PID which has correspond value of VPND_ST_ID
 	for rootPidEnv, pid := range detachedProcessesMinPid {
 		if diedRootCmd, ok := diedRootPids[rootPidEnv]; ok {
 			proc := retMapAll[pid]
@@ -407,7 +407,7 @@ func readProcEnvVarIvpnId(pid int) (int, error) {
 		if len(cols) != 2 {
 			continue
 		}
-		if cols[0] == "IVPN_STARTED_ST_ID" {
+		if cols[0] == "VPND_ST_ID" {
 			return strconv.Atoi(cols[1])
 		}
 	}

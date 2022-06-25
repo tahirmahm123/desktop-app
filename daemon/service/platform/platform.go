@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package platform
@@ -30,8 +30,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ivpn/desktop-app/daemon/helpers"
-	"github.com/ivpn/desktop-app/daemon/service/platform/filerights"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/helpers"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform/filerights"
 )
 
 var (
@@ -65,7 +65,7 @@ var (
 )
 
 func init() {
-	// initialize all constant values (e.g. servicePortFile) which can be used in external projects (IVPN CLI)
+	// initialize all constant values (e.g. servicePortFile) which can be used in external projects (VPN
 	doInitConstants()
 	if len(servicePortFile) <= 0 {
 		panic("Path to service port file not defined ('platform.servicePortFile' is empty)")
@@ -201,7 +201,7 @@ func createOpenVpnUserParamsFileExample() error {
 	builder.WriteString("# You will need administrator permission to edit this file.\n")
 	builder.WriteString("# \n")
 	builder.WriteString("# This file contains additional user-defined parameters for OpenVPN configuration.\n")
-	builder.WriteString("# All parameters defined here will be added to default OpenVPN configuration used by the IVPN Client.\n")
+	builder.WriteString("# All parameters defined here will be added to default OpenVPN configuration used by the VPN.\n")
 	builder.WriteString("# All changes are made at your own risk!\n")
 	builder.WriteString("# We recommend keeping this file empty.\n")
 

@@ -2,13 +2,13 @@
 # gowatch.yml configuration example
 
 # The name of the executable file generated under the current directory execution. The default is the current directory name.
-appname: "IVPN.exe"
+appname: "VPN.exe"
 
 # Specify the command to run after builds done
-run_cmd: "./bin/IVPN.exe"
+run_cmd: "./bin/VPN.exe"
  
 # Specify the directory where the compiled object files are stored
-output: ./bin/IVPN.exe
+output: ./bin/VPN.exe
 
 # The file name suffix that needs to be monitored. By default, there is only a '.go' file.
 # watch_exts:

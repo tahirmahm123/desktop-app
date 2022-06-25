@@ -1,23 +1,23 @@
 //
-//  UI for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  UI for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the UI for IVPN Client Desktop.
+//  This file is part of the UI for VPN Client Desktop.
 //
-//  The UI for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The UI for VPN Client Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The UI for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The UI for VPN Client Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the UI for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the UI for VPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 import client from "@/daemon-client";
@@ -66,7 +66,7 @@ async function checkUpdates(doManualUpdateCheck) {
       (await ValidateDataOpenSSLCertificate(
         updatesInfoData.updateInfoRespRaw,
         updatesInfoData.updateInfoSignRespRaw,
-        "IVPN_UpdateInfo"
+        "VPN_UpdateInfo"
       )) !== true
     ) {
       console.error("Failed to validate application update info signature");
@@ -143,7 +143,7 @@ async function installMacOS(updateProgress) {
   let spawn = require("child_process").spawn;
 
   let cmd = spawn(
-    "/Applications/IVPN.app/Contents/MacOS/IVPN Installer.app/Contents/MacOS/IVPN Installer",
+    "/Applications/VPN.app/Contents/MacOS/VPN Installer.app/Contents/MacOS/VPN Installer",
     [
       "--update",
       updateProgress.readyToInstallBinary,

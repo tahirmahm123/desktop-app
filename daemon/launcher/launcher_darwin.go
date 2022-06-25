@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package launcher
@@ -27,14 +27,14 @@ import (
 	"os"
 	"path"
 
-	"github.com/ivpn/desktop-app/daemon/shell"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/shell"
 )
 
-// Prepare to start IVPN daemon for macOS
+// Prepare to start VPN for macOS
 func doPrepareToRun() error {
-	// create symlink to 'ivpn' cli client
-	binFolder := "/usr/local/bin"            // "/usr/local/bin"
-	linkpath := path.Join(binFolder, "ivpn") // "/usr/local/bin/ivpn"
+	// create symlink to 'vpn' cli client
+	binFolder := "/usr/local/bin"           // "/usr/local/bin"
+	linkpath := path.Join(binFolder, "vpn") // "/usr/local/bin/vpn"
 	if _, err := os.Stat(linkpath); os.IsNotExist(err) {
 		// "/usr/local/bin"
 		if _, err := os.Stat(binFolder); os.IsNotExist(err) {
@@ -43,11 +43,11 @@ func doPrepareToRun() error {
 				log.Error(fmt.Sprintf("Failed to create folder '%s': ", binFolder), err)
 			}
 		}
-		// "/usr/local/bin/ivpn"
-		log.Info("Creating symlink to IVPN CLI: ", linkpath)
-		err := shell.Exec(log, "/bin/ln", "-fs", "/Applications/IVPN.app/Contents/MacOS/cli/ivpn", linkpath)
+		// "/usr/local/bin/vpn"
+		log.Info("Creating symlink to VPN, linkpath)
+		err := shell.Exec(log, "/bin/ln", "-fs", "/Applications/VPNntents/MacOS/cli/vpn", linkpath)
 		if err != nil {
-			log.Error("Failed to create symlink to IVPN CLI: ", err)
+			log.Error("Failed to create symlink to VPN, err)
 		}
 	}
 	return nil

@@ -3,7 +3,7 @@
 LOGGING=0
 
 if [[ "${LOGGING}" == "1" ]] ; then
-    exec 1>> "/Library/Logs/ivpn-dns.sh.logs" 2>&1
+    exec 1>> "/Library/Logs/vpn-dns.sh.logs" 2>&1
 
     DATE=`date`
     echo "${DATE}: $0 $@"
@@ -15,10 +15,10 @@ PRI_IFACE=`echo 'show State:/Network/Global/IPv4' | scutil | grep PrimaryInterfa
 PSID=`echo 'show State:/Network/Global/IPv4' | scutil | grep PrimaryService | sed -e 's/.*PrimaryService : //'`
 
 # There is 2 possible sources to copy DNS configuration:
-# "State:/Network/IVPN/DNSBase" - normal usage
-# "State:/Network/IVPN/DNSAlternate" - when alternate DNS defined (DNSBase is ignored in this case)
-# To update value of 'IVPN_DNS_SOURCE_PATH' variable - call function 'update_IVPN_DNS_SOURCE_PATH'
-IVPN_DNS_SOURCE_PATH="State:/Network/IVPN/DNSBase"
+# "State:/Network/VPN/DNSBase" - normal usage
+# "State:/Network/VPN/DNSAlternate" - when alternate DNS defined (DNSBase is ignored in this case)
+# To update value of 'VPN_DNS_SOURCE_PATH' variable - call function 'update_VPN_DNS_SOURCE_PATH'
+VPN_DNS_SOURCE_PATH="State:/Network/VPN/DNSBase"
 
 # Primary interface can be not detected due to switching WiFi network at current moment.
 # Here we are trying to get primary interface during 5 seconds (giving a chance to connect/disconnect WiFi)
@@ -69,22 +69,22 @@ function print_state {
     echo "Setup: ${S_SETUP}"
     echo
 
-    update_IVPN_DNS_SOURCE_PATH
-    IVPN_DNS_VALUE=`echo "show ${IVPN_DNS_SOURCE_PATH}" | scutil`
-    echo "IVPN DNS path: ${IVPN_DNS_SOURCE_PATH}"
-    echo "IVPN DNS value: ${IVPN_DNS_VALUE}"
+    update_VPN_DNS_SOURCE_PATH
+    VPN_DNS_VALUE=`echo "show ${VPN_DNS_SOURCE_PATH}" | scutil`
+    echo "VPN DNS path: ${VPN_DNS_SOURCE_PATH}"
+    echo "VPN DNS value: ${VPN_DNS_VALUE}"
     echo
 }
 
 function is_dns_changed {
 
     PREFIX=$1
-    update_IVPN_DNS_SOURCE_PATH;
+    update_VPN_DNS_SOURCE_PATH;
 
     ensurePrimaryInterfaceDetected
 
     DNS_STATE=`echo "show ${PREFIX}:/Network/Service/${PSID}/DNS" | scutil`
-    VPN_STATE=`echo "show ${IVPN_DNS_SOURCE_PATH}" | scutil`
+    VPN_STATE=`echo "show ${VPN_DNS_SOURCE_PATH}" | scutil`
 
     if [[ "${DNS_STATE}" == "${VPN_STATE}" ]]; then
         return 1
@@ -94,22 +94,22 @@ function is_dns_changed {
 }
 
 function is_vpn_dns_set {
-    echo "show State:/Network/IVPN/Original/DNS/State" | scutil | grep ServerAddresses >/dev/null
+    echo "show State:/Network/VPN/Original/DNS/State" | scutil | grep ServerAddresses >/dev/null
 }
 
-function is_dns_set_by_ivpn {
+function is_dns_set_by_vpn {
     PREFIX=$1
 
     ensurePrimaryInterfaceDetected
-    echo "show ${PREFIX}:/Network/Service/${PSID}/DNS" | scutil | grep SetByIVPN >/dev/null
+    echo "show ${PREFIX}:/Network/Service/${PSID}/DNS" | scutil | grep SetByVPN >/dev/null
     return $?
 }
 
 function store_user_setting {
     PREFIX=$1
 
-    if is_dns_set_by_ivpn "${PREFIX}"; then
-        #echo "Ignoring: Current DNS change was made by IVPN"
+    if is_dns_set_by_vpn "${PREFIX}"; then
+        #echo "Ignoring: Current DNS change was made by VPN"
         return 1
     fi
 
@@ -120,7 +120,7 @@ function store_user_setting {
     scutil <<_EOF
     d.init
     get ${PREFIX}:/Network/Service/${PSID}/DNS
-    set State:/Network/IVPN/Original/DNS/${PREFIX}
+    set State:/Network/VPN/Original/DNS/${PREFIX}
 _EOF
 }
 
@@ -133,20 +133,20 @@ function restore_user_setting {
 
     scutil <<_EOF
     d.init
-    get State:/Network/IVPN/Original/DNS/${PREFIX}
+    get State:/Network/VPN/Original/DNS/${PREFIX}
     set ${PREFIX}:/Network/Service/${PSID}/DNS
 _EOF
 }
 
 function update_setting {
     PREFIX=$1
-    update_IVPN_DNS_SOURCE_PATH;
+    update_VPN_DNS_SOURCE_PATH;
 
     ensurePrimaryInterfaceDetected
 
     scutil <<_EOF
     d.init
-    get ${IVPN_DNS_SOURCE_PATH}
+    get ${VPN_DNS_SOURCE_PATH}
     set ${PREFIX}:/Network/Service/${PSID}/DNS
 _EOF
 }
@@ -162,53 +162,53 @@ function store_and_update {
     update_setting "${PREFIX}"
 }
 
-################### IVPN DNS PARAMETERS DEFINITION #############################
-function update_IVPN_DNS_SOURCE_PATH {
-    if is_alternate_ivpn_dns_defined; then
-      IVPN_DNS_SOURCE_PATH="State:/Network/IVPN/DNSAlternate"
+################### VPN DNS PARAMETERS DEFINITION #############################
+function update_VPN_DNS_SOURCE_PATH {
+    if is_alternate_vpn_dns_defined; then
+      VPN_DNS_SOURCE_PATH="State:/Network/VPN/DNSAlternate"
     else
-      IVPN_DNS_SOURCE_PATH="State:/Network/IVPN/DNSBase"
+      VPN_DNS_SOURCE_PATH="State:/Network/VPN/DNSBase"
     fi
 }
 
-# Check if current IVPN DNS is alternative
-function is_alternate_ivpn_dns_defined {
-    echo "show State:/Network/IVPN/DNSAlternate" | scutil | grep SetByIVPN >/dev/null
+# Check if current VPN DNS is alternative
+function is_alternate_vpn_dns_defined {
+    echo "show State:/Network/VPN/DNSAlternate" | scutil | grep SetByVPN >/dev/null
     return $?
 }
 
-function define_alternate_ivpn_dns {
+function define_alternate_vpn_dns {
   DOMAIN_NAME=$1
   VPN_DNS=$2
 
   #echo "DOMAIN: $DOMAIN_NAME"
-  echo "Set IVPN DNS: $VPN_DNS"
+  echo "Set VPN DNS: $VPN_DNS"
 
   scutil <<_EOF
       d.init
       d.add ServerAddresses * ${VPN_DNS}
       d.add DomainName "${DOMAIN_NAME}"
-      d.add SetByIVPN "true"
+      d.add SetByVPN "true"
 
-      set State:/Network/IVPN/DNSAlternate
+      set State:/Network/VPN/DNSAlternate
 _EOF
 }
 
-function define_ivpn_dns {
+function define_vpn_dns {
   DOMAIN_NAME=$1
   VPN_DNS=$2
 
   #echo "DOMAIN: $DOMAIN_NAME"
-  echo "Set IVPN DNS: $VPN_DNS"
+  echo "Set VPN DNS: $VPN_DNS"
 
-  # save IVPN DNS parameters
+  # save VPN DNS parameters
   scutil <<_EOF
       d.init
       d.add ServerAddresses * ${VPN_DNS}
       d.add DomainName "${DOMAIN_NAME}"
-      d.add SetByIVPN "true"
+      d.add SetByVPN "true"
 
-      set State:/Network/IVPN/DNSBase
+      set State:/Network/VPN/DNSBase
 _EOF
 }
 
@@ -221,16 +221,16 @@ function ipv6_resolver_init {
         d.add Addresses * ${LOCAL_IPV6_ADDR}
         d.add DestAddresses * ::ffff:ffff:ffff:ffff:0:0 ::
         d.add InterfaceName ${TUN_INTERFACE_NAME}
-        set State:/Network/Service/ivpn_tunnel/IPv6
-        set Setup:/Network/Service/ivpn_tunnel/IPv6
+        set State:/Network/Service/vpn_tunnel/IPv6
+        set Setup:/Network/Service/vpn_tunnel/IPv6
         quit
 _EOF
 }
 
 #function ipv6_resolver_destroy {
 #    scutil <<_EOF
-#        remove State:/Network/Service/ivpn_tunnel/IPv6
-#        remove Setup:/Network/Service/ivpn_tunnel/IPv6
+#        remove State:/Network/Service/vpn_tunnel/IPv6
+#        remove Setup:/Network/Service/vpn_tunnel/IPv6
 #        quit
 #_EOF
 #}
@@ -241,7 +241,7 @@ _EOF
 if [ "$1" = "-up" ] ; then
 
     #OpenVPN store DNS IP into 'foreign_option_*' environment variable
-    DOMAIN_NAME="ivpn-client"
+    DOMAIN_NAME="vpn-client"
     FOREIGN_OPTIONS=`env | grep -E '^foreign_option_' | sort | sed -e 's/foreign_option_.*=//'`
 
     while read -r option
@@ -256,7 +256,7 @@ if [ "$1" = "-up" ] ; then
         esac
     done <<< "${FOREIGN_OPTIONS}"
 
-    define_ivpn_dns $DOMAIN_NAME $VPN_DNS
+    define_vpn_dns $DOMAIN_NAME $VPN_DNS
 
     store_and_update "Setup"
     store_and_update "State"
@@ -264,10 +264,10 @@ if [ "$1" = "-up" ] ; then
 # same as '-up' but DNS IP takes as parameter to this command
 elif [ "$1" = "-up_set_dns" ] ; then
 
-        DOMAIN_NAME="ivpn-client"
+        DOMAIN_NAME="vpn-client"
         VPN_DNS=$2 #DNS IP
 
-        define_ivpn_dns $DOMAIN_NAME $VPN_DNS
+        define_vpn_dns $DOMAIN_NAME $VPN_DNS
 
         store_and_update "Setup"
         store_and_update "State"
@@ -301,14 +301,14 @@ elif [ "$1" = "-update" ] ; then
 
 elif [ "$1" = "-set_alternate_dns" ] ; then
 
-  DOMAIN_NAME="ivpn-client"
+  DOMAIN_NAME="vpn-client"
   VPN_DNS=$2 #DNS IP
 
-  define_alternate_ivpn_dns $DOMAIN_NAME $VPN_DNS
+  define_alternate_vpn_dns $DOMAIN_NAME $VPN_DNS
 
   # update DNS only if it was already updated by us (-up or -up_set_dns)
   if isPrimaryInterfaceDetected; then
-    if is_dns_set_by_ivpn "Setup"; then
+    if is_dns_set_by_vpn "Setup"; then
         store_and_update "Setup"
         store_and_update "State"
     fi
@@ -316,19 +316,19 @@ elif [ "$1" = "-set_alternate_dns" ] ; then
 
 elif [ "$1" = "-delete_alternate_dns" ] ; then
 
-  if ! is_alternate_ivpn_dns_defined; then
-    echo "Alternate IVPN DNS not defined. Nothing to restore."
+  if ! is_alternate_vpn_dns_defined; then
+    echo "Alternate VPN DNS not defined. Nothing to restore."
     exit 0
   fi;
 
   scutil <<_EOF
-      remove State:/Network/IVPN/DNSAlternate
+      remove State:/Network/VPN/DNSAlternate
       quit
 _EOF
 
 # update DNS only if it was already updated by us (-up or -up_set_dns)
 if isPrimaryInterfaceDetected; then
-    if is_dns_set_by_ivpn "Setup"; then
+    if is_dns_set_by_vpn "Setup"; then
         store_and_update "Setup"
         store_and_update "State"
     fi
@@ -353,12 +353,12 @@ elif [ "$1" = "-down" ] ; then
 
     # not necessary to call 'ipv6_resolver_destroy' since it's commands available in the next lines
     scutil <<_EOF
-        remove State:/Network/IVPN/Original/DNS/Setup
-        remove State:/Network/IVPN/Original/DNS/State
-        remove State:/Network/IVPN/DNSBase
+        remove State:/Network/VPN/Original/DNS/Setup
+        remove State:/Network/VPN/Original/DNS/State
+        remove State:/Network/VPN/DNSBase
 
-        remove State:/Network/Service/ivpn_tunnel/IPv6
-        remove Setup:/Network/Service/ivpn_tunnel/IPv6
+        remove State:/Network/Service/vpn_tunnel/IPv6
+        remove Setup:/Network/Service/vpn_tunnel/IPv6
 
         quit
 _EOF

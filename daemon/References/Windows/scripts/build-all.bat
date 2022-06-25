@@ -12,7 +12,7 @@ set DATE=""
 set TIMESTAMP_SERVER=http://timestamp.digicert.com
 
 echo ==================================================
-echo ============ BUILDING IVPN Service ===============
+echo ============ BUILDING VPN Service ===============
 echo ==================================================
 
 rem Getting info about current date
@@ -53,7 +53,7 @@ goto :success
 
 :update_servers_info
 	echo [*] Updating servers.json ...
-	curl -#fLo %SCRIPTDIR%..\etc\servers.json https://api.ivpn.net/v5/servers.json || exit /b 1
+	@REM curl -#fLo %SCRIPTDIR%..\etc\servers.json https://api.vpn.net/v5/servers.json || exit /b 1
 	goto :eof
 
 :build_agent
@@ -64,23 +64,23 @@ goto :success
 :build_agent_plat
 	set GOARCH=%~2
 
-	echo [*] Building IVPN service %1
+	echo [*] Building VPN service %1
 
-	if exist "bin\%~1\IVPN Service.exe" del "bin\%~1\IVPN Service.exe" || exit /b 1
+	if exist "bin\%~1\VPN Service.exe" del "bin\%~1\VPN Service.exe" || exit /b 1
 
-	go build -tags release -o "bin\%~1\IVPN Service.exe" -trimpath -ldflags "-X github.com/ivpn/desktop-app/daemon/version._version=%APPVER% -X github.com/ivpn/desktop-app/daemon/version._commit=%COMMIT% -X github.com/ivpn/desktop-app/daemon/version._time=%DATE%" || exit /b 1
+	go build -tags release -o "bin\%~1\VPN Service.exe" -trimpath -ldflags "-X github.com/tahirmahm123/vpn-desktop-app/daemon/version._version=%APPVER% -X github.com/tahirmahm123/vpn-desktop-app/daemon/version._commit=%COMMIT% -X github.com/tahirmahm123/vpn-desktop-app/daemon/version._time=%DATE%" || exit /b 1
 
 	if NOT "%CERT_SHA1%" == "" (
 		echo.
 		echo Signing binary by certificate:  %CERT_SHA1% timestamp: %TIMESTAMP_SERVER%
 		echo.
-		signtool.exe sign /tr %TIMESTAMP_SERVER% /td sha256 /fd sha256 /sha1 %CERT_SHA1% /v "bin\%~1\IVPN Service.exe" || exit /b 1
+		signtool.exe sign /tr %TIMESTAMP_SERVER% /td sha256 /fd sha256 /sha1 %CERT_SHA1% /v "bin\%~1\VPN Service.exe" || exit /b 1
 		echo.
 		echo Signing SUCCES
 		echo.
 	)
 
-	echo Compiled binary: "bin\%~1\IVPN Service.exe"
+	echo Compiled binary: "bin\%~1\VPN Service.exe"
 	goto :eof
 
 :build_native_libs
@@ -92,7 +92,7 @@ goto :success
 		goto :eof
 	)
 
-	msbuild "%SCRIPTDIR%..\Native Projects\ivpn-windows-native.sln" /verbosity:quiet /t:Build /property:Configuration=Release /property:Platform=x64 || exit /b 1
+	msbuild "%SCRIPTDIR%..\Native Projects\vpn-windows-native.sln" /verbosity:quiet /t:Build /property:Configuration=Release /property:Platform=x64 || exit /b 1
 	goto :eof
 
 :build_obfs4proxy
@@ -148,7 +148,7 @@ goto :success
 
 :error
 	set ERR=%errorlevel%
-	echo [!] IVPN Service build script FAILED with error #%errorlevel%.
+	echo [!] VPN Service build script FAILED with error #%errorlevel%.
 	echo [!] Removing files:
 	echo [ ] "%SCRIPTDIR%..\OpenVPN\obfsproxy\obfs4proxy.exe"
 	echo [ ] "%SCRIPTDIR%..\WireGuard\x86_64\wg.exe"

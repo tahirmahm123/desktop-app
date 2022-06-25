@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if [ -e /etc/resolv.conf.ivpnsave ] ; then
-  mv /etc/resolv.conf.ivpnsave /etc/resolv.conf
+if [ -e /etc/resolv.conf.vpnsave ] ; then
+  mv /etc/resolv.conf.vpnsave /etc/resolv.conf
 fi
 
 exit 0

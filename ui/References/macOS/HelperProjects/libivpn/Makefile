@@ -6,7 +6,7 @@
 all:
 #		cc -v -m64 -dynamiclib
 		cc -m64 -dynamiclib \
-			libivpn.c power_change_notifications.c \
+			libvpn.c power_change_notifications.c \
 			-mmacosx-version-min=10.10 \
 			-current_version 1.0 \
 			-compatibility_version 1.0 \
@@ -17,4 +17,4 @@ all:
 			-framework SystemConfiguration \
 			-framework IOKit \
 			-framework Security \
-			-o libivpn.dylib
+			-o libvpn.dylib

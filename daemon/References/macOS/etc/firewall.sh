@@ -3,16 +3,16 @@
 # Useful commands:
 # Show all rules/anchors
 #   sudo pfctl -s rules
-# Show all rules for "ivpn_firewall" anchor
-#   sudo pfctl -a "ivpn_firewall" -s rules
-#   sudo pfctl -a "ivpn_firewall/tunnel" -s rules
+# Show all rules for "vpn_firewall" anchor
+#   sudo pfctl -a "vpn_firewall" -s rules
+#   sudo pfctl -a "vpn_firewall/tunnel" -s rules
 # Show table
-#   sudo pfctl -a "ivpn_firewall" -t ivpn_servers -T show
+#   sudo pfctl -a "vpn_firewall" -t vpn_servers -T show
 
 PATH=/sbin:/usr/sbin:$PATH
 
-ANCHOR_NAME="ivpn_firewall"
-EXCEPTIONS_TABLE="ivpn_servers"
+ANCHOR_NAME="vpn_firewall"
+EXCEPTIONS_TABLE="vpn_servers"
 
 # Checks whether anchor is present in the system
 # 0 - if anchor is present
@@ -21,7 +21,7 @@ function get_anchor_present {
     pfctl -sr 2> /dev/null | grep -q "anchor.*${ANCHOR_NAME}"
 }
 
-# Add IVPN Firewall anchor after existing pf rules.
+# Add VPN Firewall anchor after existing pf rules.
 function install_anchor {
     cat \
       <(pfctl -sr 2> /dev/null) \
@@ -29,7 +29,7 @@ function install_anchor {
        | pfctl -f -
 }
 
-# Checks whether IVPN Firewall anchor exists
+# Checks whether VPN Firewall anchor exists
 # and add it if require
 function add_anchor_if_required {
   
@@ -40,7 +40,7 @@ function add_anchor_if_required {
     fi
 }
 
-# Checks if the IVPN Firewall is enabled
+# Checks if the VPN Firewall is enabled
 # 0 - if enabled
 # 1 - if not enabled
 function get_firewall_enabled {
@@ -97,14 +97,14 @@ _EOF
     scutil <<_EOF
       d.init
       d.add Token "${TOKEN}"
-      set State:/Network/IVPN/PacketFilter
+      set State:/Network/VPN/PacketFilter
 
       quit
 _EOF
 
     set +e
 
-    echo "IVPN Firewall enabled"
+    echo "VPN Firewall enabled"
 }
 
 
@@ -120,10 +120,10 @@ function disable_firewall {
     # remove all the rules in anchor
     pfctl -a ${ANCHOR_NAME} -Fr 
 
-    local TOKEN=`echo 'show State:/Network/IVPN/PacketFilter' | scutil | grep Token | sed -e 's/.*: //' | tr -d ' \n'`
+    local TOKEN=`echo 'show State:/Network/VPN/PacketFilter' | scutil | grep Token | sed -e 's/.*: //' | tr -d ' \n'`
     pfctl -X "${TOKEN}"
 
-    echo "IVPN Firewall disabled"
+    echo "VPN Firewall disabled"
 }
 
 function client_connected {
@@ -165,10 +165,10 @@ function main {
       get_firewall_enabled
 
       if (( $? == 0 )); then
-        echo "IVPN Firewall is enabled"
+        echo "VPN Firewall is enabled"
         return 0
       else
-        echo "IVPN Firewall is disabled"      
+        echo "VPN Firewall is disabled"      
         return 1
       fi
 

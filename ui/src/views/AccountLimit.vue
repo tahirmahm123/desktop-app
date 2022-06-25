@@ -5,7 +5,7 @@
         <div class="large_text">Devices limit reached</div>
         <div style="height: 22px"></div>
         <div class="small_text">
-          According to your subscription plan you can use your IVPN account only
+          According to your subscription plan you can use your VPN account only
           on {{ devicesMaxLimit }} devices.
         </div>
 
@@ -105,10 +105,10 @@ export default {
     onUpgrade: function () {
       if (isValidURL(this.UpgradeToURL))
         sender.shellOpenExternal(this.UpgradeToURL);
-      else sender.shellOpenExternal(`https://www.ivpn.net/account`);
+      else sender.shellOpenExternal(`https://www.vpn.net/account`);
     },
     onContactSupport: function () {
-      sender.shellOpenExternal(`https://www.ivpn.net/contactus`);
+      sender.shellOpenExternal(`https://www.vpn.net/contactus`);
     },
   },
 };

@@ -1,23 +1,23 @@
 //
-//  UI for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  UI for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the UI for IVPN Client Desktop.
+//  This file is part of the UI for VPN Client Desktop.
 //
-//  The UI for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The UI for VPN Client Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The UI for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The UI for VPN Client Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the UI for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the UI for VPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 import Vue from "vue";
@@ -93,8 +93,8 @@ export default new Vuex.Store({
     {
       "generic": {
         "version": "3.2.45",
-        "downloadLink": "https://repo.ivpn.net/binaries/audit2021/IVPN-3.2.40.dmg",
-        "signature":    "https://repo.ivpn.net/binaries/audit2021/IVPN-3.2.40.dmg.sign.sha256.base64",
+        "downloadLink": "https://repo.vpn.net/binaries/audit2021/VPN-3.2.40.dmg",
+        "signature":    "https://repo.vpn.net/binaries/audit2021/VPN-3.2.40.dmg.sign.sha256.base64",
         "releaseNotes": [
           {
             "type": "new",

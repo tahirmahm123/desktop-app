@@ -2,34 +2,34 @@
 
 #
 #  Script to control the Split-Tunneling functionality for Linux.
-#  It is a part of Daemon for IVPN Client Desktop.
-#  https://github.com/ivpn/desktop-app/daemon
+#  It is a part of Daemon for VPN Client Desktop.
+#  https://github.com/tahirmahm123/vpn-desktop-app/daemon
 #
 #  Created by Stelnykovych Alexandr.
 #  Copyright (c) 2021 Privatus Limited.
 #
-#  This file is part of the Daemon for IVPN Client Desktop.
+#  This file is part of the Daemon for VPN Client Desktop.
 #
-#  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+#  The Daemon for VPN Client Desktop is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as published by the Free
 #  Software Foundation, either version 3 of the License, or (at your option) any later version.
 #
-#  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+#  The Daemon for VPN Client Desktop is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 #  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 #  details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+#  along with the Daemon for VPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
 #
 
 # Split Tunneling cgroup parameters
-_cgroup_name=ivpn-exclude
+_cgroup_name=vpn-exclude
 _cgroup_classid=0x4956504e      # Anything from 0x00000001 to 0xFFFFFFFF
 _cgroup_folder=/sys/fs/cgroup/net_cls/${_cgroup_name}
 
 # Routing tabel configuration for packets coming from Split-Tunneling environment
-_routing_table_name=ivpn-exclude-tbl
+_routing_table_name=vpn-exclude-tbl
 _routing_table_weight=17            # Anything from 1 to 252
 
 # Additional parameters
@@ -37,7 +37,7 @@ _iptables_locktime=2
 
 # Backup folder name.
 # This folder contains temporary data to be able to clean everything correctly 
-_backup_folder_name=ivpn-exclude-tmp
+_backup_folder_name=vpn-exclude-tmp
 
 # Info: The 'mark' value for packets coming from the Split-Tunneling environment.
 # Using here value 0xca6c. It is the same as WireGuard marking packets which were processed.
@@ -50,7 +50,7 @@ _backup_folder_name=ivpn-exclude-tmp
 _packets_fwmark_value=0xca6c        # Anything from 1 to 2147483647
 
 # iptables rules comment
-_comment="IVPN Split Tunneling"
+_comment="VPN Split Tunneling"
 
 # Paths to standard binaries
 _bin_iptables=iptables
@@ -169,7 +169,7 @@ function init()
     # Important! allow DNS request before setting mark rule (DNS request should not be marked)
     ${_bin_iptables} -w ${_iptables_locktime} -t mangle -I OUTPUT -m cgroup --cgroup ${_cgroup_classid} -p tcp --dport 53 -m comment --comment  "${_comment}" -j ACCEPT
     ${_bin_iptables} -w ${_iptables_locktime} -t mangle -I OUTPUT -m cgroup --cgroup ${_cgroup_classid} -p udp --dport 53 -m comment --comment  "${_comment}" -j ACCEPT
-    # Allow packets from/to cgroup (bypass IVPN firewall)
+    # Allow packets from/to cgroup (bypass VPN firewall)
     ${_bin_iptables} -w ${_iptables_locktime} -I OUTPUT -m cgroup --cgroup ${_cgroup_classid} -m comment --comment  "${_comment}" -j ACCEPT
     ${_bin_iptables} -w ${_iptables_locktime} -I INPUT -m cgroup --cgroup ${_cgroup_classid} -m comment --comment  "${_comment}" -j ACCEPT   # this rule is not effective, so we use 'mark' (see the next rule)
     ${_bin_iptables} -w ${_iptables_locktime} -I INPUT -m mark --mark ${_packets_fwmark_value} -m comment --comment  "${_comment}" -j ACCEPT
@@ -186,7 +186,7 @@ function init()
         # Important! allow DNS request before setting mark rule (DNS request should not be marked)
         ${_bin_ip6tables} -w ${_iptables_locktime} -t mangle -I OUTPUT -m cgroup --cgroup ${_cgroup_classid} -p tcp --dport 53 -m comment --comment  "${_comment}" -j ACCEPT        
         ${_bin_ip6tables} -w ${_iptables_locktime} -t mangle -I OUTPUT -m cgroup --cgroup ${_cgroup_classid} -p udp --dport 53 -m comment --comment  "${_comment}" -j ACCEPT
-        # Allow packets from/to cgroup (bypass IVPN firewall)
+        # Allow packets from/to cgroup (bypass VPN firewall)
         ${_bin_ip6tables} -w ${_iptables_locktime} -I OUTPUT -m cgroup --cgroup ${_cgroup_classid} -m comment --comment  "${_comment}" -j ACCEPT
         ${_bin_ip6tables} -w ${_iptables_locktime} -I INPUT -m cgroup --cgroup ${_cgroup_classid} -m comment --comment  "${_comment}" -j ACCEPT   # this rule is not effective, so we use 'mark' (see the next rule)
         ${_bin_ip6tables} -w ${_iptables_locktime} -I INPUT -m mark --mark ${_packets_fwmark_value} -m comment --comment  "${_comment}" -j ACCEPT
@@ -239,7 +239,7 @@ function init()
 
     set +e
 
-    echo "IVPN Split Tunneling enabled"
+    echo "VPN Split Tunneling enabled"
 }
 
 function clean()
@@ -258,7 +258,7 @@ function clean()
     fi
 
     ##############################################
-    # Move all processes from the IVPN cgroup to the main cgroup
+    # Move all processes from the VPN cgroup to the main cgroup
     ##############################################    
     # removeAllPids
 
@@ -366,7 +366,7 @@ function restore()
     rm -fr ${_tempDir}
 }
 
-# Move all processes from the IVPN cgroup to the main cgroup
+# Move all processes from the VPN cgroup to the main cgroup
 function removeAllPids() 
 {    
     while IFS= read -r line
@@ -571,8 +571,8 @@ elif [[ $1 = "manual" ]] ; then
     ${_FUNCNAME} $@
 else
     echo "Script to control the Split-Tunneling functionality for Linux."
-    echo "It is a part of Daemon for IVPN Client Desktop."
-    echo "https://github.com/ivpn/desktop-app/daemon"
+    echo "It is a part of Daemon for VPN Client Desktop."
+    echo "https://github.com/tahirmahm123/vpn-desktop-app/daemon"
     echo "Created by Stelnykovych Alexandr."
     echo "Copyright (c) 2021 Privatus Limited."
     echo ""

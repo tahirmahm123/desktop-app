@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package api
@@ -32,7 +32,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/protocol/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
 )
 
 func getURL(host string, urlpath string) string {
@@ -78,7 +78,7 @@ func (a *API) doRequestAPIHost(urlPath string, method string, contentType string
 	}
 
 	// When trying to access API server by alternate IPs (not by DNS name)
-	// we need to configure TLS to use api.ivpn.net hostname
+	// we need to configure TLS to use api.vpn.net hostname
 	// (to avoid certificate errors)
 	transCfg := &http.Transport{
 		// NOTE: TLSClientConfig not in use in case of DialTLS defined
@@ -123,7 +123,7 @@ func (a *API) doRequestAPIHost(urlPath string, method string, contentType string
 	}
 	log.Warning("Failed to access " + _apiHost)
 
-	return nil, fmt.Errorf("unable to access IVPN API server: %w", firstErr)
+	return nil, fmt.Errorf("unable to access VPNrver: %w", firstErr)
 }
 
 func (a *API) requestRaw(urlPath string, method string, contentType string, requestObject interface{}, timeoutMs int, timeoutDialMs int) (responseData []byte, err error) {

@@ -20,8 +20,8 @@ function CheckLastResult
   fi
 }
 
-# The Apple DevID certificate which will be used to sign IVPN Agent (Daemon) binary
-# The helper will check IVPN Agent signature with this value
+# The Apple DevID certificate which will be used to sign VPN Agent (Daemon) binary
+# The helper will check VPN Agent signature with this value
 _SIGN_CERT="" # E.g. "WXXXXXXXXN". Specific value can be passed by command-line argument: -c <APPLE_DEVID_SERT>
 while getopts ":c:" opt; do
   case $opt in
@@ -37,48 +37,48 @@ if [ -z "${_SIGN_CERT}" ]; then
   exit 1
 fi
 
-if [ ! -f "../helper/net.ivpn.client.Helper" ]; then
-  echo " File not exists '../helper/net.ivpn.client.Helper'. Please, compile helper project first."
+if [ ! -f "../helper/net.vpn.client.Helper" ]; then
+  echo " File not exists '../helper/net.vpn.client.Helper'. Please, compile helper project first."
   exit 1
 fi
 
 rm -fr bin
 CheckLastResult
 
-echo "[ ] *** Compiling IVPN Installer / Uninstaller ***"
+echo "[ ] *** Compiling VPN Installer / Uninstaller ***"
 
-echo "[+] IVPN Installer: updating certificate info in .plist ..."
+echo "[+] VPN Installer: updating certificate info in .plist ..."
 echo "    Apple DevID certificate: '${_SIGN_CERT}'"
 plutil -replace SMPrivilegedExecutables -xml \
         "<dict> \
-      		<key>net.ivpn.client.Helper</key> \
-      		<string>identifier net.ivpn.client.Helper and certificate leaf[subject.OU] = ${_SIGN_CERT}</string> \
-      	</dict>" "IVPN Installer-Info.plist" || CheckLastResult
+      		<key>net.vpn.client.Helper</key> \
+      		<string>identifier net.vpn.client.Helper and certificate leaf[subject.OU] = ${_SIGN_CERT}</string> \
+      	</dict>" "VPN Installer-Info.plist" || CheckLastResult
 plutil -replace SMPrivilegedExecutables -xml \
         "<dict> \
-          <key>net.ivpn.client.Helper</key> \
-          <string>identifier net.ivpn.client.Helper and certificate leaf[subject.OU] = ${_SIGN_CERT}</string> \
-        </dict>" "IVPN Uninstaller-Info.plist" || CheckLastResult
+          <key>net.vpn.client.Helper</key> \
+          <string>identifier net.vpn.client.Helper and certificate leaf[subject.OU] = ${_SIGN_CERT}</string> \
+        </dict>" "VPN Uninstaller-Info.plist" || CheckLastResult
 
-echo "[+] IVPN Installer: make ..."
+echo "[+] VPN Installer: make ..."
 make
 CheckLastResult
 
-echo "[+] IVPN Installer: IVPN Installer.app ..."
-mkdir -p "bin/IVPN Installer.app/Contents/Library/LaunchServices" || CheckLastResult
-mkdir -p "bin/IVPN Installer.app/Contents/MacOS" || CheckLastResult
-cp "../helper/net.ivpn.client.Helper" "bin/IVPN Installer.app/Contents/Library/LaunchServices" || CheckLastResult
-cp "bin/IVPN Installer" "bin/IVPN Installer.app/Contents/MacOS" || CheckLastResult
-cp "etc/install.sh" "bin/IVPN Installer.app/Contents/MacOS" || CheckLastResult
-cp "IVPN Installer-Info.plist" "bin/IVPN Installer.app/Contents/Info.plist" || CheckLastResult
+echo "[+] VPN Installer: VPN Installer.app ..."
+mkdir -p "bin/VPN Installer.app/Contents/Library/LaunchServices" || CheckLastResult
+mkdir -p "bin/VPN Installer.app/Contents/MacOS" || CheckLastResult
+cp "../helper/net.vpn.client.Helper" "bin/VPN Installer.app/Contents/Library/LaunchServices" || CheckLastResult
+cp "bin/VPN Installer" "bin/VPN Installer.app/Contents/MacOS" || CheckLastResult
+cp "etc/install.sh" "bin/VPN Installer.app/Contents/MacOS" || CheckLastResult
+cp "VPN Installer-Info.plist" "bin/VPN Installer.app/Contents/Info.plist" || CheckLastResult
 
-echo "[+] IVPN Installer: IVPN Uninstaller.app ..."
-mkdir -p "bin/IVPN Uninstaller.app/Contents/MacOS" || CheckLastResult
-cp "bin/IVPN Uninstaller" "bin/IVPN Uninstaller.app/Contents/MacOS" || CheckLastResult
-cp "IVPN Uninstaller-Info.plist" "bin/IVPN Uninstaller.app/Contents/Info.plist" || CheckLastResult
+echo "[+] VPN Installer: VPN Uninstaller.app ..."
+mkdir -p "bin/VPN Uninstaller.app/Contents/MacOS" || CheckLastResult
+cp "bin/VPN Uninstaller" "bin/VPN Uninstaller.app/Contents/MacOS" || CheckLastResult
+cp "VPN Uninstaller-Info.plist" "bin/VPN Uninstaller.app/Contents/Info.plist" || CheckLastResult
 
-echo "[ ] IVPN Installer: Done"
-echo "    ${_SCRIPT_DIR}/bin/IVPN Installer.app"
-echo "    ${_SCRIPT_DIR}/bin/IVPN Uninstaller.app"
+echo "[ ] VPN Installer: Done"
+echo "    ${_SCRIPT_DIR}/bin/VPN Installer.app"
+echo "    ${_SCRIPT_DIR}/bin/VPN Uninstaller.app"
 
 cd ${_BASE_DIR}

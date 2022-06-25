@@ -1,4 +1,4 @@
-module github.com/ivpn/desktop-app/daemon
+module github.com/tahirmahm123/vpn-desktop-app/daemon
 
 go 1.16
 

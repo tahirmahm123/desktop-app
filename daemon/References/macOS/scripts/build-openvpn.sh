@@ -133,5 +133,5 @@ echo "********************************"
 otool -L ${INSTALL_DIR}/bin/openvpn
 
 echo "********************************"
-echo " DO NOT FORGET TO RECOMPILE 'IVPN Agent' project!"
+echo " DO NOT FORGET TO RECOMPILE 'VPN Agent' project!"
 echo "********************************"

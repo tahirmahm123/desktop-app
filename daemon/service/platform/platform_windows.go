@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package platform
@@ -47,7 +47,7 @@ func doInitConstants() {
 		fmt.Println("!!! WARNING !!! Non-standard service port file: ", servicePortFile)
 	}
 
-	logFile = path.Join(installDir, "log/IVPN Agent.log")
+	logFile = path.Join(installDir, "log/VPNlog")
 	openvpnLogFile = path.Join(installDir, "log/openvpn.log")
 
 	openvpnUserParamsFile = path.Join(installDir, "mutable/ovpn_extra_params.txt")
@@ -81,7 +81,7 @@ func doOsInit() (warnings []string, errors []error) {
 	serversFile = path.Join(settingsDir, "servers.json")
 	openvpnConfigFile = path.Join(settingsDir, "openvpn.cfg")
 	openvpnProxyAuthFile = path.Join(settingsDir, "proxyauth.txt")
-	wgConfigFilePath = path.Join(settingsDir, "IVPN.conf") // will be used also for WireGuard service name (e.g. "WireGuardTunnel$IVPN")
+	wgConfigFilePath = path.Join(settingsDir, "VPN") // will be used also for WireGuard service name (e.g. "WireGuardTunnelVPN")VPN
 
 	openVpnBinaryPath = path.Join(_installDir, "OpenVPN", _archDir, "openvpn.exe")
 	openvpnCaKeyFile = path.Join(settingsDir, "ca.crt")

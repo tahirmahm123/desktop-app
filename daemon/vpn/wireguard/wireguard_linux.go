@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package wireguard
@@ -32,9 +32,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/service/dns"
-	"github.com/ivpn/desktop-app/daemon/shell"
-	"github.com/ivpn/desktop-app/daemon/vpn"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/shell"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
 )
 
 type operation int
@@ -53,9 +53,9 @@ type internalVariables struct {
 }
 
 func (wg *WireGuard) init() error {
-	// It can happen that ivpn-daemon was not correctly stopped during WireGuard connection
+	// It can happen that vpn-daemon was not correctly stopped during WireGuard connection
 	// (e.g. process was terminated)
-	// In such situation, the 'wgivpn' keeps active.
+	// In such situation, the 'wgvpn' keeps active.
 	// We should close it in this case. Otherwise, new connection would not be established
 	wgInterfaceName := filepath.Base(wg.configFilePath)
 	wgInterfaceName = strings.TrimSuffix(wgInterfaceName, path.Ext(wgInterfaceName))
@@ -63,11 +63,11 @@ func (wg *WireGuard) init() error {
 	i, _ := net.InterfaceByName(wgInterfaceName)
 	if i != nil {
 		log.Info(fmt.Sprintf("Stopping WireGuard interface ('%s' expected to be stopped before the new connection)...", wgInterfaceName))
-		err := shell.Exec(log, "ip", "link", "set", "down", wgInterfaceName) // command: sudo ip link set down wgivpn
+		err := shell.Exec(log, "ip", "link", "set", "down", wgInterfaceName) // command: sudo ip link set down wgvpn
 		if err != nil {
 			log.Warning(err)
 		}
-		err = shell.Exec(log, "ip", "link", "delete", wgInterfaceName) // command: sudo ip link delete wgivpn
+		err = shell.Exec(log, "ip", "link", "delete", wgInterfaceName) // command: sudo ip link delete wgvpn
 		if err != nil {
 			log.Warning(err)
 		}

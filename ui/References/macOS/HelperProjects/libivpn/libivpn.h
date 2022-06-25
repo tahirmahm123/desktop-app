@@ -1,6 +1,6 @@
 
-#ifndef __LIBIVPN_H__
-#define __LIBIVPN_H__
+#ifndef __LIBVPN_H__
+#define __LIBVPN_H__
 
 #include <xpc/xpc.h>
 #include <ServiceManagement/ServiceManagement.h>
@@ -20,8 +20,8 @@
 #include <netinet/in.h>
 #include <netinet/in_var.h>
 
-#define LIBIVPN_XPC_MESSAGE_TYPE_START_REQUEST 1
-#define LIBIVPN_XPC_MESSAGE_TYPE_STARTED_REPLY 2
+#define LIBVPN_XPC_MESSAGE_TYPE_START_REQUEST 1
+#define LIBVPN_XPC_MESSAGE_TYPE_STARTED_REPLY 2
 
 #define HELPER_LATEST_VERSION 0
 #define HELPER_NOT_INSTALLED 1

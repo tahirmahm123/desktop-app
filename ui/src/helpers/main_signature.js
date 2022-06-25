@@ -7,14 +7,14 @@ import { GetOpenSSLBinaryPath } from "./main_platform";
 
 // SIGNING EXAMPLE
 //    sign:
-//        openssl dgst -sha256 -sign private.pem -out sign.sha256 IVPN-2.12.17.dmg
+//        openssl dgst -sha256 -sign private.pem -out sign.sha256 VPN-2.12.17.dmg
 //    encode to base64:
 //        openssl base64 -in sign.sha256 -out sign.sha256.base64
 // SIGNATURE CHECK
 //    decode base64:
 //        openssl base64 -d -in sign.sha256.base64 -out sign2.sha256
 //    check sign:
-//        openssl dgst -sha256 -verify public.pem -signature sign2.sha256 IVPN-2.12.17.dmg
+//        openssl dgst -sha256 -verify public.pem -signature sign2.sha256 VPN-2.12.17.dmg
 
 async function executeOpenSSlCommand(opensslArgs) {
   let opensslBin = await GetOpenSSLBinaryPath();
@@ -66,7 +66,7 @@ export async function ValidateFileOpenSSLCertificate(
     if (retCode != 0) return false;
 
     //    check sign:
-    //        openssl dgst -sha256 -verify public.pem -signature sign2.sha256 IVPN-2.12.17.dmg
+    //        openssl dgst -sha256 -verify public.pem -signature sign2.sha256 VPN-2.12.17.dmg
     retCode = await executeOpenSSlCommand([
       "dgst",
       "-sha256",

@@ -415,7 +415,7 @@ export default {
     },
     onLearnMoreLink: () => {
       sender.shellOpenExternal(
-        `https://www.ivpn.net/knowledgebase/general/split-tunnel-uses-and-limitations`
+        `https://www.vpn.net/knowledgebase/general/split-tunnel-uses-and-limitations`
       );
     },
 

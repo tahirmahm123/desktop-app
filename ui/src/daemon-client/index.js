@@ -1,23 +1,23 @@
 //
-//  UI for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  UI for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the UI for IVPN Client Desktop.
+//  This file is part of the UI for VPN Client Desktop.
 //
-//  The UI for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The UI for VPN Client Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The UI for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The UI for VPN Client Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the UI for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the UI for VPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 const log = require("electron-log");
@@ -571,7 +571,7 @@ async function ConnectToDaemon(setConnState, onDaemonExitingCallback) {
     log.debug(portInfo);
   } catch (e) {
     log.error(
-      `DAEMON CONNECTION ERROR: Unable to obtain IVPN daemon connection parameters: ${e}`
+      `DAEMON CONNECTION ERROR: Unable to obtain VPN daemon connection parameters: ${e}`
     );
     throw e;
   }
@@ -579,7 +579,7 @@ async function ConnectToDaemon(setConnState, onDaemonExitingCallback) {
   return new Promise((resolve, reject) => {
     if (!portInfo) {
       setConnState(DaemonConnectionType.NotConnected);
-      reject("IVPN daemon connection info is unknown.");
+      reject("VPN daemon connection info is unknown.");
       return;
     }
 
@@ -640,7 +640,7 @@ async function ConnectToDaemon(setConnState, onDaemonExitingCallback) {
           // the 'store.state.daemonVersion' and 'store.state.daemonIsOldVersionError' must be already initialized
           if (store.state.daemonIsOldVersionError === true) {
             const err = Error(
-              `Unsupported IVPN Daemon version: v${store.state.daemonVersion} (minimum required v${config.MinRequiredDaemonVer})`
+              `Unsupported VPN Daemon version: v${store.state.daemonVersion} (minimum required v${config.MinRequiredDaemonVer})`
             );
             err.unsupportedDaemonVersion = true;
             disconnectDaemonFunc(err); // REJECT
@@ -1422,8 +1422,8 @@ async function SplitTunnelAddApp(execCmd, funcShowMessageBox) {
 
       //-------------------
       // For a security reasons, we are not using SplitTunnelAddAppCmdResp.CmdToExecute command
-      // Instead, use hardcoded binary path to execute '/usr/bin/ivpn'
-      let shellCommandToRun = "/usr/bin/ivpn exclude " + execCmd;
+      // Instead, use hardcoded binary path to execute '/usr/bin/vpn'
+      let shellCommandToRun = "/usr/bin/vpn exclude " + execCmd;
 
       var exec = require("child_process").exec;
       let child = exec(shellCommandToRun, {
@@ -1432,19 +1432,19 @@ async function SplitTunnelAddApp(execCmd, funcShowMessageBox) {
           XDG_CURRENT_DESKTOP: XDG_CURRENT_DESKTOP,
           // Inform CLI that it started by the UI
           // The CLI will skip sending 'SplitTunnelAddApp' in this case
-          IVPN_STARTED_BY_PARENT: "IVPN_UI",
+          VPN_STARTED_BY_PARENT: "VPN_UI",
         },
       });
       //-------------------
       //var spawn = require("child_process").spawn;
-      //let child = spawn("/usr/bin/ivpn", ["exclude", execCmd], {
+      //let child = spawn("/usr/bin/vpn", ["exclude", execCmd], {
       //  detached: true,
       //  env: {
       //    ...process.env,
       //    XDG_CURRENT_DESKTOP: XDG_CURRENT_DESKTOP,
       //    // Inform CLI that it started by the UI
       //    // The CLI will skip sending 'SplitTunnelAddApp' in this case
-      //    IVPN_STARTED_BY_PARENT: "IVPN_UI",
+      //    VPN_STARTED_BY_PARENT: "VPN_UI",
       //  },
       //});
       //// do not exit child process when parent application stops
@@ -1457,7 +1457,7 @@ async function SplitTunnelAddApp(execCmd, funcShowMessageBox) {
       );
 
       // No necessary to send 'SplitTunnelAddedPidInfo'
-      // It will ne sent by '/usr/bin/ivpn'
+      // It will ne sent by '/usr/bin/vpn'
       //    await sendRecv({
       //      Command: daemonRequests.SplitTunnelAddedPidInfo,
       //      Pid: child.pid,

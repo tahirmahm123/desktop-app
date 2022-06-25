@@ -1,5 +1,5 @@
-//go:build darwin && !libivpn
-// +build darwin,!libivpn
+//go:build darwin && !libvpn
+// +build darwin,!libvpn
 
 package launcher
 

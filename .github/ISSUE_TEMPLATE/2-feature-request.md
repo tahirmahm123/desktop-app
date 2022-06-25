@@ -1,6 +1,6 @@
 ---
 name: "Feature request"
-about: Suggest a feature for IVPN Desktop app
+about: Suggest a feature for VPN Desktop app
 ---
 
 # Feature request

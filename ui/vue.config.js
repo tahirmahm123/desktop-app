@@ -18,7 +18,7 @@ module.exports = {
           extendInfo: {
             // this section contains extendend elements to be added to Info.plist
             LSUIElement: 1, // ability to hide app icon from macOS dock
-            SUPublicDSAKeyFile: "dsa_pub.pem", // possibility to perform Sparkle automatic update from old version of IVPN Client
+            SUPublicDSAKeyFile: "dsa_pub.pem", // possibility to perform Sparkle automatic update from old version of VPN Client
           },
         },
 

@@ -10,7 +10,7 @@
 # Useful commands (Ubuntu):
 #
 # To view *.deb package content:
-#     dpkg -c ivpn_1.0_amd64.deb
+#     dpkg -c vpn_1.0_amd64.deb
 # List of installet packets:
 #     dpkg --list [<mask>]
 # Install package:
@@ -18,7 +18,7 @@
 # Remove packet:
 #     dpkg --remove <packetname>
 # Remove (2):
-#     apt-get remove ivpn
+#     apt-get remove vpn
 #     apt-get purge curl
 #     apt-get autoremove
 # Remove repository (https://www.ostechnix.com/how-to-delete-a-repository-and-gpg-key-in-ubuntu/):
@@ -27,10 +27,10 @@
 # List of services:
 #     systemctl --type=service
 # Start service:
-#     systemctl start ivpn-service
+#     systemctl start vpn-service
 # Remove BROKEN package (which is unable to uninstall by normal ways)
-#     sudo mv /var/lib/dpkg/info/ivpn.* /tmp/
-#     sudo dpkg --remove --force-remove-reinstreq ivpn
+#     sudo mv /var/lib/dpkg/info/vpn.* /tmp/
+#     sudo dpkg --remove --force-remove-reinstreq vpn
 
 cd "$(dirname "$0")"
 
@@ -53,7 +53,7 @@ SCRIPT_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 OUT_DIR="$SCRIPT_DIR/_out_bin"
 APP_UNPACKED_DIR="$SCRIPT_DIR/../../dist_electron/linux-unpacked"
 APP_BIN_DIR="$SCRIPT_DIR/../../dist_electron/bin"
-IVPN_DESKTOP_UI2_SOURCES="$SCRIPT_DIR/../../"
+VPN_DESKTOP_UI2_SOURCES="$SCRIPT_DIR/../../"
 
 # ---------------------------------------------------------
 # version info variables
@@ -89,11 +89,11 @@ if [ -d $APP_BIN_DIR ]; then
   rm -fr "$APP_BIN_DIR"
 fi
 
-cat "$IVPN_DESKTOP_UI2_SOURCES/package.json" | grep \"version\" | grep \"$VERSION\"
-CheckLastResult "ERROR: Please set correct version in file '${IVPN_DESKTOP_UI2_SOURCES}package.json'"
+cat "$VPN_DESKTOP_UI2_SOURCES/package.json" | grep \"version\" | grep \"$VERSION\"
+CheckLastResult "ERROR: Please set correct version in file '${VPN_DESKTOP_UI2_SOURCES}package.json'"
 
 echo "*** Installing NPM molules ... ***"
-cd $IVPN_DESKTOP_UI2_SOURCES
+cd $VPN_DESKTOP_UI2_SOURCES
 CheckLastResult
 npm install
 CheckLastResult
@@ -108,14 +108,14 @@ if [ -d $APP_UNPACKED_DIR ]; then
     echo "[ ] Exist: $APP_UNPACKED_DIR"
 else
   echo "[!] Folder not exists: '$APP_UNPACKED_DIR'"
-  echo "    Build IVPN UI project (do not forget to set correct version for it in 'package.json')"
+  echo "    Build VPN UI project (do not forget to set correct version for it in 'package.json')"
   exit 1
 fi
-if [ -f "$APP_UNPACKED_DIR/ivpn-ui" ]; then
-    echo "[ ] Exist: $APP_UNPACKED_DIR/ivpn-ui"
+if [ -f "$APP_UNPACKED_DIR/vpn-ui" ]; then
+    echo "[ ] Exist: $APP_UNPACKED_DIR/vpn-ui"
 else
-  echo "[!] File not exists: '$APP_UNPACKED_DIR/ivpn-ui'"
-  echo "    Build IVPN UI project (do not forget to set correct version for it in 'package.json')"
+  echo "[!] File not exists: '$APP_UNPACKED_DIR/vpn-ui'"
+  echo "    Build VPN UI project (do not forget to set correct version for it in 'package.json')"
   exit 1
 fi
 
@@ -165,19 +165,19 @@ CreatePackage()
   #
   # NOTE! 'remove' scripts is using from old version!
 
-  fpm -d ivpn $EXTRA_ARGS \
+  fpm -d vpn $EXTRA_ARGS \
     --rpm-rpmbuild-define "_build_id_links none" \
-    --deb-no-default-config-files -s dir -t $PKG_TYPE -n ivpn-ui -v $VERSION --url https://www.ivpn.net --license "GNU GPL3" \
+    --deb-no-default-config-files -s dir -t $PKG_TYPE -n vpn-ui -v $VERSION --url https://www.vpn.net --license "GNU GPL3" \
     --template-scripts --template-value pkg=$PKG_TYPE --template-value version=$VERSION \
     --vendor "Privatus Limited" --maintainer "Privatus Limited" \
-    --description "$(printf "UI client for IVPN service (https://www.ivpn.net)\nGraphical interface v$VERSION.")" \
+    --description "$(printf "UI client for VPN service (https://www.vpn.net)\nGraphical interface v$VERSION.")" \
     --before-install "$SCRIPT_DIR/package_scripts/before-install.sh" \
     --after-install "$SCRIPT_DIR/package_scripts/after-install.sh" \
     --before-remove "$SCRIPT_DIR/package_scripts/before-remove.sh" \
     --after-remove "$SCRIPT_DIR/package_scripts/after-remove.sh" \
-    $SCRIPT_DIR/ui/IVPN.desktop=/opt/ivpn/ui/IVPN.desktop \
-    $SCRIPT_DIR/ui/ivpnicon.svg=/opt/ivpn/ui/ivpnicon.svg \
-    $APP_BIN_DIR=/opt/ivpn/ui/
+    $SCRIPT_DIR/ui/VPN.desktop=/opt/vpn/ui/VPN.desktop \
+    $SCRIPT_DIR/ui/vpnicon.svg=/opt/vpn/ui/vpnicon.svg \
+    $APP_BIN_DIR=/opt/vpn/ui/
 }
 
 echo '---------------------------'

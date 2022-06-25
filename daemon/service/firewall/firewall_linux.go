@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package firewall
@@ -28,9 +28,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/netinfo"
-	"github.com/ivpn/desktop-app/daemon/service/platform"
-	"github.com/ivpn/desktop-app/daemon/shell"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/netinfo"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/shell"
 )
 
 var (
@@ -101,7 +101,7 @@ func implSetPersistant(persistant bool) error {
 		// Just ensure that firewall is enabled
 		ret := implSetEnabled(true)
 
-		// Some Linux distributions erasing IVPN rules during system boot
+		// Some Linux distributions erasing VPNduring system boot
 		// During some period of time (60 seconds should be enough)
 		// check if FW rules still exist (if not - re-apply them)
 		go ensurePersistant(60)
@@ -111,7 +111,7 @@ func implSetPersistant(persistant bool) error {
 	return nil
 }
 
-// Some Linux distributions erasing IVPN rules during system boot
+// Some Linux distributions erasing VPNduring system boot
 // During some period of time (60 seconds should be enough)
 // check if FW rules still exist (if not - re-apply them)
 func ensurePersistant(secondsToWait int) {

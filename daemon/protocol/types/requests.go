@@ -1,31 +1,31 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package types
 
 import (
-	"github.com/ivpn/desktop-app/daemon/api/types"
-	"github.com/ivpn/desktop-app/daemon/service/dns"
-	"github.com/ivpn/desktop-app/daemon/vpn"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
 )
 
 // Hello is an initial request
@@ -158,7 +158,7 @@ type Connect struct {
 		MultihopExitServer struct {
 			// ExitSrvID (geteway ID) just in use to keep clients notified about connected MH exit server
 			// in same manner as for OpenVPN connection.
-			// Example: "gateway":"zz.wg.ivpn.net" => "zz"
+			// Example: "gateway":"zz.wg.vpn.net" => "zz"
 			ExitSrvID string
 			Hosts     []types.WireGuardServerHostInfo
 		}
@@ -169,7 +169,7 @@ type Connect struct {
 			Hosts []types.OpenVPNServerHostInfo
 		}
 
-		// MultihopExitSrvID example: "gateway":"zz.wg.ivpn.net" => "zz"
+		// MultihopExitSrvID example: "gateway":"zz.wg.vpn.net" => "zz"
 		MultihopExitSrvID string
 		ProxyType         string
 		ProxyAddress      string
@@ -198,7 +198,7 @@ type GetVPNState struct {
 //
 // When force is set to true - all active sessions will be deleted prior to creating a new one if user reached session limit.
 // Initial call to /sessin/new should always be performed with force set to false, to display special form, when sessions limit is reached.
-// IVPN client apps have to set force to true only when customer clicks Log all other clients button.
+// VPN apps have to set force to true only when customer clicks Log all other clients button.
 type SessionNew struct {
 	CommandBase
 	Username string

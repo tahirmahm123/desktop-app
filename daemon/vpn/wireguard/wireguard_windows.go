@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package wireguard
@@ -30,9 +30,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/service/dns"
-	"github.com/ivpn/desktop-app/daemon/shell"
-	"github.com/ivpn/desktop-app/daemon/vpn"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/shell"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
@@ -79,7 +79,7 @@ func (wg *WireGuard) init() error {
 		return nil // service not available (so, nothing to uninstall)
 	}
 
-	log.Warning("The IVPN WireGuard service is installed (it is not expected). Uninstalling it...")
+	log.Warning("The VPNard service is installed (it is not expected). Uninstalling it...")
 	return wg.uninstallService()
 }
 
@@ -292,11 +292,11 @@ func (wg *WireGuard) resetManualDNS() error {
 }
 
 func (wg *WireGuard) getTunnelName() string {
-	return strings.TrimSuffix(filepath.Base(wg.configFilePath), filepath.Ext(wg.configFilePath)) // IVPN
+	return strings.TrimSuffix(filepath.Base(wg.configFilePath), filepath.Ext(wg.configFilePath)) // VPN
 }
 
 func (wg *WireGuard) getServiceName() string {
-	return "WireGuardTunnel$" + wg.getTunnelName() // WireGuardTunnel$IVPN
+	return "WireGuardTunnel$" + wg.getTunnelName() // WireGuardTunnel$VPN
 }
 
 func (wg *WireGuard) getOSSpecificConfigParams() (interfaceCfg []string, peerCfg []string) {
@@ -465,7 +465,7 @@ func (wg *WireGuard) installService(stateChan chan<- vpn.StateInfo) error {
 
 	// We must manually re-apply custom DNS configuration for such situations:
 	//	- the DoH/DoT configuration can be applyied only after natwork interface is activeted
-	//	- if non-ivpn interfaces must be configured to custom DNS (it needed ONLY if DNS IP located in local network)
+	//	- if non-vpn interfaces must be configured to custom DNS (it needed ONLY if DNS IP located in local network)
 	// Also, it is needed to inform 'dns' package about last DNS value (used by 'protocol' to ptovide dns status to clients)
 	manualDNS := wg.internals.manualDNSRequired
 	if !manualDNS.IsEmpty() {

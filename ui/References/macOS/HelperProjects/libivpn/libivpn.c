@@ -9,7 +9,7 @@
 #include <dispatch/dispatch.h>
 
 
-#include "libivpn.h"
+#include "libvpn.h"
 
 #include "power_change_notifications.h"
 
@@ -47,18 +47,18 @@ void syslogSaveError(CFErrorRef error, const char* prefix)
 		if (ptr!=NULL)
 		{
 			if (prefix!=NULL)
-				syslog(LOG_ALERT, "libivpn: %s %s", prefix, ptr);
+				syslog(LOG_ALERT, "libvpn: %s %s", prefix, ptr);
 			else
-				syslog(LOG_ALERT, "libivpn: %s", ptr);
+				syslog(LOG_ALERT, "libvpn: %s", ptr);
 		}
 		else
 		{
 			if (prefix!=NULL)
-				syslog(LOG_ALERT, "libivpn: %s", prefix);
+				syslog(LOG_ALERT, "libvpn: %s", prefix);
 		}
 	}
 	else
-		syslog(LOG_ALERT, "libivpn: %s", prefix);
+		syslog(LOG_ALERT, "libvpn: %s", prefix);
 }
 
 void syslogSaveXpcObject(xpc_object_t object, const char* prefix)
@@ -72,15 +72,15 @@ void syslogSaveXpcObject(xpc_object_t object, const char* prefix)
         if (text!=NULL)
         {
             if (prefix!=NULL)
-                syslog(LOG_ALERT, "libivpn: %s %s", prefix, text);
+                syslog(LOG_ALERT, "libvpn: %s %s", prefix, text);
             else
-                syslog(LOG_ALERT, "libivpn: %s", text);
+                syslog(LOG_ALERT, "libvpn: %s", text);
 
             free(text);
         }
     }
     else
-        syslog(LOG_ALERT, "libivpn: %s", prefix);
+        syslog(LOG_ALERT, "libvpn: %s", prefix);
 }
 //-----------------------
 
@@ -97,8 +97,8 @@ EXPORT
 void start_xpc_listener(char *name, int serviceTcpPort, uint64_t serviceSecret) {
     queue = init_queue(name);
 
-    puts("libivpn: Starting listener");
-		syslog(LOG_ALERT, "libivpn: Starting listener");
+    puts("libvpn: Starting listener");
+		syslog(LOG_ALERT, "libvpn: Starting listener");
 
     connection = xpc_connection_create_mach_service(name, queue, XPC_CONNECTION_MACH_SERVICE_LISTENER);
 
@@ -108,13 +108,13 @@ void start_xpc_listener(char *name, int serviceTcpPort, uint64_t serviceSecret) 
 				{
             if(client == XPC_ERROR_CONNECTION_INTERRUPTED)
 						{
-								puts("libivpn: INTERRUPTED");
-                syslog(LOG_ALERT, "libivpn: INTERRUPTED");
+								puts("libvpn: INTERRUPTED");
+                syslog(LOG_ALERT, "libvpn: INTERRUPTED");
             }
 						else if(client == XPC_ERROR_CONNECTION_INVALID)
 						{
-								puts("libivpn: INVALID");
-                syslog(LOG_ALERT, "libivpn: INVALID");
+								puts("libvpn: INVALID");
+                syslog(LOG_ALERT, "libvpn: INVALID");
             }
 
             syslogSaveXpcObject(client, NULL);
@@ -122,8 +122,8 @@ void start_xpc_listener(char *name, int serviceTcpPort, uint64_t serviceSecret) 
             char *error = (char *) xpc_dictionary_get_string(client, XPC_ERROR_KEY_DESCRIPTION);
             if(error)
 						{
-                printf("libivpn: error: %s\n", error);
-								syslog(LOG_ALERT, "libivpn: error: %s", error);
+                printf("libvpn: error: %s\n", error);
+								syslog(LOG_ALERT, "libvpn: error: %s", error);
                 return;
             }
         }
@@ -138,14 +138,14 @@ void start_xpc_listener(char *name, int serviceTcpPort, uint64_t serviceSecret) 
             if(xpc_get_type(event) != XPC_TYPE_DICTIONARY)
                 return;
 
-            if(xpc_dictionary_get_int64(event, "type") == LIBIVPN_XPC_MESSAGE_TYPE_START_REQUEST)
+            if(xpc_dictionary_get_int64(event, "type") == LIBVPN_XPC_MESSAGE_TYPE_START_REQUEST)
 						{
-                syslog(LOG_ALERT, "libivpn: **************** START REQUEST");
-								puts( "libivpn: **************** START REQUEST");
+                syslog(LOG_ALERT, "libvpn: **************** START REQUEST");
+								puts( "libvpn: **************** START REQUEST");
 
                 //xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
                 xpc_object_t message = xpc_dictionary_create_reply(event);
-                xpc_dictionary_set_int64(message, "type", LIBIVPN_XPC_MESSAGE_TYPE_STARTED_REPLY);
+                xpc_dictionary_set_int64(message, "type", LIBVPN_XPC_MESSAGE_TYPE_STARTED_REPLY);
                 xpc_dictionary_set_int64(message, "port", serviceTcpPort);
 								xpc_dictionary_set_uint64(message, "secret", serviceSecret);
 
@@ -154,8 +154,8 @@ void start_xpc_listener(char *name, int serviceTcpPort, uint64_t serviceSecret) 
                 xpc_connection_send_message(remote, message);
                 xpc_release(message);
 
-								puts("libivpn: SENT REPLY");
-                syslog(LOG_ALERT, "libivpn: SENT REPLY");
+								puts("libvpn: SENT REPLY");
+                syslog(LOG_ALERT, "libvpn: SENT REPLY");
             }
         });
 
@@ -181,12 +181,12 @@ void connect_to_agent(char *name, AgentConnectedHandler handler) {
 
     // send a start request
     xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
-    xpc_dictionary_set_int64(message, "type", LIBIVPN_XPC_MESSAGE_TYPE_START_REQUEST);
+    xpc_dictionary_set_int64(message, "type", LIBVPN_XPC_MESSAGE_TYPE_START_REQUEST);
     xpc_connection_send_message_with_reply(connection, message, NULL, ^(xpc_object_t reply)
 		{
         if(xpc_get_type(reply) != XPC_TYPE_DICTIONARY) {
             handler(-1, 0);
-            syslog(LOG_ALERT, "libivpn: Received reply in connect_to_agent");
+            syslog(LOG_ALERT, "libvpn: Received reply in connect_to_agent");
             syslogSaveXpcObject(reply, NULL);
             return;
           }
@@ -239,7 +239,7 @@ int install_helper_with_auth(char *label, AuthorizationRef authRef) {
                   (AuthorizationRef) authRef,
                   &error))
     {
-				syslog(LOG_ALERT, "libivpn: helper installed (install_helper_with_auth)");
+				syslog(LOG_ALERT, "libvpn: helper installed (install_helper_with_auth)");
         return 1;
     }
     else
@@ -256,7 +256,7 @@ EXPORT
 int install_helper(char *label) {
     CFErrorRef error;
 
-    syslog(LOG_ALERT, "libivpn: Installing helper...");
+    syslog(LOG_ALERT, "libvpn: Installing helper...");
 
     AuthorizationRef  authRef = NULL;
     OSStatus err = AuthorizationCreate(NULL, NULL, 0, &authRef);
@@ -266,7 +266,7 @@ int install_helper(char *label) {
                       (AuthorizationRef) authRef,
                       &error))
         {
-						syslog(LOG_ALERT, "libivpn: helper installed");
+						syslog(LOG_ALERT, "libvpn: helper installed");
             return 1;
         }
         else
@@ -278,7 +278,7 @@ int install_helper(char *label) {
             return 0;
         }
     } else {
-				syslog(LOG_ALERT, "libivpn: ERROR GETTING AUTHORIZATION");
+				syslog(LOG_ALERT, "libvpn: ERROR GETTING AUTHORIZATION");
         puts("ERROR GETTING AUTHORIZATION");
 
         return 0;
@@ -306,11 +306,11 @@ int remove_helper(char *label) {
     if(err == errAuthorizationSuccess) {
         if(SMJobRemove(kSMDomainSystemLaunchd, CFStringCreateWithCString(kCFAllocatorDefault, label, kCFStringEncodingMacRoman), (AuthorizationRef) authRef, true, &error)) {
             puts("REMOVED!");
-						syslog(LOG_ALERT, "libivpn: Helper REMOVED!");
+						syslog(LOG_ALERT, "libvpn: Helper REMOVED!");
             return 1;
         } else {
             puts("ERROR");
-						syslog(LOG_ALERT, "libivpn: ERROR (remove_helper)");
+						syslog(LOG_ALERT, "libvpn: ERROR (remove_helper)");
 
             puts( CFStringGetCStringPtr(CFErrorCopyDescription(error), kCFStringEncodingMacRoman) );
             //puts( [(__bridge NSError *)error description] );
@@ -320,7 +320,7 @@ int remove_helper(char *label) {
         }
     } else {
         puts("ERROR GETTING AUTHORIZATION");
-				syslog(LOG_ALERT, "libivpn: ERROR GETTING AUTHORIZATION (remove_helper)");
+				syslog(LOG_ALERT, "libvpn: ERROR GETTING AUTHORIZATION (remove_helper)");
 
         return 0;
     }
@@ -339,7 +339,7 @@ int remove_helper_with_auth(char *label, AuthorizationRef authRef)
         &error))
     {
         puts("REMOVED!");
-				syslog(LOG_ALERT, "libivpn: Helper REMOVED! (remove_helper_with_auth)");
+				syslog(LOG_ALERT, "libvpn: Helper REMOVED! (remove_helper_with_auth)");
         return 1;
     }
     else
@@ -353,7 +353,7 @@ int remove_helper_with_auth(char *label, AuthorizationRef authRef)
 
 void onDynamicStoreChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info) {
   CFNotificationCenterRef centerRef = CFNotificationCenterGetLocalCenter();
-  CFNotificationCenterPostNotification(centerRef, CFSTR("net.ivpn.client.IVPN.NetworkConfigurationChangedNotification"), centerRef, NULL, true);
+  CFNotificationCenterPostNotification(centerRef, CFSTR("net.vpn.client.VPN.NetworkConfigurationChangedNotification"), centerRef, NULL, true);
 }
 
 EXPORT
@@ -381,9 +381,9 @@ int register_network_change_monitor() {
   netChangeRLSource = SCDynamicStoreCreateRunLoopSource(kCFAllocatorDefault, storeRef, 0);
   CFRunLoopAddSource(CFRunLoopGetCurrent(), netChangeRLSource, kCFRunLoopDefaultMode);
 
-	syslog(LOG_ALERT, "libivpn: network_change_monitor STARTED");
+	syslog(LOG_ALERT, "libvpn: network_change_monitor STARTED");
 	CFRunLoopRun(); // Start asynchronously: loop for detectiong changes
-	syslog(LOG_ALERT, "libivpn: network_change_monitor STOPPED");
+	syslog(LOG_ALERT, "libvpn: network_change_monitor STOPPED");
 
 	return 0;
 }

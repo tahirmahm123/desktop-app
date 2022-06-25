@@ -1,25 +1,26 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
+//go:build windows
 // +build windows
 
 package winlib_test
@@ -30,8 +31,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/ping"
-	"github.com/ivpn/desktop-app/daemon/service/firewall/winlib"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/ping"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/firewall/winlib"
 )
 
 func TestBlockAll(t *testing.T) {
@@ -41,8 +42,8 @@ func TestBlockAll(t *testing.T) {
 	var providerKey = syscall.GUID{Data1: 0xfed0afd4, Data2: 0x98d4, Data3: 0x4233, Data4: [8]byte{0xa4, 0xf3, 0x8b, 0x7c, 0x02, 0x44, 0x50, 0x01}}
 	var sublayerKey = syscall.GUID{Data1: 0xfed0afd4, Data2: 0x98d4, Data3: 0x4233, Data4: [8]byte{0xa4, 0xf3, 0x8b, 0x7c, 0x02, 0x44, 0x50, 0x02}}
 
-	const filterDName = "IVPN Test"
-	const filterDDesc = "IVPN Test filter"
+	const filterDName = "VPN
+	const filterDDesc = "VPNilter"
 
 	v4Layers := []syscall.GUID{winlib.FwpmLayerAleAuthConnectV4, winlib.FwpmLayerAleAuthRecvAcceptV4}
 	v6Layers := []syscall.GUID{winlib.FwpmLayerAleAuthConnectV6, winlib.FwpmLayerAleAuthRecvAcceptV6}
@@ -71,8 +72,8 @@ func TestBlockAll(t *testing.T) {
 		mgr.TransactionStart()
 		defer mgr.TransactionCommit()
 
-		provider := winlib.CreateProvider(providerKey, "IVPN Test", "IVPN Test WFP Provider", false)
-		sublayer := winlib.CreateSubLayer(sublayerKey, providerKey, "IVPN Test", "IVPN Test WFP Sublayer", 0, false)
+		provider := winlib.CreateProvider(providerKey, "VPN "VPN TesVPNider", false)
+		sublayer := winlib.CreateSubLayer(sublayerKey, providerKey, "VPN "VPN TesVPNayer", 0, false)
 
 		pinfo, err := mgr.GetProviderInfo(providerKey)
 		if err != nil {

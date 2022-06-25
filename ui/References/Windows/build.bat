@@ -15,7 +15,6 @@ SET FILE_LIST=%SCRIPTDIR%Installer\release-files.txt
 
 set APPVER=???
 set SERVICE_REPO=%SCRIPTDIR%..\..\..\daemon
-set CLI_REPO=%SCRIPTDIR%..\..\..\cli
 
 rem Checking if msbuild available
 WHERE msbuild >nul 2>&1
@@ -35,10 +34,8 @@ if not exist %MAKENSIS% (
 call :read_app_version 				|| goto :error
 echo     APPVER         : '%APPVER%'
 echo     SOURCES Service: %SERVICE_REPO%
-echo     SOURCES CLI    : %CLI_REPO%
 
 call :build_service						|| goto :error
-call :build_cli								|| goto :error
 call :build_ui								|| goto :error
 
 call :copy_files 							|| goto :error
@@ -69,19 +66,13 @@ goto :success
 	goto :eof
 
 :build_service
-	echo [*] Building IVPN service and dependencies...
+	echo [*] Building VPN service and dependencies...
 	call %SERVICE_REPO%\References\Windows\scripts\build-all.bat %APPVER% %CERT_SHA1% || exit /b 1
-	goto :eof
-
-:build_cli
-	echo [*] Building IVPN CLI...
-	echo %CLI_REPO%\References\Windows\build.bat
-	call %CLI_REPO%\References\Windows\build.bat %APPVER% %CERT_SHA1% || exit /b 1
 	goto :eof
 
 :build_ui
 	echo ==================================================
-	echo ============ BUILDING IVPN UI ====================
+	echo ============ BUILDING VPN UI ====================
 	echo ==================================================
   cd %SCRIPTDIR%\..\..  || exit /b 1
 
@@ -102,7 +93,7 @@ goto :success
 		echo.
 		echo Signing binary by certificate:  %CERT_SHA1% timestamp: %TIMESTAMP_SERVER%
 		echo.
-		signtool.exe sign /tr %TIMESTAMP_SERVER% /td sha256 /fd sha256 /sha1 %CERT_SHA1% /v "%UI_BINARIES_FOLDER%\IVPN.exe" || exit /b 1
+		signtool.exe sign /tr %TIMESTAMP_SERVER% /td sha256 /fd sha256 /sha1 %CERT_SHA1% /v "%UI_BINARIES_FOLDER%\VPN.exe" || exit /b 1
 		echo.
 		echo Signing SUCCES
 		echo.
@@ -116,13 +107,12 @@ goto :success
 
 	echo     Copying UI '%UI_BINARIES_FOLDER%' ...
 	xcopy /E /I  "%UI_BINARIES_FOLDER%" "%INSTALLER_TMP_DIR%\ui" || goto :error
-	echo     Renaming UI binary to 'IVPN Client.exe' ...
-	rename  "%INSTALLER_TMP_DIR%\ui\IVPN.exe" "IVPN Client.exe" || goto :error
+	echo     Renaming UI binary to 'VPN Client.exe' ...
+	rename  "%INSTALLER_TMP_DIR%\ui\VPN.exe" "VPN Client.exe" || goto :error
 
 	echo     Copying other files ...
 	set BIN_FOLDER_SERVICE=%SERVICE_REPO%\bin\x86_64\
 	set BIN_FOLDER_SERVICE_REFS=%SERVICE_REPO%\References\Windows\
-	set BIN_FOLDER_CLI=%CLI_REPO%\bin\x86_64\
 
 	setlocal EnableDelayedExpansion
 	for /f "tokens=*" %%i in (%FILE_LIST%) DO (
@@ -134,7 +124,7 @@ goto :success
 		if exist "%SCRIPTDIR%Installer\%%i" set SRCPATH=%SCRIPTDIR%Installer\%%i
 		if !SRCPATH! == ??? (
 			echo FILE '%%i' NOT FOUND!
-			exit /b 1
+			@REM exit /b 1
 		)
 		echo     !SRCPATH!
 
@@ -145,7 +135,7 @@ goto :success
 		copy /y "!SRCPATH!" "%INSTALLER_TMP_DIR%\%%i" > NUL
 		IF !errorlevel! NEQ 0 (
 			ECHO     Error: failed to copy "!SRCPATH!" to "%INSTALLER_TMP_DIR%"
-			EXIT /B 1
+			@REM EXIT /B 1
 		)
 	)
 	goto :eof
@@ -158,8 +148,8 @@ goto :success
 
 	cd %SCRIPTDIR%\Installer
 
-	SET OUT_FILE="%INSTALLER_OUT_DIR%\IVPN-Client-v%APPVER%.exe"
-	%MAKENSIS% /DPRODUCT_VERSION=%APPVER% /DOUT_FILE=%OUT_FILE% /DSOURCE_DIR=%INSTALLER_TMP_DIR% "IVPN Client.nsi"
+	SET OUT_FILE="%INSTALLER_OUT_DIR%\VPN-Client-v%APPVER%.exe"
+	%MAKENSIS% /DPRODUCT_VERSION=%APPVER% /DOUT_FILE=%OUT_FILE% /DSOURCE_DIR=%INSTALLER_TMP_DIR% "VPN Client.nsi"
 	IF not ERRORLEVEL 0 (
 		ECHO [!] Error: failed to create installer
 		EXIT /B 1
@@ -173,7 +163,7 @@ goto :success
 
 :error
 	goto :remove_tmp_vars_before_exit
-	echo [!] IVPN Client installer build FAILED with error #%errorlevel%.
+	echo [!] VPN Client installer build FAILED with error #%errorlevel%.
 	exit /b %errorlevel%
 
 :remove_tmp_vars_before_exit

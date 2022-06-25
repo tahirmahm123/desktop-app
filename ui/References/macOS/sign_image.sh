@@ -33,12 +33,12 @@ done
 if [ -z "${_SIGN_CERT}" ]; then
   echo "ERROR: Apple DevID not defined"
   echo "Usage:"
-  echo "    $0 -c <APPLE_DEVID_SERT> [-libivpn]"
+  echo "    $0 -c <APPLE_DEVID_SERT> [-libvpn]"
   exit 1
 fi
 
-if [ ! -d "_image/IVPN.app" ]; then
-  echo "ERROR: folder not exists '_image/IVPN.app'!"
+if [ ! -d "_image/VPN.app" ]; then
+  echo "ERROR: folder not exists '_image/VPN.app'!"
 fi
 
 echo "[i] Signing by cert: '${_SIGN_CERT}'"
@@ -48,7 +48,7 @@ echo "[i] Signing by cert: '${_SIGN_CERT}'"
 IFS=$'\n'; set -f
 
 echo "[+] Signing obfsproxy libraries..."
-for f in $(find '_image/IVPN.app/Contents/Resources/obfsproxy' -name '*.so');
+for f in $(find '_image/VPN.app/Contents/Resources/obfsproxy' -name '*.so');
 do
   echo "    signing: [" $f "]";
   codesign --verbose=4 --force --sign "${_SIGN_CERT}" "$f"
@@ -59,30 +59,30 @@ done
 unset IFS; set +f
 
 ListCompiledLibs=()
-if [[ "$@" == *"-libivpn"* ]]
+if [[ "$@" == *"-libvpn"* ]]
 then
   ListCompiledLibs=(
-  "_image/IVPN.app/Contents/MacOS/libivpn.dylib"
+  "_image/VPN.app/Contents/MacOS/libvpn.dylib"
   )
 fi
 
 ListCompiledBinaries=(
-"_image/IVPN.app/Contents/MacOS/IVPN"
-"_image/IVPN.app/Contents/MacOS/IVPN Agent"
-"_image/IVPN.app/Contents/MacOS/cli/ivpn"
-"_image/IVPN.app/Contents/MacOS/IVPN Installer.app/Contents/MacOS/IVPN Installer"
-"_image/IVPN.app/Contents/MacOS/IVPN Installer.app"
-"_image/IVPN.app"
-"_image/IVPN Uninstaller.app"
-"_image/IVPN Uninstaller.app/Contents/MacOS/IVPN Uninstaller"
+"_image/VPN.app/Contents/MacOS/VPN"
+"_image/VPN.app/Contents/MacOS/VPN Agent"
+"_image/VPN.app/Contents/MacOS/cli/vpn"
+"_image/VPN.app/Contents/MacOS/VPN Installer.app/Contents/MacOS/VPN Installer"
+"_image/VPN.app/Contents/MacOS/VPN Installer.app"
+"_image/VPN.app"
+"_image/VPN Uninstaller.app"
+"_image/VPN Uninstaller.app/Contents/MacOS/VPN Uninstaller"
 )
 
 ListThirdPartyBinaries=(
-"_image/IVPN.app/Contents/MacOS/IVPN Installer.app/Contents/Library/LaunchServices/net.ivpn.client.Helper"
-"_image/IVPN.app/Contents/MacOS/openvpn"
-"_image/IVPN.app/Contents/MacOS/WireGuard/wg"
-"_image/IVPN.app/Contents/MacOS/WireGuard/wireguard-go"
-"_image/IVPN.app/Contents/Resources/obfsproxy/obfs4proxy"
+"_image/VPN.app/Contents/MacOS/VPN Installer.app/Contents/Library/LaunchServices/net.vpn.client.Helper"
+"_image/VPN.app/Contents/MacOS/openvpn"
+"_image/VPN.app/Contents/MacOS/WireGuard/wg"
+"_image/VPN.app/Contents/MacOS/WireGuard/wireguard-go"
+"_image/VPN.app/Contents/Resources/obfsproxy/obfs4proxy"
 )
 
 echo "[+] Signing compiled libs..."

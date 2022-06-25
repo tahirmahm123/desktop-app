@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your time and interest for contributing to the IVPN Desktop app project!  
+Thanks for your time and interest for contributing to the VPN Desktop app project!  
 As a contributor, here are the guidelines we would like you to follow:
 
 * [Contributing Code](#contributing)

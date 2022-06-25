@@ -1,8 +1,8 @@
 # Security Policy
 
-## Reporting a security vulnerability to IVPN
+## Reporting a security vulnerability to VPN
 
-If you believe you have found a security vulnerability, **DO NOT CREATE AN ISSUE**. Instead, please send an email to security@ivpn.net. We treat all reports with the highest priority and confidentiality.
+If you believe you have found a security vulnerability, **DO NOT CREATE AN ISSUE**. Instead, please send an email to security@vpn.net. We treat all reports with the highest priority and confidentiality.
 
 ## Incident resolution process
 

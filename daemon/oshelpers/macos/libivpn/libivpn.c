@@ -1,6 +1,6 @@
-#include "libivpn.h"
+#include "libvpn.h"
 
-#define LIBIVPN_PATH "/Applications/IVPN.app/Contents/MonoBundle/libivpn.dylib"
+#define LIBVPN_PATH "/Applications/VPN.app/Contents/MonoBundle/libvpn.dylib"
 #define FUNC_start_xpc_listener "start_xpc_listener"
 
 #define LOG_ERR_PREFIX "ERROR (helpers.h)"
@@ -22,17 +22,17 @@ int LoadLibrary()
 	if (lib != NULL)
 		return ret;
 
-  	lib = dlopen(LIBIVPN_PATH, RTLD_LAZY);
+  	lib = dlopen(LIBVPN_PATH, RTLD_LAZY);
 	if ( lib == NULL )
 	{
-		printf("%s: dlopen() failed. '%s' not found\n", LOG_ERR_PREFIX, LIBIVPN_PATH);
+		printf("%s: dlopen() failed. '%s' not found\n", LOG_ERR_PREFIX, LIBVPN_PATH);
 		return ERROR_LIB_NOT_FOUND;
 	}
 
 	func_start_xpc_listener = dlsym(lib, FUNC_start_xpc_listener);
 	if (func_start_xpc_listener==NULL)
 	{
-		printf("%s: dlsym() failed. Method '%s' not found in '%s' \n", LOG_ERR_PREFIX, FUNC_start_xpc_listener, LIBIVPN_PATH);
+		printf("%s: dlsym() failed. Method '%s' not found in '%s' \n", LOG_ERR_PREFIX, FUNC_start_xpc_listener, LIBVPN_PATH);
 		ret = ERROR_METHOD_NOT_FOUND;
 	}
 

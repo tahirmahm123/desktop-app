@@ -1,9 +1,9 @@
 {
-  "name": "ivpn-ui",
-  "version": "3.6.4",
-  "productName": "IVPN",
-  "description": "IVPN Client",
-  "author": "IVPN Limited",
+  "name": "vpn-ui",
+  "version": "1.0.0",
+  "productName": "VPN",
+  "description": "VPN Client",
+  "author": "VPN Limited",
   "license": "GPL-3.0",
   "private": true,
   "scripts": {

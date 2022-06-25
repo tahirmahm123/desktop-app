@@ -87,7 +87,7 @@
 
       <div class="proAcountDescriptionBlock" v-if="IsCanUpgradeToPro">
         <p>
-          <strong>IVPN PRO</strong> gives you more possibilities to stay safe
+          <strong>VPN PRO</strong> gives you more possibilities to stay safe
           and protected:
         </p>
 
@@ -254,10 +254,10 @@ export default {
       await sender.AccountStatus();
     },
     upgrade() {
-      sender.shellOpenExternal(`https://www.ivpn.net/account`);
+      sender.shellOpenExternal(`https://www.vpn.net/account`);
     },
     addMoreTime() {
-      sender.shellOpenExternal(`https://www.ivpn.net/account`);
+      sender.shellOpenExternal(`https://www.vpn.net/account`);
     },
   },
   computed: {
@@ -280,7 +280,7 @@ export default {
         this.IsAccountStateExists &&
         this.$store.state.account.accountStatus.Upgradable &&
         this.$store.state.account.accountStatus.CurrentPlan.toLowerCase() !=
-          "ivpn pro"
+          "vpn pro"
       );
     },
   },

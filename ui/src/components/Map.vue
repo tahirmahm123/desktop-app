@@ -518,7 +518,7 @@ export default {
       } else this.isDarkTheme = scheme === ColorTheme.dark;
     },
     onAccountRenew() {
-      sender.shellOpenExternal(`https://www.ivpn.net/account`);
+      sender.shellOpenExternal(`https://www.vpn.net/account`);
     },
     // ================= CONNECTION ====================
     async disconnect() {
@@ -1171,8 +1171,8 @@ export default {
         const point = this.getLocationXYCoordinates(this.connectedLocation);
         if (point != null) {
           if (
-            obj.IVPNLocationObj != null &&
-            obj.IVPNLocationObj.city != this.connectedLocation.city
+            obj.VPNLocationObj != null &&
+            obj.VPNLocationObj.city != this.connectedLocation.city
           ) {
             setDisconnectedObj(this);
             obj = this.animSelCircles[0];
@@ -1181,12 +1181,12 @@ export default {
           // set coordinates for selected server
           obj.style.left = `${point.x}px`;
           obj.style.top = `${point.y}px`;
-          obj.IVPNLocationObj = this.connectedLocation;
+          obj.VPNLocationObj = this.connectedLocation;
 
           // set coordinates for 'connected waves' animation object
           this.animConnectedWaves.style.left = `${point.x}px`;
           this.animConnectedWaves.style.top = `${point.y}px`;
-          this.animConnectedWaves.IVPNLocationObj = this.connectedLocation;
+          this.animConnectedWaves.VPNLocationObj = this.connectedLocation;
 
           // we are connected or connecting
           // Remove 'shrink' class

@@ -19,8 +19,8 @@ function CheckLastResult
   fi
 }
 
-# The Apple DevID certificate which will be used to sign IVPN Agent (Daemon) binary
-# The helper will check IVPN Agent signature with this value
+# The Apple DevID certificate which will be used to sign VPN Agent (Daemon) binary
+# The helper will check VPN Agent signature with this value
 _SIGN_CERT="" # E.g. "WXXXXXXXXN". Specific value can be passed by command-line argument: -c <APPLE_DEVID_SERT>
 # version info variables
 _VERSION=""
@@ -42,27 +42,27 @@ if [ -z "${_VERSION}" ] || [ -z "${_SIGN_CERT}" ]; then
   exit 1
 fi
 
-echo "[ ] *** Compiling IVPN helper ***"
+echo "[ ] *** Compiling VPN helper ***"
 echo "    Version:                 '${_VERSION}'"
 echo "    Apple DevID certificate: '${_SIGN_CERT}'"
 
 # ======================== VARS =========================
 _CFLAGS=""
-_OUT_BINARY="net.ivpn.client.Helper"
-_PLIST_LAUNCHD="IVPN Helper-Launchd.plist"
+_OUT_BINARY="net.vpn.client.Helper"
+_PLIST_LAUNCHD="VPN Helper-Launchd.plist"
 
-_PLIST_INFO_TEMPLATE="IVPN Helper-Info_template.plist"
-_PLIST_INFO="IVPN Helper-Info.plist"
+_PLIST_INFO_TEMPLATE="VPN Helper-Info_template.plist"
+_PLIST_INFO="VPN Helper-Info.plist"
 
 # ================ UPDATING PLIST FILES =================
 echo "[+] Ubdating PLIST ..."
 cp "${_PLIST_INFO_TEMPLATE}" "${_PLIST_INFO}"|| CheckLastResult
 
-#plutil -replace SMAuthorizedClients -xml "<array> <string>identifier net.ivpn.client.installer and certificate leaf[subject.OU] = ${_SIGN_CERT}</string> </array>" "${_PLIST_INFO}" || CheckLastResult
+#plutil -replace SMAuthorizedClients -xml "<array> <string>identifier net.vpn.client.installer and certificate leaf[subject.OU] = ${_SIGN_CERT}</string> </array>" "${_PLIST_INFO}" || CheckLastResult
 plutil -replace SMAuthorizedClients -xml \
         "<array> \
-          <string>identifier net.ivpn.client.installer and certificate leaf[subject.OU] = ${_SIGN_CERT}</string>\
-          <string>identifier net.ivpn.client.uninstaller and certificate leaf[subject.OU] = ${_SIGN_CERT}</string>\
+          <string>identifier net.vpn.client.installer and certificate leaf[subject.OU] = ${_SIGN_CERT}</string>\
+          <string>identifier net.vpn.client.uninstaller and certificate leaf[subject.OU] = ${_SIGN_CERT}</string>\
         </array>" "${_PLIST_INFO}" || CheckLastResult
 
 plutil -replace CFBundleShortVersionString -xml "<string>${_VERSION}</string>" "${_PLIST_INFO}" || CheckLastResult

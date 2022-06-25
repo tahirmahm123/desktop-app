@@ -174,7 +174,7 @@ export default {
       let l = this.$store.state.location;
       if (this.isIPv6View) l = this.$store.state.locationIPv6;
       if (!l) return null;
-      if (l.isIvpnServer == true) return "IVPN";
+      if (l.isIvpnServer == true) return "VPN";
       if (!l.isp) return null;
       return l.isp;
     },

@@ -1,23 +1,23 @@
 //
-//  UI for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  UI for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the UI for IVPN Client Desktop.
+//  This file is part of the UI for VPN Client Desktop.
 //
-//  The UI for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The UI for VPN Client Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The UI for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The UI for VPN Client Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the UI for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the UI for VPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 "use strict";
@@ -188,7 +188,7 @@ if (gotTheLock) {
           label: "Learn More",
           click: async () => {
             const { shell } = require("electron");
-            await shell.openExternal("https://www.ivpn.net/knowledgebase");
+            await shell.openExternal("https://www.vpn.net/knowledgebase");
           },
         },
       ],
@@ -235,14 +235,14 @@ if (gotTheLock) {
     // MACOS: Check is application is located in correct place (path)
     if (false && Platform() === PlatformEnum.macOS && !process.env.IS_DEBUG) {
       let appPath = app.getAppPath();
-      if (!appPath.startsWith("/Applications/IVPN.app/")) {
+      if (!appPath.startsWith("/Applications/VPN.app/")) {
         console.log(`Failed to start. Wrong application path: ${appPath}`);
 
         dialog.showMessageBoxSync({
           type: "error",
-          message: "Unable to start IVPN Client",
+          message: "Unable to start VPN Client",
           detail:
-            "IVPN client can only run from the Applications folder. Please move the IVPN.app into the /Applications folder",
+            "VPN client can only run from the Applications folder. Please move the VPN.app into the /Applications folder",
           buttons: ["Quit"],
         });
 
@@ -426,7 +426,7 @@ async function isCanQuit() {
         type: "question",
         message: "Deactivate Firewall?",
         detail:
-          "The IVPN Firewall is active.\nDo you want to deactivate it before exiting the application?",
+          "The VPN Firewall is active.\nDo you want to deactivate it before exiting the application?",
         buttons: [
           "Cancel",
           "Keep Firewall activated & Quit",
@@ -869,7 +869,7 @@ async function connectToDaemon(
       } else {
         // force UI to show 'connecting' state
         setConnState(DaemonConnectionType.Connecting);
-        console.log(`Connecting to IVPN Daemon (retry #${retryNo}) ...`);
+        console.log(`Connecting to VPN Daemon (retry #${retryNo}) ...`);
         setTimeout(async () => {
           await connect(retryNo + 1);
         }, 1000);

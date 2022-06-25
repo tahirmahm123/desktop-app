@@ -16,15 +16,15 @@ while getopts ":v:" opt; do
 done
 
 echo "############################################"
-echo "### Building IVPN Daemon"
+echo "### Building VPN Daemon"
 echo "### OpenVPN and WireGuard will be also recompiled if they are not exists"
 
 if [ "$#" -eq 0 ]
 then
   echo "### Possible arguments:"
   echo "###   -norebuild    - do not rebuild openVPN and WireGuard binaries is they already compiled"
-  echo "###   -debug        - compile IVPN Daemon in debug mode"
-  echo "###   -libivpn      - use XPC listener for notifying clients about daemon connection port (latest IVPN UI not using XPC)"
+  echo "###   -debug        - compile VPN Daemon in debug mode"
+  echo "###   -libvpn      - use XPC listener for notifying clients about daemon connection port (latest VPN UI not using XPC)"
   echo "###   -wifi         - enable wifi support (do not ask 'Enable WIFI support?' question before demon build start)"
 fi
 echo "############################################"
@@ -116,7 +116,7 @@ fi
 ./update-servers.sh
 
 echo "======================================================"
-echo "=============== IVPN Agent ==========================="
+echo "=============== VPN Agent ==========================="
 echo "======================================================"
 echo "Version: $VERSION"
 echo "Date   : $DATE"
@@ -133,9 +133,9 @@ then
   BUILDTAGS_DEBUG="debug"
 fi
 
-if [[ "$@" == *"-libivpn"* ]]
+if [[ "$@" == *"-libvpn"* ]]
 then
-  BUILDTAGS_USE_LIBVPN="libivpn"
+  BUILDTAGS_USE_LIBVPN="libvpn"
 fi
 
 if [[ "$@" != *"-wifi"* ]]
@@ -156,6 +156,6 @@ then
   esac
 fi
 
-CGO_CFLAGS=-mmacosx-version-min=10.10 CGO_LDFLAGS=-mmacosx-version-min=10.10 go build -tags "${BUILDTAGS_NOWIFI} ${BUILDTAGS_USE_LIBVPN} ${BUILDTAGS_DEBUG}" -o "IVPN Agent" -trimpath -ldflags "-v -X github.com/ivpn/desktop-app/daemon/version._version=$VERSION -X github.com/ivpn/desktop-app/daemon/version._commit=$COMMIT -X github.com/ivpn/desktop-app/daemon/version._time=$DATE"
+CGO_CFLAGS=-mmacosx-version-min=10.10 CGO_LDFLAGS=-mmacosx-version-min=10.10 go build -tags "${BUILDTAGS_NOWIFI} ${BUILDTAGS_USE_LIBVPN} ${BUILDTAGS_DEBUG}" -o "VPN Agent" -trimpath -ldflags "-v -X github.com/tahirmahm123/vpn-desktop-app/daemon/version._version=$VERSION -X github.com/tahirmahm123/vpn-desktop-app/daemon/version._commit=$COMMIT -X github.com/tahirmahm123/vpn-desktop-app/daemon/version._time=$DATE"
 
-echo "Cpmpiled daemon binary: '$(pwd)/IVPN Agent'"
+echo "Cpmpiled daemon binary: '$(pwd)/VPN Agent'"

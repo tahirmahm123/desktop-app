@@ -46,9 +46,9 @@ export default {
         sender.showMessageBox({
           type: "info",
           buttons: ["OK"],
-          message: "You are now connected to IVPN",
+          message: "You are now connected to VPN",
           detail:
-            "You can change Multi-Hop settings only when IVPN is disconnected.",
+            "You can change Multi-Hop settings only when VPN is disconnected.",
         });
         return;
       }

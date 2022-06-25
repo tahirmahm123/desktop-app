@@ -314,14 +314,14 @@ function readOldSettings() {
 function readOldSettingsMacOS() {
   const settingsOldFile = path.join(
     os.homedir(),
-    "/Library/Preferences/net.ivpn.client.IVPN.plist"
+    "/Library/Preferences/net.vpn.client.VPN.plist"
   );
 
   if (!fs.existsSync(settingsOldFile)) return null;
 
   var execSync = require("child_process").execSync;
   try {
-    let output = execSync("defaults read net.ivpn.client.IVPN").toString();
+    let output = execSync("defaults read net.vpn.client.VPN").toString();
     output = output.replaceAll("\\\\", "\\");
 
     // remove old settings (to not import it next time)
@@ -352,18 +352,18 @@ function readOldSettingsMacOS() {
 
 function readOldSettingsWindows() {
   try {
-    const fPathOldVer = "C:\\Program Files\\IVPN Client\\old.ver";
+    const fPathOldVer = "C:\\Program Files\\VPN Client\\old.ver";
 
     if (!fs.existsSync(fPathOldVer)) return null;
     const oldVer = fs.readFileSync(fPathOldVer, "utf8");
 
-    // C:\Users\<USER>\AppData\Local\IVPN_Limited\IVPN_Client.exe_Url_2dhygxwi22dge5p2fgmqhjirdotrmd3i\<VERSION>\user.config
+    // C:\Users\<USER>\AppData\Local\VPN_Limited\VPN_Client.exe_Url_2dhygxwi22dge5p2fgmqhjirdotrmd3i\<VERSION>\user.config
     const settingsOldFile = path.join(
       process.env.APPDATA,
       "..", // APPDATA returns 'C:\Users\<USER>\AppData\Roaming' but we need 'C:\Users\<USER>\AppData\Local'
       "Local",
-      "IVPN_Limited",
-      "IVPN_Client.exe_Url_2dhygxwi22dge5p2fgmqhjirdotrmd3i",
+      "VPN_Limited",
+      "VPN_Client.exe_Url_2dhygxwi22dge5p2fgmqhjirdotrmd3i",
       oldVer,
       "user.config"
     );
@@ -385,7 +385,7 @@ function readOldSettingsWindows() {
     var jsonObj = parser.parse(data, options);
 
     const settings =
-      jsonObj.configuration.userSettings["IVPN.Properties.Settings"].setting;
+      jsonObj.configuration.userSettings["VPN.Properties.Settings"].setting;
 
     let retObj = {};
     settings.forEach((element) => {

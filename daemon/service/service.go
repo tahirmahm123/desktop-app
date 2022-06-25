@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package service
@@ -34,23 +34,23 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/api"
-	"github.com/ivpn/desktop-app/daemon/api/types"
-	"github.com/ivpn/desktop-app/daemon/helpers"
-	"github.com/ivpn/desktop-app/daemon/logger"
-	"github.com/ivpn/desktop-app/daemon/netinfo"
-	"github.com/ivpn/desktop-app/daemon/oshelpers"
-	protocolTypes "github.com/ivpn/desktop-app/daemon/protocol/types"
-	"github.com/ivpn/desktop-app/daemon/service/dns"
-	"github.com/ivpn/desktop-app/daemon/service/firewall"
-	"github.com/ivpn/desktop-app/daemon/service/platform"
-	"github.com/ivpn/desktop-app/daemon/service/platform/filerights"
-	"github.com/ivpn/desktop-app/daemon/service/preferences"
-	"github.com/ivpn/desktop-app/daemon/service/srverrors"
-	"github.com/ivpn/desktop-app/daemon/splittun"
-	"github.com/ivpn/desktop-app/daemon/vpn"
-	"github.com/ivpn/desktop-app/daemon/vpn/openvpn"
-	"github.com/ivpn/desktop-app/daemon/vpn/wireguard"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/api"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/helpers"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/netinfo"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/oshelpers"
+	protocolTypes "github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/firewall"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform/filerights"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/srverrors"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/splittun"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn/openvpn"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn/wireguard"
 )
 
 var log *logger.Logger
@@ -74,7 +74,7 @@ const (
 	SessionCheckInterval time.Duration = time.Hour * 6
 )
 
-// Service - IVPN service
+// Service - VPNe
 type Service struct {
 	_evtReceiver       IServiceEventsReceiver
 	_api               *api.API
@@ -235,7 +235,7 @@ func (s *Service) IsConnectivityBlocked() (isBlocked bool, reasonDescription str
 		(!s.Connected() || s.IsPaused()) {
 		enabled, err := s.FirewallEnabled()
 		if err == nil && enabled {
-			return true, "Access to IVPN servers is blocked (check IVPN Firewall settings)", nil
+			return true, "Access to VPNs is blocked (check VPN FirVPNings)", nil
 		}
 	}
 	return false, "", nil
@@ -256,14 +256,14 @@ func (s *Service) SetVpnSessionInfo(i VpnSessionInfo) {
 func (s *Service) updateAPIAddrInFWExceptions() {
 	/*svrs, _ := s.ServersList()
 
-	ivpnAPIAddr := svrs.Config.API.IPAddresses
+	vpnAPIAddr := svrs.Config.API.IPAddresses
 
-	if len(ivpnAPIAddr) <= 0 {
+	if len(vpnAPIAddr) <= 0 {
 		return
 	}
 
-	apiAddrs := make([]net.IP, 0, len(ivpnAPIAddr))
-	for _, ipStr := range ivpnAPIAddr {
+	apiAddrs := make([]net.IP, 0, len(vpnAPIAddr))
+	for _, ipStr := range vpnAPIAddr {
 		apiIP := net.ParseIP(ipStr)
 		if apiIP != nil {
 			apiAddrs = append(apiAddrs, apiIP)
@@ -286,7 +286,7 @@ func (s *Service) updateAPIAddrInFWExceptions() {
 // (for example, we must disable firewall (if it not persistant))
 // Must be called by protocol object
 // Return parameters:
-// - isServiceMustBeClosed: true informing that service have to be closed ("Stop IVPN Agent when application is not running" feature)
+// - isServiceMustBeClosed: true informing that service have to be closed ("Stop VPNwhen application is not running" feature)
 // - err: error
 func (s *Service) OnControlConnectionClosed() (isServiceMustBeClosed bool, err error) {
 	isServiceMustBeClosed = s._preferences.IsStopOnClientDisconnect
@@ -307,7 +307,7 @@ func (s *Service) OnControlConnectionClosed() (isServiceMustBeClosed bool, err e
 func (s *Service) APIRequest(apiAlias string, ipTypeRequired protocolTypes.RequiredIPProtocol) (responseData []byte, err error) {
 
 	if ipTypeRequired == protocolTypes.IPv6 {
-		// IPV6-LOC-200 - IVPN Apps should request only IPv4 location information when connected  to the gateway, which doesn’t support IPv6
+		// IPV6-LOC-200 - VPNhould request only IPv4 location information when connected  to the gateway, which doesn’t support IPv6
 		vpn := s._vpn
 		if vpn != nil && !vpn.IsPaused() && !vpn.IsIPv6InTunnel() {
 			return nil, fmt.Errorf("no IPv6 support inside tunnel for current connection")
@@ -1081,7 +1081,7 @@ func (s *Service) setKillSwitchAllowLAN(isAllowLan bool, isAllowLanMulticast boo
 
 func (s *Service) SetKillSwitchAllowAPIServers(isAllowAPIServers bool) error {
 	if !isAllowAPIServers {
-		// Do not allow to disable access to IVPN API server if user logged-out
+		// Do not allow to disable access to VPNrver if user logged-out
 		// Otherwise, we will not have possibility to login
 		session := s.Preferences().Session
 		if !session.IsLoggedIn() {
@@ -1120,7 +1120,7 @@ func (s *Service) SetPreference(key string, val string) error {
 			prefs.IsObfsproxy = val
 		}
 	case "firewall_is_persistent":
-		log.Debug("Skipping 'firewall_is_persistent' value. IVPNKillSwitchSetIsPersistentRequest should be used")
+		log.Debug("Skipping 'firewall_is_persistent' value. VPNtchSetIsPersistentRequest should be used")
 	default:
 		log.Warning(fmt.Sprintf("Preference key '%s' not supported", key))
 	}

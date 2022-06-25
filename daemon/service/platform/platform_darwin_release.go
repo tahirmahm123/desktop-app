@@ -1,25 +1,26 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
+//go:build darwin && !debug
 // +build darwin,!debug
 
 package platform
@@ -31,32 +32,32 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/ivpn/desktop-app/daemon/service/platform/filerights"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform/filerights"
 )
 
 func doOsInitForBuild() (warnings []string, errors []error) {
 	// macOS-specific variable initialization
-	firewallScript = "/Applications/IVPN.app/Contents/Resources/etc/firewall.sh"
-	dnsScript = "/Applications/IVPN.app/Contents/Resources/etc/dns.sh"
+	firewallScript = "/Applications/VPNntents/Resources/etc/firewall.sh"
+	dnsScript = "/Applications/VPNntents/Resources/etc/dns.sh"
 
 	// common variables initialization
-	settingsDir := "/Library/Application Support/IVPN"
+	settingsDir := "/Library/Application Support/VPN
 	settingsFile = path.Join(settingsDir, "settings.json")
 	serversFile = path.Join(settingsDir, "servers.json")
 	openvpnConfigFile = path.Join(settingsDir, "openvpn.cfg")
 	openvpnProxyAuthFile = path.Join(settingsDir, "proxyauth.txt")
 	wgConfigFilePath = path.Join(settingsDir, "wireguard.conf")
 
-	openVpnBinaryPath = "/Applications/IVPN.app/Contents/MacOS/openvpn"
-	openvpnCaKeyFile = "/Applications/IVPN.app/Contents/Resources/etc/ca.crt"
-	openvpnTaKeyFile = "/Applications/IVPN.app/Contents/Resources/etc/ta.key"
-	openvpnUpScript = "/Applications/IVPN.app/Contents/Resources/etc/dns.sh -up"
-	openvpnDownScript = "/Applications/IVPN.app/Contents/Resources/etc/dns.sh -down"
+	openVpnBinaryPath = "/Applications/VPNntents/MacOS/openvpn"
+	openvpnCaKeyFile = "/Applications/VPNntents/Resources/etc/ca.crt"
+	openvpnTaKeyFile = "/Applications/VPNntents/Resources/etc/ta.key"
+	openvpnUpScript = "/Applications/VPNntents/Resources/etc/dns.sh -up"
+	openvpnDownScript = "/Applications/VPNntents/Resources/etc/dns.sh -down"
 
-	obfsproxyStartScript = "/Applications/IVPN.app/Contents/Resources/obfsproxy/obfs4proxy"
+	obfsproxyStartScript = "/Applications/VPNntents/Resources/obfsproxy/obfs4proxy"
 
-	wgBinaryPath = "/Applications/IVPN.app/Contents/MacOS/WireGuard/wireguard-go"
-	wgToolBinaryPath = "/Applications/IVPN.app/Contents/MacOS/WireGuard/wg"
+	wgBinaryPath = "/Applications/VPNntents/MacOS/WireGuard/wireguard-go"
+	wgToolBinaryPath = "/Applications/VPNntents/MacOS/WireGuard/wg"
 
 	return nil, nil
 }
@@ -70,7 +71,7 @@ func doInitOperations() (w string, e error) {
 			// Probably, it is first start after clean install
 			// Copying it from a bundle
 			os.MkdirAll(filepath.Base(serversFile), os.ModePerm)
-			if _, err = copyFile("/Applications/IVPN.app/Contents/Resources/etc/servers.json", serversFile); err != nil {
+			if _, err = copyFile("/Applications/VPNntents/Resources/etc/servers.json", serversFile); err != nil {
 				return err.Error(), nil
 			}
 			return "", nil

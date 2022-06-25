@@ -22,7 +22,7 @@ You acknowledge that (i) the Software may contain other software or components t
 3. PRIVACY. 
 
 3.1 Privatus Limited Privacy Policy. 
-The COMPANY's privacy policy is located at https://www.ivpn.net/privacy and describes the COMPANY's information collection and usage practices for customers using the Software.
+The COMPANY's privacy policy is located at https://www.vpn.net/privacy and describes the COMPANY's information collection and usage practices for customers using the Software.
 
 3.2 Technical Information. 
 The Software may be configured to automatically report back information relating to performance statistics (network latencies, network throughputs, etc.) for the COMPANY's and/or its affiliates' services accessed by the Software. Information on your configuration of this Software may be included. This data may be sent to COMPANY to help us diagnose performance issues with, and improve, the Software and the COMPANY's services. The Software may also use this information in its normal operation in order to make decisions on how to best deliver the COMPANY's and/or its affiliates services to you.
@@ -91,7 +91,7 @@ You will be responsible for compliance with all applicable laws, rules regulatio
 If any provision of this Agreement is held by a court of competent jurisdiction to be contrary to law, such provision shall be changed and interpreted so as to best accomplish the objectives of the original provision to the fullest extent allowed by law and the remaining provisions of this Agreement shall remain in full force and effect.
 
 9.6 Notices. 
-You agree that all notices, demands or other correspondence from you related to this Agreement shall be in writing and sent by electronic mail to legal@ivpn.net.
+You agree that all notices, demands or other correspondence from you related to this Agreement shall be in writing and sent by electronic mail to legal@vpn.net.
 
 9.7 Waiver and Amendment. 
 No modification, amendment or waiver of any provision of this Agreement shall be effective unless in writing and signed by the COMPANY. No failure or delay by either party in exercising any right, power, or remedy under this Agreement, except as specifically provided herein, shall operate as a waiver of any such right, power or remedy. Without limiting the foregoing, terms and conditions on any materials submitted by you to COMPANY shall be of no force or effect.

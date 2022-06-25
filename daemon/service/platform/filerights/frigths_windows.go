@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package filerights
@@ -7,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ivpn/desktop-app/daemon/oshelpers/windows/go-acl"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/oshelpers/windows/go-acl"
 )
 
 var envVarProgramFiles string

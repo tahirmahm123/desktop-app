@@ -1,6 +1,6 @@
 ---
 name: "Bug report"
-about: Report a bug in IVPN Desktop app
+about: Report a bug in VPN Desktop app
 ---
 
 # Bug report
@@ -9,7 +9,7 @@ about: Report a bug in IVPN Desktop app
 
 * Device: _____  
 * OS name and version: _____  
-* IVPN app version: _____  
+* VPN app version: _____  
 
 ## Describe the problem
 

@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package protocol
@@ -34,16 +34,16 @@ import (
 	"sync"
 	"time"
 
-	apitypes "github.com/ivpn/desktop-app/daemon/api/types"
-	"github.com/ivpn/desktop-app/daemon/logger"
-	"github.com/ivpn/desktop-app/daemon/oshelpers"
-	"github.com/ivpn/desktop-app/daemon/protocol/types"
-	"github.com/ivpn/desktop-app/daemon/service/dns"
-	"github.com/ivpn/desktop-app/daemon/service/platform"
-	"github.com/ivpn/desktop-app/daemon/service/preferences"
-	"github.com/ivpn/desktop-app/daemon/vpn"
-	"github.com/ivpn/desktop-app/daemon/vpn/openvpn"
-	"github.com/ivpn/desktop-app/daemon/vpn/wireguard"
+	apitypes "github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/oshelpers"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn/openvpn"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn/wireguard"
 )
 
 var log *logger.Logger
@@ -58,7 +58,7 @@ type Service interface {
 	// (for example, we must disable firewall (if it not persistant))
 	// Must be called by protocol object
 	// Return parameters:
-	// - isServiceMustBeClosed: true informing that service have to be closed ("Stop IVPN Agent when application is not running" feature)
+	// - isServiceMustBeClosed: true informing that service have to be closed ("Stop VPNwhen application is not running" feature)
 	// - err: error
 	OnControlConnectionClosed() (isServiceMustBeClosed bool, err error)
 
@@ -132,7 +132,7 @@ func CreateProtocol() (*Protocol, error) {
 	return &Protocol{_connections: make(map[net.Conn]struct{})}, nil
 }
 
-// Protocol - TCP interface to communicate with IVPN application
+// Protocol - TCP interface to communicate with VPNation
 type Protocol struct {
 	_secret uint64
 
@@ -173,7 +173,7 @@ func (p *Protocol) Stop() {
 	}
 }
 
-// Start - starts TCP interface to communicate with IVPN application (server to listen incoming connections)
+// Start - starts TCP interface to communicate with VPNation (server to listen incoming connections)
 func (p *Protocol) Start(secret uint64, startedOnPort chan<- int, service Service) error {
 	if p._service != nil {
 		return errors.New("unable to start protocol communication. It is already initialized")
@@ -212,13 +212,13 @@ func (p *Protocol) Start(secret uint64, startedOnPort chan<- int, service Servic
 	}
 	startedOnPort <- openedPort
 
-	log.Info(fmt.Sprintf("IVPN service started: %d [...%s]", openedPort, fmt.Sprintf("%016x", secret)[12:]))
+	log.Info(fmt.Sprintf("VPNe started: %d [...%s]", openedPort, fmt.Sprintf("%016x", secret)[12:]))
 	defer func() {
 		listener.Close()
 		log.Info("Listener closed")
 	}()
 
-	// infinite loop of processing IVPN client connection
+	// infinite loop of processing VPN connection
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -264,7 +264,7 @@ func (p *Protocol) processClient(conn net.Conn) {
 			}
 
 			if stopService {
-				log.Info("Stopping due to configuration: Stop IVPN Agent when application is not running")
+				log.Info("Stopping due to configuration: Stop VPNwhen application is not running")
 				p.Stop()
 			}
 		} else {

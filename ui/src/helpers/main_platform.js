@@ -6,7 +6,7 @@ async function winInstallFolder() {
     let Registry = require("winreg");
     let regKey = new Registry({
       hive: Registry.HKLM,
-      key: "\\Software\\IVPN Client",
+      key: "\\Software\\VPN Client",
     });
 
     regKey.get(Registry.DEFAULT_VALUE, function (err, item) {
@@ -19,9 +19,9 @@ async function winInstallFolder() {
 export async function GetPortInfoFilePath() {
   switch (Platform()) {
     case PlatformEnum.macOS:
-      return "/Library/Application Support/IVPN/port.txt";
+      return "/Library/Application Support/VPN/port.txt";
     case PlatformEnum.Linux:
-      return "/opt/ivpn/mutable/port.txt";
+      return "/opt/vpn/mutable/port.txt";
     case PlatformEnum.Windows: {
       let dir = await winInstallFolder();
       return `${dir}\\etc\\port.txt`;

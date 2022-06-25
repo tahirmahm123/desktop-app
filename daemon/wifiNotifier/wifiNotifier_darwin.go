@@ -89,7 +89,7 @@ static inline void setWifiNotifier(void) {
      }];
 
     SCDynamicStoreContext ctx = { 0, NULL, NULL, NULL, NULL };
-    SCDynamicStoreRef store = SCDynamicStoreCreate(kCFAllocatorDefault, CFSTR("IVPN"), wifi_network_changed, &ctx);
+    SCDynamicStoreRef store = SCDynamicStoreCreate(kCFAllocatorDefault, CFSTR("VPN"), wifi_network_changed, &ctx);
 
     SCDynamicStoreSetNotificationKeys(store, (__bridge CFArrayRef)scKeys, NULL);
 
@@ -105,7 +105,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/ivpn/desktop-app/daemon/logger"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
 )
 
 var log *logger.Logger

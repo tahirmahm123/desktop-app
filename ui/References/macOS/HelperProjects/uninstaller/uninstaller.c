@@ -3,9 +3,9 @@
 #include <syslog.h>
 #include <string.h>
 
-#define HELPER_LABEL "net.ivpn.client.Helper"
-#define HELPER_TO_REMOVE_PLIST_PATH "/Library/LaunchDaemons/net.ivpn.client.Helper.plist"
-#define HELPER_TO_REMOVE_BIN_PATH "/Library/PrivilegedHelperTools/net.ivpn.client.Helper"
+#define HELPER_LABEL "net.vpn.client.Helper"
+#define HELPER_TO_REMOVE_PLIST_PATH "/Library/LaunchDaemons/net.vpn.client.Helper.plist"
+#define HELPER_TO_REMOVE_BIN_PATH "/Library/PrivilegedHelperTools/net.vpn.client.Helper"
 
 // #define IS_INSTALLER 0   //  IS_INSTALLER should be passed by compiler
 //  Makefile example: cc -D IS_INSTALLER='1' ...
@@ -23,9 +23,9 @@
 void logmes(int mesType, const char* text) {
     syslog(mesType, "%s", text);
     if (IS_INSTALLER!=0)
-      printf("[mestype:%d] IVPN Installer: %s\n", mesType, text);
+      printf("[mestype:%d] VPN Installer: %s\n", mesType, text);
     else
-      printf("[mestype:%d] IVPN UnInstaller: %s\n", mesType, text);
+      printf("[mestype:%d] VPN UnInstaller: %s\n", mesType, text);
 }
 
 void logmesError(CFErrorRef error) {
@@ -131,7 +131,7 @@ int getInstalledHelperBundlePath(char* retBuff, int buffSize) {
 void get_versions(char* retInstalledVer, char* retCurrentVer, int buffersSize) {
     // check if the helper of current version is already installed
     char installedBundlePath[256]={0};
-    getBundleVer("/Applications/IVPN.app/Contents/MacOS/IVPN Installer.app/Contents/Library/LaunchServices/net.ivpn.client.Helper", retCurrentVer, buffersSize);
+    getBundleVer("/Applications/VPN.app/Contents/MacOS/VPN Installer.app/Contents/Library/LaunchServices/net.vpn.client.Helper", retCurrentVer, buffersSize);
 
     if (getInstalledHelperBundlePath(installedBundlePath, 256)==0)
     {
@@ -148,12 +148,12 @@ int is_helper_installation_required() {
 
     get_versions(installedVer, currentVer, 128);
     if (currentVer[0]==0)
-      return 1; // Unable to install IVPN Helper. Please, copy 'IVPN.app' to '/Applications'
+      return 1; // Unable to install VPN Helper. Please, copy 'VPN.app' to '/Applications'
 
     if (installedVer[0]!=0)
     {
       if (strcmp(installedVer, currentVer)==0)
-        return 1; // Required version of IVPN Helper is already installed. No installation needed
+        return 1; // Required version of VPN Helper is already installed. No installation needed
 
       return 0; // Another version is installed. Upgrade required
     }
@@ -185,15 +185,15 @@ int remove_helper_with_auth(AuthorizationRef authRef) {
   }
 
   if (ret==0)
-	  logmes(LOG_INFO, "Success (IVPN Helper removed)");
+	  logmes(LOG_INFO, "Success (VPN Helper removed)");
   else
-    logmes(LOG_ERR, "IVPN helper removal not complete successfully.");
+    logmes(LOG_ERR, "VPN helper removal not complete successfully.");
 
   return ret;
 }
 
 int remove_helper() {
-    logmes(LOG_INFO, "Removing IVPN helper...");
+    logmes(LOG_INFO, "Removing VPN helper...");
 
     CFErrorRef error = NULL;
 
@@ -205,7 +205,7 @@ int remove_helper() {
                                kAuthorizationFlagExtendRights;
     AuthorizationRef authRef = NULL;
 
-    const char *prompt = "This will remove the previously installed IVPN helper.\n\n";
+    const char *prompt = "This will remove the previously installed VPN helper.\n\n";
     AuthorizationItem envItems = {kAuthorizationEnvironmentPrompt, strlen(prompt), (void *)prompt, 0};
     AuthorizationEnvironment env = { 1, &envItems };
 
@@ -217,12 +217,12 @@ int remove_helper() {
       return ret;
     }
 
-    logmes(LOG_ERR, "ERROR: Getting authorization failed (IVPN helper NOT removed)");
+    logmes(LOG_ERR, "ERROR: Getting authorization failed (VPN helper NOT removed)");
     return err;
 }
 
 int install_helper() {
-    logmes(LOG_INFO, "Installing IVPN helper...");
+    logmes(LOG_INFO, "Installing VPN helper...");
 
     bool isUpgrade = false;
 
@@ -235,7 +235,7 @@ int install_helper() {
     get_versions(installedVer, currentVer, 128);
     if (currentVer[0]==0)
     {
-      logmes(LOG_ERR, "Unable to install IVPN Helper. Please, copy 'IVPN.app' to '/Applications'");
+      logmes(LOG_ERR, "Unable to install VPN Helper. Please, copy 'VPN.app' to '/Applications'");
       return 1;
     }
 
@@ -243,19 +243,19 @@ int install_helper() {
     {
       if (strcmp(installedVer, currentVer)==0)
       {
-        snprintf(messageBuff, 256, "Required version of IVPN Helper (v%s) is already installed. IVPN Helper installation skipped.", installedVer);
+        snprintf(messageBuff, 256, "Required version of VPN Helper (v%s) is already installed. VPN Helper installation skipped.", installedVer);
         logmes(LOG_NOTICE, messageBuff);
         return 1;
       }
 
       isUpgrade = true;
-      snprintf(messageBuff, 256, "Upgrading IVPN helper v%s (already installed version v%s) ...", currentVer, installedVer);
+      snprintf(messageBuff, 256, "Upgrading VPN helper v%s (already installed version v%s) ...", currentVer, installedVer);
       logmes(LOG_INFO, messageBuff);
     }
     else
     {
       // helper not installed
-      snprintf(messageBuff, 256, "Installing IVPN helper v%s ...", currentVer);
+      snprintf(messageBuff, 256, "Installing VPN helper v%s ...", currentVer);
       logmes(LOG_INFO, messageBuff);
     }
 
@@ -267,8 +267,8 @@ int install_helper() {
                                kAuthorizationFlagPreAuthorize |
                                kAuthorizationFlagExtendRights;
 
-    const char *promptUpgrade = "A new version of IVPN has been installed and the privileged helper must be upgraded too.\n\n";
-    const char *prompt = "A privileged helper must be installed to use the IVPN client.\n\n";
+    const char *promptUpgrade = "A new version of VPN has been installed and the privileged helper must be upgraded too.\n\n";
+    const char *prompt = "A privileged helper must be installed to use the VPN client.\n\n";
     if (isUpgrade)
       prompt = promptUpgrade;
 
@@ -292,47 +292,47 @@ int install_helper() {
 
         if (isSuccess)
         {
-			      logmes(LOG_INFO, "IVPN helper installed.");
+			      logmes(LOG_INFO, "VPN helper installed.");
             return 0;
         }
         else
         {
             logmesError(error);
-            logmes(LOG_ERR, "ERROR: SMJobBless failed (IVPN helper NOT installed)");
+            logmes(LOG_ERR, "ERROR: SMJobBless failed (VPN helper NOT installed)");
             if (error != NULL) CFRelease(error);
             return 1;
         }
     }
 
-	logmes(LOG_ERR, "ERROR: Getting authorization failed (IVPN helper NOT installed)");
+	logmes(LOG_ERR, "ERROR: Getting authorization failed (VPN helper NOT installed)");
     return err;
 }
 
 int disableFirewall() {
-  printf("[ ] Disabling IVPN firewall ...\n");
-  system("/Applications/IVPN.app/Contents/MacOS/cli/ivpn firewall -off");
+  printf("[ ] Disabling VPN firewall ...\n");
+  system("/Applications/VPN.app/Contents/MacOS/cli/vpn firewall -off");
   return 0;
 }
 
 int disconnectApp() {
-  printf("[ ] Disconnecting IVPN ...\n");
-  system("/Applications/IVPN.app/Contents/MacOS/cli/ivpn disconnect");
+  printf("[ ] Disconnecting VPN ...\n");
+  system("/Applications/VPN.app/Contents/MacOS/cli/vpn disconnect");
   return 0;
 }
 
 int quitApp() {
-  printf("[ ] Closing IVPN app...\n");
-  if (system("/usr/bin/osascript -e 'quit app \"IVPN\"'"))
+  printf("[ ] Closing VPN app...\n");
+  if (system("/usr/bin/osascript -e 'quit app \"VPN\"'"))
   {
-    logmes(LOG_ERR, "ERROR: Unable to close application (IVPN).");
-    system( "/usr/bin/osascript -e 'display alert \"IVPN Uninstaller\" message \"Please, close IVPN application and try again.\"'");
+    logmes(LOG_ERR, "ERROR: Unable to close application (VPN).");
+    system( "/usr/bin/osascript -e 'display alert \"VPN Uninstaller\" message \"Please, close VPN application and try again.\"'");
     return 4;
   }
   return 0;
 }
 
 int uninstall() {
-      logmes(LOG_INFO, "Uninstalling IVPN ...");
+      logmes(LOG_INFO, "Uninstalling VPN ...");
       const char *homeDir = getenv("HOME");
 
       CFErrorRef error = NULL;
@@ -361,25 +361,25 @@ int uninstall() {
       if (ret) return ret;
 
       printf("[ ] Logout ...\n");
-      system("/Applications/IVPN.app/Contents/MacOS/cli/ivpn logout");
+      system("/Applications/VPN.app/Contents/MacOS/cli/vpn logout");
 
       printf("[ ] Removing apps defaults...\n");
-      system("/usr/bin/defaults delete net.ivpn.client.IVPN"); // old UI bundleID
-      system("/usr/bin/defaults delete com.electron.ivpn-ui");
+      system("/usr/bin/defaults delete net.vpn.client.VPN"); // old UI bundleID
+      system("/usr/bin/defaults delete com.electron.vpn-ui");
 
       printf("[ ] Removing helper ...\n");
       remove_helper_with_auth(authRef);
 
       char relFile1[128], relFile2[128];
-      snprintf(relFile1, 128, "%s/Library/Preferences/net.ivpn.client.IVPN.plist", homeDir); // old UI bundleID
-      snprintf(relFile2, 128, "%s/Library/Preferences/com.electron.ivpn-ui.plist", homeDir);
+      snprintf(relFile1, 128, "%s/Library/Preferences/net.vpn.client.VPN.plist", homeDir); // old UI bundleID
+      snprintf(relFile2, 128, "%s/Library/Preferences/com.electron.vpn-ui.plist", homeDir);
 
       char *filesToRemove[] = {
-        "/Library/Logs/IVPN Agent.log",
-        "/Library/Logs/IVPN Agent.log.0",
-        "/Library/Logs/IVPN Agent CrashInfo.log",
-        "/Library/Logs/IVPN Agent CrashInfo.log.0",
-        "/Library/Application Support/net.ivpn.client.Agent/last-btime", // seems, the file created by OS,
+        "/Library/Logs/VPN Agent.log",
+        "/Library/Logs/VPN Agent.log.0",
+        "/Library/Logs/VPN Agent CrashInfo.log",
+        "/Library/Logs/VPN Agent CrashInfo.log.0",
+        "/Library/Application Support/net.vpn.client.Agent/last-btime", // seems, the file created by OS,
         relFile1,
         relFile2
       };
@@ -398,14 +398,14 @@ int uninstall() {
       }
 
       char relDir1[128];
-      snprintf(relDir1, 128, "%s/Library/Application Support/IVPN", homeDir);
+      snprintf(relDir1, 128, "%s/Library/Application Support/VPN", homeDir);
 
       char *foldersToRemove[] = {
-        "/Applications/IVPN.app",
-        "/Library/Application Support/IVPN/OpenVPN",
-        "/Library/Application Support/IVPN",
-        "/Library/Application Support/net.ivpn.client.Agent/LocalMachine", // seems, the folder created by OS
-        "/Library/Application Support/net.ivpn.client.Agent", // seems, the folder created by OS
+        "/Applications/VPN.app",
+        "/Library/Application Support/VPN/OpenVPN",
+        "/Library/Application Support/VPN",
+        "/Library/Application Support/net.vpn.client.Agent/LocalMachine", // seems, the folder created by OS
+        "/Library/Application Support/net.vpn.client.Agent", // seems, the folder created by OS
         relDir1
       };
 
@@ -425,15 +425,15 @@ int uninstall() {
       AuthorizationFree(authRef, kAuthorizationFlagDefaults);
 
       if (hasErrors)
-        system( "/usr/bin/osascript -e 'display alert \"IVPN Uninstaller\" message \"IVPN removed with errors!\"'");
+        system( "/usr/bin/osascript -e 'display alert \"VPN Uninstaller\" message \"VPN removed with errors!\"'");
       else
-        system( "/usr/bin/osascript -e 'display alert \"IVPN Uninstaller\" message \"IVPN removed!\"'");
+        system( "/usr/bin/osascript -e 'display alert \"VPN Uninstaller\" message \"VPN removed!\"'");
 
       return hasErrors;
 }
 
 int update(char* dmgFile, char* signatureFile) {
-      logmes(LOG_INFO, "Updating IVPN ...");
+      logmes(LOG_INFO, "Updating VPN ...");
 
       CFErrorRef error = NULL;
       AuthorizationRef authRef = NULL;
@@ -456,7 +456,7 @@ int update(char* dmgFile, char* signatureFile) {
       disconnectApp();
 
       char *args[] = {dmgFile, signatureFile, NULL};
-      OSStatus ret = AuthorizationExecuteWithPrivileges(authRef, (const char*) "/Applications/IVPN.app/Contents/MacOS/IVPN Installer.app/Contents/MacOS/install.sh", kAuthorizationFlagDefaults, args, NULL);
+      OSStatus ret = AuthorizationExecuteWithPrivileges(authRef, (const char*) "/Applications/VPN.app/Contents/MacOS/VPN Installer.app/Contents/MacOS/install.sh", kAuthorizationFlagDefaults, args, NULL);
 
       if (ret)
       {

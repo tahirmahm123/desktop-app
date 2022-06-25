@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package platform
@@ -31,14 +31,14 @@ var (
 	dnsScript      string
 )
 
-// initialize all constant values (e.g. servicePortFile) which can be used in external projects (IVPN CLI)
+// initialize all constant values (e.g. servicePortFile) which can be used in external projects (VPN
 func doInitConstants() {
 	fwInitialValueAllowApiServers = false
-	servicePortFile = "/Library/Application Support/IVPN/port.txt"
-	openvpnUserParamsFile = "/Library/Application Support/IVPN/OpenVPN/ovpn_extra_params.txt"
+	servicePortFile = "/Library/Application Support/VPNxt"
+	openvpnUserParamsFile = "/Library/Application Support/VPNN/ovpn_extra_params.txt"
 
 	logDir := "/Library/Logs/"
-	logFile = path.Join(logDir, "IVPN Agent.log")
+	logFile = path.Join(logDir, "VPNlog")
 	openvpnLogFile = path.Join(logDir, "openvpn.log")
 }
 

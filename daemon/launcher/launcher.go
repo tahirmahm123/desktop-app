@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package launcher
@@ -32,15 +32,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/api"
-	"github.com/ivpn/desktop-app/daemon/logger"
-	"github.com/ivpn/desktop-app/daemon/netchange"
-	"github.com/ivpn/desktop-app/daemon/protocol"
-	"github.com/ivpn/desktop-app/daemon/service"
-	"github.com/ivpn/desktop-app/daemon/service/platform"
-	"github.com/ivpn/desktop-app/daemon/service/preferences"
-	"github.com/ivpn/desktop-app/daemon/service/wgkeys"
-	"github.com/ivpn/desktop-app/daemon/version"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/api"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/netchange"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/protocol"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/wgkeys"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/version"
 )
 
 var log *logger.Logger
@@ -50,7 +50,7 @@ func init() {
 	log = logger.NewLogger("launch")
 }
 
-// IProtocol - interface of communication protocol with IVPN application
+// IProtocol - interface of communication protocol with VPNation
 type IProtocol interface {
 	Start(secret uint64, startedOnPort chan<- int, serv protocol.Service) error
 	Stop()
@@ -59,7 +59,7 @@ type IProtocol interface {
 // Launch -  initialize and start service
 func Launch() {
 	defer func() {
-		log.Info("IVPN daemon stopped.")
+		log.Info("VPN stopped.")
 
 		// OS-specific service finalizer
 		doStopped()
@@ -109,7 +109,7 @@ func Launch() {
 	}
 
 	tzName, tzOffsetSec := time.Now().Zone()
-	log.Info("Starting IVPN daemon", fmt.Sprintf(" [%s,%s]", runtime.GOOS, runtime.GOARCH), fmt.Sprintf(" [timezone: %s %d (%dh)]", tzName, tzOffsetSec, tzOffsetSec/(60*60)), " ...")
+	log.Info("Starting VPN", fmt.Sprintf(" [%s,%s]", runtime.GOOS, runtime.GOARCH), fmt.Sprintf(" [timezone: %s %d (%dh)]", tzName, tzOffsetSec, tzOffsetSec/(60*60)), " ...")
 	log.Info(fmt.Sprintf("args: %s", os.Args))
 	log.Info(fmt.Sprintf("pid : %d ppid: %d", os.Getpid(), os.Getppid()))
 	log.Info(fmt.Sprintf("arch: %d bit", strconv.IntSize))

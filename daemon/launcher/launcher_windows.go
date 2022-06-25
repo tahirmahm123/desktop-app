@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package launcher
@@ -31,14 +31,14 @@ import (
 )
 
 // ServiceName -  name of the service
-const _serviceName = "IVPN Client"
+const _serviceName = "VPN"
 
 var _evtlog *eventlog.Log
 var _stopped chan struct{}
 
-type ivpnservice struct{}
+type vpnservice struct{}
 
-// Prepare to start IVPN service for Windows
+// Prepare to start VPNe for Windows
 func doPrepareToRun() error {
 
 	isIntSess, err := svc.IsAnInteractiveSession()
@@ -137,8 +137,8 @@ func runWindowsService() {
 	// create stop-detection channel
 	_stopped = make(chan struct{}, 1)
 
-	// run windows-service-handler (func (m *ivpnservice) Execute(...))
-	err = svc.Run(_serviceName, &ivpnservice{})
+	// run windows-service-handler (func (m *vpnservice) Execute(...))
+	err = svc.Run(_serviceName, &vpnservice{})
 	if err != nil {
 		log.Error(fmt.Sprintf("%s service failed: %v", _serviceName, err))
 		if _evtlog != nil {
@@ -153,7 +153,7 @@ func runWindowsService() {
 	}
 }
 
-func (m *ivpnservice) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (ssec bool, errno uint32) {
+func (m *vpnservice) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (ssec bool, errno uint32) {
 	log.Info("Service handler started")
 	defer func() {
 		changes <- svc.Status{State: svc.StopPending}

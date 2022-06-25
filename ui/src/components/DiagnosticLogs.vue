@@ -3,7 +3,7 @@
     <div id="innerColumn">
       <h2 style="text-align: center">Diagnostic logs</h2>
       <div style="margin-bottom: 5px">
-        The following information will be submited to IVPN for further analysis:
+        The following information will be submited to VPN for further analysis:
       </div>
 
       <textarea readonly id="logsBlock" v-model="diagDataText" />
@@ -73,7 +73,7 @@ export default {
         sender.showMessageBoxSync({
           type: "info",
           buttons: ["OK"],
-          message: "Report sent to IVPN",
+          message: "Report sent to VPN",
           detail: `Report ID: ${id}`,
         });
       }

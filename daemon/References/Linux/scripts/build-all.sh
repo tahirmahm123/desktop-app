@@ -14,7 +14,7 @@ cd "$(dirname "$0")"
 
 SCRIPT_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 OUT_DIR="$SCRIPT_DIR/_out_bin"
-OUT_FILE="$OUT_DIR/ivpn-service"
+OUT_FILE="$OUT_DIR/vpn-service"
 
 set -e
 
@@ -77,7 +77,7 @@ cd $SCRIPT_DIR
 ./update-servers.sh
 
 echo "======================================================"
-echo "============ Compiling IVPN service =================="
+echo "============ Compiling VPN service =================="
 echo "======================================================"
 
 cd $SCRIPT_DIR/../../../
@@ -85,9 +85,9 @@ cd $SCRIPT_DIR/../../../
 if [[ "$@" == *"-debug"* ]]
 then
     echo "Compiling in DEBUG mode"
-    go build -buildmode=pie -tags debug -o "$OUT_FILE" -trimpath -ldflags "-X github.com/ivpn/desktop-app/daemon/version._version=$VERSION -X github.com/ivpn/desktop-app/daemon/version._commit=$COMMIT -X github.com/ivpn/desktop-app/daemon/version._time=$DATE"
+    go build -buildmode=pie -tags debug -o "$OUT_FILE" -trimpath -ldflags "-X github.com/tahirmahm123/vpn-desktop-app/daemon/version._version=$VERSION -X github.com/tahirmahm123/vpn-desktop-app/daemon/version._commit=$COMMIT -X github.com/tahirmahm123/vpn-desktop-app/daemon/version._time=$DATE"
 else
-    go build -buildmode=pie -o "$OUT_FILE" -trimpath -ldflags "-X github.com/ivpn/desktop-app/daemon/version._version=$VERSION -X github.com/ivpn/desktop-app/daemon/version._commit=$COMMIT -X github.com/ivpn/desktop-app/daemon/version._time=$DATE"
+    go build -buildmode=pie -o "$OUT_FILE" -trimpath -ldflags "-X github.com/tahirmahm123/vpn-desktop-app/daemon/version._version=$VERSION -X github.com/tahirmahm123/vpn-desktop-app/daemon/version._commit=$COMMIT -X github.com/tahirmahm123/vpn-desktop-app/daemon/version._time=$DATE"
 fi
 
 echo "Compiled binary: '$OUT_FILE'"

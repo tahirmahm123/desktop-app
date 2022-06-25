@@ -50,7 +50,7 @@
                 </div>
                 <!-- NEW UPDATE -->
                 <div v-else>
-                  <div class="big_text">New IVPN version available</div>
+                  <div class="big_text">New VPN version available</div>
 
                   <!-- info: new version -->
                   <div class="small_text">

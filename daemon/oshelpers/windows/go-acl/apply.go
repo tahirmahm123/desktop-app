@@ -1,9 +1,10 @@
-//+build windows
+//go:build windows
+// +build windows
 
 package acl
 
 import (
-	"github.com/ivpn/desktop-app/daemon/oshelpers/windows/go-acl/api"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/oshelpers/windows/go-acl/api"
 	"golang.org/x/sys/windows"
 
 	"unsafe"

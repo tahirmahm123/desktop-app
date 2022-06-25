@@ -292,7 +292,7 @@ export default {
       }
     },
     CreateAccount() {
-      sender.shellOpenExternal(`https://www.vulturevpn.com/signup`);
+      sender.shellOpenExternal(`https://www.VPN.com/signup`);
     },
     Cancel() {
       this.rawResponse = null;

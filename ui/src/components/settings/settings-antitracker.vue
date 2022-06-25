@@ -39,10 +39,10 @@ export default {
   },
   methods: {
     onLearnMoreLink: () => {
-      sender.shellOpenExternal(`https://www.ivpn.net/antitracker`);
+      sender.shellOpenExternal(`https://www.vpn.net/antitracker`);
     },
     onHardcodeLink: () => {
-      sender.shellOpenExternal(`https://www.ivpn.net/antitracker/hardcore`);
+      sender.shellOpenExternal(`https://www.vpn.net/antitracker/hardcore`);
     },
   },
   computed: {

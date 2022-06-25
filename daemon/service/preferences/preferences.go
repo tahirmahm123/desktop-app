@@ -1,23 +1,23 @@
 //
-//  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  Daemon for VPN Client Desktop
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2020 Privatus Limited.
 //
-//  This file is part of the Daemon for IVPN Client Desktop.
+//  This file is part of the Daemon for VPN Desktop.
 //
-//  The Daemon for IVPN Client Desktop is free software: you can redistribute it and/or
+//  The Daemon for VPN Desktop is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as published by the Free
 //  Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-//  The Daemon for IVPN Client Desktop is distributed in the hope that it will be useful,
+//  The Daemon for VPN Desktop is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 //  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 //  details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with the Daemon for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
+//  along with the Daemon for VPN Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
 
 package preferences
@@ -31,9 +31,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/ivpn/desktop-app/daemon/logger"
-	"github.com/ivpn/desktop-app/daemon/service/platform"
-	"github.com/ivpn/desktop-app/daemon/service/platform/filerights"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform/filerights"
 )
 
 var log *logger.Logger
@@ -47,7 +47,7 @@ const (
 	DefaultWGKeysInterval = time.Hour * 24 * 1
 )
 
-// Preferences - IVPN service preferences
+// Preferences - VPNe preferences
 type Preferences struct {
 	// SettingsSessionUUID is unique for Preferences object
 	// It allow to detect situations when settings was erased (created new Preferences object)
@@ -128,7 +128,7 @@ func (p *Preferences) LoadPreferences() error {
 	dataStr := string(data)
 	if strings.Contains(dataStr, `"firewall_is_persistent"`) {
 		// TODO: remove this old code
-		// It is a first time loading preferences after IVPN Client upgrade from old version (<= v2.10.9)
+		// It is a first time loading preferences after VPN upgrade from old version (<= v2.10.9)
 		// Loading preferences with an old parameter names and types:
 		type PreferencesOld struct {
 			IsLogging                string `json:"enable_logging"`
