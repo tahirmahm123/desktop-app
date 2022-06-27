@@ -22,7 +22,6 @@
 
 //go:build windows
 // +build windows
-
 package winsock2
 
 import (

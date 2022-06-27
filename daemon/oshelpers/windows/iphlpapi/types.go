@@ -22,7 +22,6 @@
 
 //go:build windows
 // +build windows
-
 package iphlpapi
 
 // TCPTableClass - The TCP_TABLE_CLASS enumeration defines the set of values used to indicate the type of table returned by calls to GetExtendedTcpTable.

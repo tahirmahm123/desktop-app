@@ -1,6 +1,5 @@
 //go:build nowifi
 // +build nowifi
-
 package wifiNotifier
 
 import "github.com/tahirmahm123/vpn-desktop-app/daemon/logger"

@@ -1,5 +1,4 @@
 // +build darwin linux
-
 package filerights
 
 import (

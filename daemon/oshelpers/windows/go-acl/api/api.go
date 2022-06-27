@@ -1,7 +1,6 @@
 //+build windows
 
-// Windows API functions for manipulating ACLs.
-package api
+// Windows API functions for manipulating ACLs.package api
 
 import (
 	"golang.org/x/sys/windows"

@@ -1,6 +1,5 @@
 //go:build windows
 // +build windows
-
 package acl
 
 import (

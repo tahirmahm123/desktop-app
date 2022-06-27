@@ -1,5 +1,4 @@
 // +build windows,!nowifi
-
 package wifiNotifier
 
 /*

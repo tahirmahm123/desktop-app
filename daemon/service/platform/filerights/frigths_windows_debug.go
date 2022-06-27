@@ -1,5 +1,4 @@
 // +build windows,debug
-
 package filerights
 
 import (

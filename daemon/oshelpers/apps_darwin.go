@@ -1,5 +1,4 @@
 //+build darwin
-
 package oshelpers
 
 import (
