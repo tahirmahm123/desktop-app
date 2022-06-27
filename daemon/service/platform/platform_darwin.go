@@ -34,8 +34,8 @@ var (
 // initialize all constant values (e.g. servicePortFile) which can be used in external projects (VPN
 func doInitConstants() {
 	fwInitialValueAllowApiServers = false
-	servicePortFile = "/Library/Application Support/VPNxt"
-	openvpnUserParamsFile = "/Library/Application Support/VPNN/ovpn_extra_params.txt"
+	servicePortFile = "/Library/Application Support/VPN/port.txt"
+	openvpnUserParamsFile = "/Library/Application Support/VPN/ovpn_extra_params.txt"
 
 	logDir := "/Library/Logs/"
 	logFile = path.Join(logDir, "VPNlog")

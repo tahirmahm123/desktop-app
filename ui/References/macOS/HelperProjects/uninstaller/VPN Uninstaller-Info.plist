@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleExecutable</key>
-	<string>VPN Installer</string>
+	<string>VPN Uninstaller</string>
 	<key>CFBundleIdentifier</key>
-	<string>net.vpn.client.installer</string>
+	<string>net.vpn.client.uninstaller</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Installer</string>
+	<string>Uninstaller</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -19,7 +19,7 @@
 	<key>SMPrivilegedExecutables</key>
 	<dict>
 		<key>net.vpn.client.Helper</key>
-		<string>identifier net.vpn.client.Helper and certificate leaf[subject.OU] = WQXXM75BYN</string>
+		<string>identifier net.vpn.client.Helper and certificate leaf[subject.OU] = 27RKRQ769G</string>
 	</dict>
 </dict>
 </plist>

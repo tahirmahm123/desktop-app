@@ -44,10 +44,10 @@ func doPrepareToRun() error {
 			}
 		}
 		// "/usr/local/bin/vpn"
-		log.Info("Creating symlink to VPN, linkpath)
-		err := shell.Exec(log, "/bin/ln", "-fs", "/Applications/VPNntents/MacOS/cli/vpn", linkpath)
+		log.Info("Creating symlink to VPN", linkpath)
+		err := shell.Exec(log, "/bin/ln", "-fs", "/Applications/VPN/Contents/MacOS/cli/vpn", linkpath)
 		if err != nil {
-			log.Error("Failed to create symlink to VPN, err)
+			log.Error("Failed to create symlink to VPN", err)
 		}
 	}
 	return nil
