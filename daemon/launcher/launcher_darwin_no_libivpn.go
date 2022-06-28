@@ -1,6 +1,5 @@
 //go:build darwin && !libvpn
 // +build darwin,!libvpn
-
 package launcher
 
 // inform OS-specific implementation about listener port
