@@ -69,7 +69,6 @@ fi
 ListCompiledBinaries=(
 "_image/VPN.app/Contents/MacOS/VPN"
 "_image/VPN.app/Contents/MacOS/VPN Agent"
-"_image/VPN.app/Contents/MacOS/cli/vpn"
 "_image/VPN.app/Contents/MacOS/VPN Installer.app/Contents/MacOS/VPN Installer"
 "_image/VPN.app/Contents/MacOS/VPN Installer.app"
 "_image/VPN.app"

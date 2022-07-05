@@ -1,11 +1,4 @@
-
-
-// Package ping is an ICMP ping library seeking to emulate the unix "ping"
-// command.
-//
-// Original sources: https://github.com/sparrc/go-ping
-// Minor fixes added to prevent deadlocks
-//package ping
+package ping
 
 import (
 	"bytes"

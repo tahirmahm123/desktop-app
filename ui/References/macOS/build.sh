@@ -66,7 +66,6 @@ else
 fi
 
 _PATH_REL_REPO_DAEMON="./../../../daemon"
-_PATH_REL_REPO_CLI="./../../../cli"
 _PATH_REL_REPO_UI="./../.."
 _PATH_ABS_REPO_DAEMON=""
 _PATH_ABS_REPO_CLI=""
@@ -96,10 +95,6 @@ if [ ! -d ${_PATH_REL_REPO_DAEMON} ]; then
   echo "[!] ERROR: daemon project not exists: '${_PATH_REL_REPO_DAEMON}'"
   exit -1
 fi
-if [ ! -d ${_PATH_REL_REPO_CLI} ]; then
-  echo "[!] ERROR: daemon project not exists: '${_PATH_REL_REPO_CLI}'"
-  exit -1
-fi
 if [ ! -d ${_PATH_REL_REPO_UI} ]; then
   echo "[!] ERROR: UI sources folder not exists: '${_PATH_REL_REPO_UI}'"
   exit -1
@@ -107,11 +102,6 @@ fi
 cd ${_PATH_REL_REPO_DAEMON} || CheckLastResult
 _PATH_ABS_REPO_DAEMON="$( pwd )"
 CheckLastResult "[!] ERROR obtaining absolute path to daemon project"
-
-cd ${_SCRIPT_DIR}
-cd ${_PATH_REL_REPO_CLI} || CheckLastResult
-_PATH_ABS_REPO_CLI="$( pwd )"
-CheckLastResult "[!] ERROR obtaining absolute path to CLI project"
 
 cd ${_SCRIPT_DIR}
 cd ${_PATH_REL_REPO_UI} || CheckLastResult
@@ -157,9 +147,6 @@ ${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/uninstaller/build.sh -c ${_
 CheckLastResult "[!] ERROR building Uninstaller/Installer"
 cd ${_SCRIPT_DIR}
 
-echo "[+] Building VPN CLI (${_PATH_ABS_REPO_CLI})...";
-${_PATH_ABS_REPO_CLI}/References/macOS/build.sh -v ${_VERSION}
-CheckLastResult "[!] ERROR building VPN CLI"
 
 echo ======================================================
 echo ================= Compiling UI =======================
@@ -238,10 +225,6 @@ cp "${_PATH_ABS_REPO_DAEMON}/References/macOS/_deps/wg_inst/wireguard-go" "${_PA
 
 echo "[+] Preparing DMG image: Copying daemon..."
 cp -R "${_PATH_ABS_REPO_DAEMON}/VPN Agent" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS" || CheckLastResult
-
-echo "[+] Preparing DMG image: Copying CLI..."
-mkdir "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/cli" || CheckLastResult
-cp -R "${_PATH_ABS_REPO_CLI}/References/macOS/_out_bin/vpn" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/cli" || CheckLastResult
 
 echo "[+] Preparing DMG image: Copying VPN Installer.app ..."
 cp -R "${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/uninstaller/bin/VPN Installer.app" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS"
