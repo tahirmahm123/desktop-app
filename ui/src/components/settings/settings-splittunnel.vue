@@ -330,7 +330,7 @@ export default {
       //      RunningApp.Ppid    int        // The PID of the parent of this process.
       //      RunningApp.Cmdline string
       //      RunningApp.Exe     string     // The actual pathname of the executed command
-      //      RunningApp.ExtIvpnRootPid int // PID of the known parent process registered by AddPid() function
+      //      RunningApp.ExtVpnRootPid int // PID of the known parent process registered by AddPid() function
       //      RunningApp.ExtModifiedCmdLine string
       appsToShow: null,
     };
@@ -443,8 +443,8 @@ export default {
             let knownApp = this.allInstalledAppsHashed[cmdLine];
             // Do not show child processes (child processes of known root PID)
             if (
-              runningApp.ExtIvpnRootPid > 0 &&
-              runningApp.ExtIvpnRootPid !== runningApp.Pid
+              runningApp.ExtVpnRootPid > 0 &&
+              runningApp.ExtVpnRootPid !== runningApp.Pid
             )
               return;
             if (!knownApp)
@@ -492,13 +492,13 @@ export default {
       appsToShowTmp.sort(function (a, b) {
         if (a.RunningApp && b.RunningApp) {
           if (
-            a.RunningApp.ExtIvpnRootPid > 0 &&
-            b.RunningApp.ExtIvpnRootPid === 0
+            a.RunningApp.ExtVpnRootPid > 0 &&
+            b.RunningApp.ExtVpnRootPid === 0
           )
             return -1;
           if (
-            a.RunningApp.ExtIvpnRootPid === 0 &&
-            b.RunningApp.ExtIvpnRootPid > 0
+            a.RunningApp.ExtVpnRootPid === 0 &&
+            b.RunningApp.ExtVpnRootPid > 0
           )
             return 1;
 

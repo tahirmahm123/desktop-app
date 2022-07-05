@@ -84,7 +84,7 @@ export default {
       //                                        Ppid    int // The PID of the parent of this process.
       //                                        Cmdline string
       //                                        Exe         string  // The actual pathname of the executed command
-      //                                        ExtIvpnRootPid int  // PID of the known parent process registered by AddPid() function
+      //                                        ExtVpnRootPid int  // PID of the known parent process registered by AddPid() function
       //                                        ExtModifiedCmdLine string
     },
 

@@ -431,7 +431,7 @@ function GetStatusText() {
       location += `${l.country}`;
     }
 
-    if (l.isIvpnServer == true) location += ` (ISP: VPN)`;
+    if (l.isVpnServer == true) location += ` (ISP: VPN)`;
     else if (l.isp) location += ` (ISP: ${l.isp})`;
 
     if (l.ip_address) retStr += `\nPublic IP: ${l.ip_address}`;
@@ -449,7 +449,7 @@ function GetStatusText() {
         locationV6 += `${l6.country}`;
       }
 
-      if (l6.isIvpnServer == true) locationV6 += ` (ISP: VPN)`;
+      if (l6.isVpnServer == true) locationV6 += ` (ISP: VPN)`;
       else if (l6.isp) locationV6 += ` (ISP: ${l6.isp})`;
     }
 

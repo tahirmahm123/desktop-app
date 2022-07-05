@@ -76,12 +76,12 @@ export default new Vuex.Store({
     // true when we are requesting geo-lookup info on current moment
     isRequestingLocation: false,
     // Current location (be careful, in 'connected' state this object will contain info about 'VPN location')
-    location: null, // {"ip_address":"","isp":"","organization":"","country":"","country_code":"","city":"","latitude": 0.0,"longitude":0.0,"isIvpnServer":false}
+    location: null, // {"ip_address":"","isp":"","organization":"","country":"","country_code":"","city":"","latitude": 0.0,"longitude":0.0,"isVpnServer":false}
 
     // true when we are requesting geo-lookup info on current moment
     isRequestingLocationIPv6: false,
     // Current location (be careful, in 'connected' state this object will contain info about 'VPN location')
-    locationIPv6: null, // {"ip_address":"","isp":"","organization":"","country":"","country_code":"","city":"","latitude": 0.0,"longitude":0.0,"isIvpnServer":false}
+    locationIPv6: null, // {"ip_address":"","isp":"","organization":"","country":"","country_code":"","city":"","latitude": 0.0,"longitude":0.0,"isVpnServer":false}
 
     // Contains current user (real) location OR (if connected) the last real user location
     // This parameter is using, for example, for calculating distance to a nearest server
@@ -152,7 +152,7 @@ export default new Vuex.Store({
       if (
         l4.country != l6.country ||
         l4.city != l6.city ||
-        (l4.isp != l6.isp && l4.isIvpnServer != l6.isIvpnServer)
+        (l4.isp != l6.isp && l4.isVpnServer != l6.isVpnServer)
       )
         return false;
 

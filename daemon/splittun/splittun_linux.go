@@ -22,6 +22,7 @@
 
 //go:build linux
 // +build linux
+
 package splittun
 
 import (
@@ -235,29 +236,29 @@ func implGetRunningApps() (allProcesses []RunningApp, err error) {
 		delete(_addedRootProcesses, diedPid)
 
 		// Find new root pid for current command (if exists)
-		// As new root pid will be used process with minimal PID which have ExtIvpnRootPid same as deleted PID
+		// As new root pid will be used process with minimal PID which have ExtVpnRootPid same as deleted PID
 	}
 
 	detachedProcessesMinPid := make(map[int]int) // map[<rootPidFromEnvVar>]<pid>
 
-	// mark required elements as 'ExtIvpnRootPid'
+	// mark required elements as 'ExtVpnRootPid'
 	for pid, value := range retMapAll {
 		if rootPid, isKnown := getRootPid(value, retMapAll); isKnown {
-			value.ExtIvpnRootPid = rootPid
+			value.ExtVpnRootPid = rootPid
 		}
 
-		if value.ExtIvpnRootPid == 0 {
+		if value.ExtVpnRootPid == 0 {
 			// Could happen a situations when we can not to determine to which command the process belongs.
 			// It occurs when ppid->pid->... sequence not ending by any element from '_addedRootProcesses'.
 			// In such situations, we are trying to read environment variable 'VPND_ST_ID' of that process,
 			// it contains the PID of the initial (root) process.
 			// The VPNts this variable for each process it starting in ST environment.
-			pidEnv, err := readProcEnvVarIvpnId(value.Pid)
+			pidEnv, err := readProcEnvVarVpnId(value.Pid)
 			if err != nil {
 				log.Warning(err)
 			} else {
 				if _, ok := _addedRootProcesses[pidEnv]; ok {
-					value.ExtIvpnRootPid = pidEnv
+					value.ExtVpnRootPid = pidEnv
 				} else {
 					// For the situations when the root process id not exist anymore -
 					// mark as root a process with minimum PID which has correspond value of VPND_ST_ID
@@ -285,11 +286,11 @@ func implGetRunningApps() (allProcesses []RunningApp, err error) {
 			_addedRootProcesses[proc.Pid] = diedRootCmd
 		}
 		for pid, value := range retMapAll {
-			if value.ExtIvpnRootPid > 0 {
+			if value.ExtVpnRootPid > 0 {
 				continue
 			}
 			if rootPid, isKnown := getRootPid(value, retMapAll); isKnown {
-				value.ExtIvpnRootPid = rootPid
+				value.ExtVpnRootPid = rootPid
 				retMapAll[pid] = value
 			}
 		}
@@ -361,9 +362,9 @@ func getRootPid(p RunningApp, allPids map[int]RunningApp) (rootPid int, isKnownR
 	if _, ok := _addedRootProcesses[p.Pid]; ok {
 		return p.Pid, true
 	}
-	if p.ExtIvpnRootPid > 0 {
-		if _, ok := _addedRootProcesses[p.ExtIvpnRootPid]; ok {
-			return p.ExtIvpnRootPid, true
+	if p.ExtVpnRootPid > 0 {
+		if _, ok := _addedRootProcesses[p.ExtVpnRootPid]; ok {
+			return p.ExtVpnRootPid, true
 		}
 	}
 
@@ -380,7 +381,7 @@ func isChildOf(p RunningApp, parentPid int, allPids map[int]RunningApp) bool {
 	if p.Ppid == parentPid {
 		return true
 	}
-	if p.ExtIvpnRootPid > 0 && p.ExtIvpnRootPid == parentPid {
+	if p.ExtVpnRootPid > 0 && p.ExtVpnRootPid == parentPid {
 		return true
 	}
 
@@ -393,7 +394,7 @@ func isChildOf(p RunningApp, parentPid int, allPids map[int]RunningApp) bool {
 	return false
 }
 
-func readProcEnvVarIvpnId(pid int) (int, error) {
+func readProcEnvVarVpnId(pid int) (int, error) {
 	bytes, err := os.ReadFile(fmt.Sprintf("/proc/%d/environ", pid))
 	if err != nil {
 		return 0, err

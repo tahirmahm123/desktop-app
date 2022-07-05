@@ -1,4 +1,3 @@
-
 package types
 
 // APIResponse - generic API response
@@ -65,5 +64,5 @@ type GeoLookupResponse struct {
 	Latitude  float64 `json:"latitude,omitempty"`
 	Longitude float64 `json:"longitude,omitempty"`
 
-	//isIvpnServer bool
+	//isVpnServer bool
 }

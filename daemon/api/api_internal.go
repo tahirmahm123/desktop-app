@@ -1,4 +1,3 @@
-
 package api
 
 import (
@@ -66,7 +65,7 @@ func (a *API) doRequestAPIHost(urlPath string, method string, contentType string
 		},
 
 		// using certificate key pinning
-		// DialTLS: makeDialer(APIIvpnHashes, true, _apiHost, timeoutDial),
+		// DialTLS: makeDialer(APIVpnHashes, true, _apiHost, timeoutDial),
 	}
 
 	// configure http-client with preconfigured TLS transport

@@ -947,7 +947,7 @@ async function doGeoLookup(requestID, isIPv6, isRetryTry) {
       if (isRealGeoLocationOnStart != isRealGeoLocationCheck()) {
         log.warn(`Skip geo-lookup result ${ipVerStr} (conn. state changed)`);
       } else {
-        // {"ip_address":"","isp":"","organization":"","country":"","country_code":"","city":"","latitude": 0.0,"longitude":0.0,"isIvpnServer":false}
+        // {"ip_address":"","isp":"","organization":"","country":"","country_code":"","city":"","latitude": 0.0,"longitude":0.0,"isVpnServer":false}
         console.warn("trying to get data", resp);
         retLocation = JSON.parse(`${resp.ResponseData}`);
         if (!retLocation || !retLocation.latitude || !retLocation.longitude) {
