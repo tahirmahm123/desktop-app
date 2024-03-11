@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -23,10 +23,10 @@
 package protocol
 
 import (
-	api_types "github.com/ivpn/desktop-app/daemon/api/types"
-	"github.com/ivpn/desktop-app/daemon/protocol/types"
-	"github.com/ivpn/desktop-app/daemon/service/preferences"
-	"github.com/ivpn/desktop-app/daemon/wifiNotifier"
+	api_types "github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/wifiNotifier"
 )
 
 // OnServiceSessionChanged - SessionChanged handler
@@ -77,7 +77,7 @@ func (p *Protocol) OnPingStatus(retMap map[string]int) {
 	p.notifyClients(&types.PingServersResp{PingResults: results})
 }
 
-func (p *Protocol) OnServersUpdated(serv *api_types.ServersInfoResponse) {
+func (p *Protocol) OnServersUpdated(serv *api_types.ServerListResponse) {
 	if serv == nil {
 		return
 	}

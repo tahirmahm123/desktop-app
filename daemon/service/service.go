@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -29,29 +29,26 @@ import (
 	"os"
 	"reflect"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/api"
-	api_types "github.com/ivpn/desktop-app/daemon/api/types"
-	"github.com/ivpn/desktop-app/daemon/kem"
-	"github.com/ivpn/desktop-app/daemon/logger"
-	"github.com/ivpn/desktop-app/daemon/netinfo"
-	"github.com/ivpn/desktop-app/daemon/oshelpers"
-	protocolTypes "github.com/ivpn/desktop-app/daemon/protocol/types"
-	"github.com/ivpn/desktop-app/daemon/service/dns"
-	"github.com/ivpn/desktop-app/daemon/service/firewall"
-	"github.com/ivpn/desktop-app/daemon/service/platform"
-	"github.com/ivpn/desktop-app/daemon/service/platform/filerights"
-	"github.com/ivpn/desktop-app/daemon/service/preferences"
-	"github.com/ivpn/desktop-app/daemon/service/srverrors"
-	"github.com/ivpn/desktop-app/daemon/service/types"
-	"github.com/ivpn/desktop-app/daemon/shell"
-	"github.com/ivpn/desktop-app/daemon/splittun"
-	"github.com/ivpn/desktop-app/daemon/vpn"
-	"github.com/ivpn/desktop-app/daemon/vpn/wireguard"
-	"github.com/ivpn/desktop-app/daemon/wifiNotifier"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/api"
+	api_types "github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/netinfo"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/oshelpers"
+	protocolTypes "github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/firewall"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform/filerights"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/srverrors"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/shell"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/splittun"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/wifiNotifier"
 
 	syncSemaphore "golang.org/x/sync/semaphore"
 )
@@ -402,45 +399,45 @@ func (s *Service) SetVpnSessionInfo(i VpnSessionInfo) {
 }
 
 func (s *Service) updateAPIAddrInFWExceptions() {
-	svrs, _ := s.ServersList()
-
-	ivpnAPIAddr := svrs.Config.API.IPAddresses
-
-	if len(ivpnAPIAddr) <= 0 {
-		return
-	}
-
-	apiAddrs := make([]net.IP, 0, len(ivpnAPIAddr))
-	for _, ipStr := range ivpnAPIAddr {
-		apiIP := net.ParseIP(ipStr)
-		if apiIP != nil {
-			apiAddrs = append(apiAddrs, apiIP)
-		}
-	}
-
-	if len(apiAddrs) > 0 {
-		const onlyForICMP = false
-		const isPersistent = true
-		prefs := s.Preferences()
-		if prefs.IsFwAllowApiServers {
-			firewall.AddHostsToExceptions(apiAddrs, onlyForICMP, isPersistent)
-		} else {
-			firewall.RemoveHostsFromExceptions(apiAddrs, onlyForICMP, isPersistent)
-		}
-	}
+	//svrs, _ := s.ServersList()
+	//
+	//ivpnAPIAddr := svrs.Config.API.IPAddresses
+	//
+	//if len(ivpnAPIAddr) <= 0 {
+	//	return
+	//}
+	//
+	//apiAddrs := make([]net.IP, 0, len(ivpnAPIAddr))
+	//for _, ipStr := range ivpnAPIAddr {
+	//	apiIP := net.ParseIP(ipStr)
+	//	if apiIP != nil {
+	//		apiAddrs = append(apiAddrs, apiIP)
+	//	}
+	//}
+	//
+	//if len(apiAddrs) > 0 {
+	//	const onlyForICMP = false
+	//	const isPersistent = true
+	//	prefs := s.Preferences()
+	//	if prefs.IsFwAllowApiServers {
+	//		firewall.AddHostsToExceptions(apiAddrs, onlyForICMP, isPersistent)
+	//	} else {
+	//		firewall.RemoveHostsFromExceptions(apiAddrs, onlyForICMP, isPersistent)
+	//	}
+	//}
 }
 
 // ServersList returns servers info
 // (if there is a cached data available - will be returned data from cache)
-func (s *Service) ServersList() (*api_types.ServersInfoResponse, error) {
+func (s *Service) ServersList() (*api_types.ServerListResponse, error) {
 	return s._serversUpdater.GetServers()
 }
 
-func (s *Service) findOpenVpnHost(hostname string, ip net.IP, svrs []api_types.OpenvpnServerInfo) (api_types.OpenVPNServerHostInfo, error) {
+func (s *Service) findOpenVpnHost(hostname string, ip net.IP, svrs []api_types.ServerListCountryItem) (api_types.ServerListItem, error) {
 	if ((len(hostname) > 0) || (ip != nil && !ip.IsUnspecified())) && svrs != nil {
 		for _, svr := range svrs {
 			for _, host := range svr.Hosts {
-				if (len(hostname) <= 0 || !strings.EqualFold(host.Hostname, hostname)) && (ip == nil || ip.IsUnspecified() || !ip.Equal(net.ParseIP(host.Host))) {
+				if len(hostname) <= 0 || (ip == nil || ip.IsUnspecified() || !ip.Equal(net.ParseIP(host.Ip))) {
 					continue
 				}
 				return host, nil
@@ -448,13 +445,13 @@ func (s *Service) findOpenVpnHost(hostname string, ip net.IP, svrs []api_types.O
 		}
 	}
 
-	return api_types.OpenVPNServerHostInfo{}, fmt.Errorf(fmt.Sprintf("host '%s' not found", hostname))
+	return api_types.ServerListItem{}, fmt.Errorf(fmt.Sprintf("host '%s' not found", hostname))
 }
 
 // ServersListForceUpdate returns servers list info.
 // The daemon will make request to update servers from the backend.
 // The cached data will be ignored in this case.
-func (s *Service) ServersListForceUpdate() (*api_types.ServersInfoResponse, error) {
+func (s *Service) ServersListForceUpdate() (*api_types.ServerListResponse, error) {
 	return s._serversUpdater.GetServersForceUpdate()
 }
 
@@ -908,33 +905,33 @@ func (s *Service) GetAntiTrackerStatus() types.AntiTrackerMetadata {
 // - if antiTrackerPlusList not defined - return default value
 // - if antiTrackerPlusList defined - check if it is valid; if not valid - return default value and error
 func (s *Service) normalizeAntiTrackerBlockListName(antiTracker types.AntiTrackerMetadata) (types.AntiTrackerMetadata, error) {
-	var retError error
-
-	atBlistName := strings.ToLower(strings.TrimSpace(antiTracker.AntiTrackerBlockListName))
-	// check if block list name is known
-	if atBlistName != "" {
-		servers, err := s.ServersList()
-		if err == nil {
-			for _, atp_svr := range servers.Config.AntiTrackerPlus.DnsServers {
-				if strings.ToLower(strings.TrimSpace(atp_svr.Name)) == atBlistName {
-					// Block-list name is OK. Just ensure to use correct case
-					antiTracker.AntiTrackerBlockListName = strings.TrimSpace(atp_svr.Name)
-					return antiTracker, nil
-				}
-			}
-		}
-
-		retError = fmt.Errorf("unexpected DNS block list name: '%s'", antiTracker.AntiTrackerBlockListName)
-	}
-
-	// Set default block list name (if empty)
-	if tmpDns, err := s.getAntiTrackerDns(antiTracker.Hardcore, ""); err == nil {
-		if tmpAt, err := s.getAntiTrackerInfo(tmpDns); err == nil {
-			antiTracker.AntiTrackerBlockListName = tmpAt.AntiTrackerBlockListName
-		}
-	}
-
-	return antiTracker, retError
+	//var retError error
+	return types.AntiTrackerMetadata{}, nil
+	//atBlistName := strings.ToLower(strings.TrimSpace(antiTracker.AntiTrackerBlockListName))
+	//// check if block list name is known
+	//if atBlistName != "" {
+	//	servers, err := s.ServersList()
+	//	if err == nil {
+	//		for _, atp_svr := range servers.Config.AntiTrackerPlus.DnsServers {
+	//			if strings.ToLower(strings.TrimSpace(atp_svr.Name)) == atBlistName {
+	//				// Block-list name is OK. Just ensure to use correct case
+	//				antiTracker.AntiTrackerBlockListName = strings.TrimSpace(atp_svr.Name)
+	//				return antiTracker, nil
+	//			}
+	//		}
+	//	}
+	//
+	//	retError = fmt.Errorf("unexpected DNS block list name: '%s'", antiTracker.AntiTrackerBlockListName)
+	//}
+	//
+	//// Set default block list name (if empty)
+	//if tmpDns, err := s.getAntiTrackerDns(antiTracker.Hardcore, ""); err == nil {
+	//	if tmpAt, err := s.getAntiTrackerInfo(tmpDns); err == nil {
+	//		antiTracker.AntiTrackerBlockListName = tmpAt.AntiTrackerBlockListName
+	//	}
+	//}
+	//
+	//return antiTracker, retError
 }
 
 // Get DNS server according to AntiTracker parameters
@@ -945,33 +942,33 @@ func (s *Service) getAntiTrackerDns(isHardcore bool, antiTrackerPlusList string)
 		}
 	}()
 	servers, err := s.ServersList()
-	if err != nil {
-		return dns.DnsSettings{}, fmt.Errorf("failed to determine AntiTracker parameters: %w", err)
-	}
-
-	// AntiTracker Plus list
-	atListName := strings.ToLower(strings.TrimSpace(antiTrackerPlusList))
-	if len(atListName) == 0 {
-		// if block list name not defined - use default AntiTracker block list "Basic"
-		atListName = "basic"
-	}
-
-	if len(atListName) > 0 {
-		for _, atp_svr := range servers.Config.AntiTrackerPlus.DnsServers {
-			if strings.ToLower(strings.TrimSpace(atp_svr.Name)) == atListName {
-				if isHardcore {
-					return dns.DnsSettings{DnsHost: atp_svr.Hardcore}, nil
-				}
-				return dns.DnsSettings{DnsHost: atp_svr.Normal}, nil
-			}
-		}
-	}
+	//if err != nil {
+	//	return dns.DnsSettings{}, fmt.Errorf("failed to determine AntiTracker parameters: %w", err)
+	//}
+	//
+	//// AntiTracker Plus list
+	//atListName := strings.ToLower(strings.TrimSpace(antiTrackerPlusList))
+	//if len(atListName) == 0 {
+	//	// if block list name not defined - use default AntiTracker block list "Basic"
+	//	atListName = "basic"
+	//}
+	//
+	//if len(atListName) > 0 {
+	//	for _, atp_svr := range servers.Config.AntiTrackerPlus.DnsServers {
+	//		if strings.ToLower(strings.TrimSpace(atp_svr.Name)) == atListName {
+	//			if isHardcore {
+	//				return dns.DnsSettings{DnsHost: atp_svr.Hardcore}, nil
+	//			}
+	//			return dns.DnsSettings{DnsHost: atp_svr.Normal}, nil
+	//		}
+	//	}
+	//}
 
 	// If AntiTracker Plus block list not found - ignore 'antiTrackerPlusList' and use old-style AntiTracker DNS
 	if isHardcore {
-		return dns.DnsSettings{DnsHost: servers.Config.Antitracker.Hardcore.IP}, nil
+		return dns.DnsSettings{DnsHost: servers.DnsServers.DNS1}, nil
 	}
-	return dns.DnsSettings{DnsHost: servers.Config.Antitracker.Default.IP}, nil
+	return dns.DnsSettings{DnsHost: servers.DnsServers.DNS1}, nil
 }
 
 // Get AntiTracker info according to DNS settings
@@ -979,34 +976,33 @@ func (s *Service) getAntiTrackerInfo(dnsVal dns.DnsSettings) (types.AntiTrackerM
 	if dnsVal.IsEmpty() || dnsVal.Encryption != dns.EncryptionNone {
 		return types.AntiTrackerMetadata{}, nil
 	}
-
-	servers, err := s.ServersList()
-	if err != nil {
-		return types.AntiTrackerMetadata{}, fmt.Errorf("failed to determine AntiTracker parameters: %w", err)
-	}
-
-	dnsHost := strings.ToLower(strings.TrimSpace(dnsVal.DnsHost))
-	if dnsHost == "" {
-		return types.AntiTrackerMetadata{}, nil
-	}
-
-	// Check AntiTracker Plus lists
-	for _, atp_svr := range servers.Config.AntiTrackerPlus.DnsServers {
-		if strings.EqualFold(dnsHost, strings.TrimSpace(atp_svr.Normal)) {
-			return types.AntiTrackerMetadata{Enabled: true, Hardcore: false, AntiTrackerBlockListName: atp_svr.Name}, nil
-		}
-		if strings.EqualFold(dnsHost, strings.TrimSpace(atp_svr.Hardcore)) {
-			return types.AntiTrackerMetadata{Enabled: true, Hardcore: true, AntiTrackerBlockListName: atp_svr.Name}, nil
-		}
-	}
-
-	// Check AntiTracker values
-	if strings.EqualFold(dnsHost, strings.TrimSpace(servers.Config.Antitracker.Default.IP)) {
-		return types.AntiTrackerMetadata{Enabled: true, Hardcore: false}, nil
-	}
-	if strings.EqualFold(dnsHost, strings.TrimSpace(servers.Config.Antitracker.Hardcore.IP)) {
-		return types.AntiTrackerMetadata{Enabled: true, Hardcore: true}, nil
-	}
+	//servers, err := s.ServersList()
+	//if err != nil {
+	//	return types.AntiTrackerMetadata{}, fmt.Errorf("failed to determine AntiTracker parameters: %w", err)
+	//}
+	//
+	//dnsHost := strings.ToLower(strings.TrimSpace(dnsVal.DnsHost))
+	//if dnsHost == "" {
+	//	return types.AntiTrackerMetadata{}, nil
+	//}
+	//
+	//// Check AntiTracker Plus lists
+	//for _, atp_svr := range servers.Config.AntiTrackerPlus.DnsServers {
+	//	if strings.EqualFold(dnsHost, strings.TrimSpace(atp_svr.Normal)) {
+	//		return types.AntiTrackerMetadata{Enabled: true, Hardcore: false, AntiTrackerBlockListName: atp_svr.Name}, nil
+	//	}
+	//	if strings.EqualFold(dnsHost, strings.TrimSpace(atp_svr.Hardcore)) {
+	//		return types.AntiTrackerMetadata{Enabled: true, Hardcore: true, AntiTrackerBlockListName: atp_svr.Name}, nil
+	//	}
+	//}
+	//
+	//// Check AntiTracker values
+	//if strings.EqualFold(dnsHost, strings.TrimSpace(servers.Config.Antitracker.Default.IP)) {
+	//	return types.AntiTrackerMetadata{Enabled: true, Hardcore: false}, nil
+	//}
+	//if strings.EqualFold(dnsHost, strings.TrimSpace(servers.Config.Antitracker.Hardcore.IP)) {
+	//	return types.AntiTrackerMetadata{Enabled: true, Hardcore: true}, nil
+	//}
 
 	return types.AntiTrackerMetadata{}, nil
 }
@@ -1560,140 +1556,140 @@ func (s *Service) SessionNew(accountID string, forceLogin bool, captchaID string
 	accountInfo preferences.AccountStatus,
 	rawResponse string,
 	err error) {
-
-	// Temporary allow API server access (If Firewall is enabled)
-	// Otherwise, there will not be any possibility to Login (because all connectivity is blocked)
-	fwStatus, _ := s.KillSwitchState()
-	if fwStatus.IsEnabled && !fwStatus.IsAllowApiServers {
-		s.SetKillSwitchAllowAPIServers(true)
-	}
-	defer func() {
-		if fwStatus.IsEnabled && !fwStatus.IsAllowApiServers {
-			// restore state for 'AllowAPIServers' configuration (previously, was enabled)
-			s.SetKillSwitchAllowAPIServers(false)
-		}
-	}()
-
-	// delete current session (if exists)
-	isCanDeleteSessionLocally := true
-	if err := s.SessionDelete(isCanDeleteSessionLocally); err != nil {
-		log.Error("Creating new session -> Failed to delete active session: ", err)
-	}
-
-	// Generate keys for Key Encapsulation Mechanism using post-quantum cryptographic algorithms
-	var kemKeys api_types.KemPublicKeys
-	kemHelper, err := kem.CreateHelper(platform.KemHelperBinaryPath(), kem.GetDefaultKemAlgorithms())
-	if err != nil {
-		log.Error("Failed to generate KEM keys: ", err)
-	} else {
-		kemKeys.KemPublicKey_Kyber1024, err = kemHelper.GetPublicKey(kem.AlgName_Kyber1024)
-		if err != nil {
-			log.Error(err)
-		}
-		kemKeys.KemPublicKey_ClassicMcEliece348864, err = kemHelper.GetPublicKey(kem.AlgName_ClassicMcEliece348864)
-		if err != nil {
-			log.Error(err)
-		}
-	}
-
-	log.Info("Logging in...")
-	defer func() {
-		if err != nil {
-			log.Info("Logging in - FAILED: ", err)
-		} else {
-			log.Info("Logging in - SUCCESS")
-		}
-	}()
-
-	var (
-		publicKey  string
-		privateKey string
-
-		wgPresharedKey string
-		successResp    *api_types.SessionNewResponse
-		errorLimitResp *api_types.SessionNewErrorLimitResponse
-		apiErr         *api_types.APIErrorResponse
-		rawRespStr     string // RAW response
-	)
-
-	for {
-		// generate new keys for WireGuard
-		publicKey, privateKey, err = wireguard.GenerateKeys(platform.WgToolBinaryPath())
-		if err != nil {
-			log.Warning(fmt.Sprintf("Failed to generate wireguard keys for new session: %s", err.Error()))
-		}
-
-		successResp, errorLimitResp, apiErr, rawRespStr, err = s._api.SessionNew(accountID, publicKey, kemKeys, forceLogin, captchaID, captcha, confirmation2FA)
-		rawResponse = rawRespStr
-
-		apiCode = 0
-		if apiErr != nil {
-			apiCode = apiErr.Status
-		}
-
-		if err != nil {
-			// if SessionsLimit response
-			if errorLimitResp != nil {
-				accountInfo = s.createAccountStatus(errorLimitResp.SessionLimitData)
-				return apiCode, apiErr.Message, accountInfo, rawResponse, err
-			}
-
-			// in case of other API error
-			if apiErr != nil {
-				return apiCode, apiErr.Message, accountInfo, rawResponse, err
-			}
-
-			// not API error
-			return apiCode, "", accountInfo, rawResponse, err
-		}
-
-		if successResp == nil {
-			return apiCode, "", accountInfo, rawResponse, fmt.Errorf("unexpected error when creating a new session")
-		}
-
-		if kemHelper != nil {
-			if len(successResp.WireGuard.KemCipher_Kyber1024) == 0 && len(successResp.WireGuard.KemCipher_ClassicMcEliece348864) == 0 {
-				log.Warning("The server did not respond with KEM ciphers. The WireGuard PresharedKey has not been initialized!")
-			} else {
-				if err := kemHelper.SetCipher(kem.AlgName_Kyber1024, successResp.WireGuard.KemCipher_Kyber1024); err != nil {
-					log.Error(err)
-				}
-				if err := kemHelper.SetCipher(kem.AlgName_ClassicMcEliece348864, successResp.WireGuard.KemCipher_ClassicMcEliece348864); err != nil {
-					log.Error(err)
-				}
-
-				wgPresharedKey, err = kemHelper.CalculatePresharedKey()
-				if err != nil {
-					log.Error(fmt.Sprintf("Failed to decode KEM ciphers! (%s). Retry Log-in without WireGuard PresharedKey...", err))
-					kemHelper = nil
-					kemKeys = api_types.KemPublicKeys{}
-					if err := s.SessionDelete(true); err != nil {
-						log.Error("Creating new session (retry 2) -> Failed to delete active session: ", err)
-					}
-					continue
-				}
-			}
-		}
-		break
-	}
-	// get account status info
-	accountInfo = s.createAccountStatus(successResp.ServiceStatus)
-
-	s.setCredentials(accountInfo,
-		accountID,
-		successResp.Token,
-		successResp.VpnUsername,
-		successResp.VpnPassword,
-		publicKey,
-		privateKey,
-		successResp.WireGuard.IPAddress, 0, wgPresharedKey)
-
-	log.Info(fmt.Sprintf("(logging in) WG keys updated (%s:%s; psk:%v)", successResp.WireGuard.IPAddress, publicKey, len(wgPresharedKey) > 0))
-
-	// Apply SplitTunnel configuration. It is applicable for Inverse mode of SplitTunnel
-	if err := s.splitTunnelling_ApplyConfig(); err != nil {
-		log.Error(err)
-	}
+	//
+	//// Temporary allow API server access (If Firewall is enabled)
+	//// Otherwise, there will not be any possibility to Login (because all connectivity is blocked)
+	//fwStatus, _ := s.KillSwitchState()
+	//if fwStatus.IsEnabled && !fwStatus.IsAllowApiServers {
+	//	s.SetKillSwitchAllowAPIServers(true)
+	//}
+	//defer func() {
+	//	if fwStatus.IsEnabled && !fwStatus.IsAllowApiServers {
+	//		// restore state for 'AllowAPIServers' configuration (previously, was enabled)
+	//		s.SetKillSwitchAllowAPIServers(false)
+	//	}
+	//}()
+	//
+	//// delete current session (if exists)
+	//isCanDeleteSessionLocally := true
+	//if err := s.SessionDelete(isCanDeleteSessionLocally); err != nil {
+	//	log.Error("Creating new session -> Failed to delete active session: ", err)
+	//}
+	//
+	//// Generate keys for Key Encapsulation Mechanism using post-quantum cryptographic algorithms
+	//var kemKeys api_types.KemPublicKeys
+	//kemHelper, err := kem.CreateHelper(platform.KemHelperBinaryPath(), kem.GetDefaultKemAlgorithms())
+	//if err != nil {
+	//	log.Error("Failed to generate KEM keys: ", err)
+	//} else {
+	//	kemKeys.KemPublicKey_Kyber1024, err = kemHelper.GetPublicKey(kem.AlgName_Kyber1024)
+	//	if err != nil {
+	//		log.Error(err)
+	//	}
+	//	kemKeys.KemPublicKey_ClassicMcEliece348864, err = kemHelper.GetPublicKey(kem.AlgName_ClassicMcEliece348864)
+	//	if err != nil {
+	//		log.Error(err)
+	//	}
+	//}
+	//
+	//log.Info("Logging in...")
+	//defer func() {
+	//	if err != nil {
+	//		log.Info("Logging in - FAILED: ", err)
+	//	} else {
+	//		log.Info("Logging in - SUCCESS")
+	//	}
+	//}()
+	//
+	//var (
+	//	publicKey  string
+	//	privateKey string
+	//
+	//	wgPresharedKey string
+	//	successResp    *api_types.SessionNewResponse
+	//	errorLimitResp *api_types.SessionNewErrorLimitResponse
+	//	apiErr         *api_types.APIErrorResponse
+	//	rawRespStr     string // RAW response
+	//)
+	//
+	//for {
+	//	// generate new keys for WireGuard
+	//	publicKey, privateKey, err = wireguard.GenerateKeys(platform.WgToolBinaryPath())
+	//	if err != nil {
+	//		log.Warning(fmt.Sprintf("Failed to generate wireguard keys for new session: %s", err.Error()))
+	//	}
+	//
+	//	successResp, errorLimitResp, apiErr, rawRespStr, err = s._api.SessionNew(accountID, publicKey, kemKeys, forceLogin, captchaID, captcha, confirmation2FA)
+	//	rawResponse = rawRespStr
+	//
+	//	apiCode = 0
+	//	if apiErr != nil {
+	//		apiCode = apiErr.Status
+	//	}
+	//
+	//	if err != nil {
+	//		// if SessionsLimit response
+	//		if errorLimitResp != nil {
+	//			accountInfo = s.createAccountStatus(errorLimitResp.SessionLimitData)
+	//			return apiCode, apiErr.Message, accountInfo, rawResponse, err
+	//		}
+	//
+	//		// in case of other API error
+	//		if apiErr != nil {
+	//			return apiCode, apiErr.Message, accountInfo, rawResponse, err
+	//		}
+	//
+	//		// not API error
+	//		return apiCode, "", accountInfo, rawResponse, err
+	//	}
+	//
+	//	if successResp == nil {
+	//		return apiCode, "", accountInfo, rawResponse, fmt.Errorf("unexpected error when creating a new session")
+	//	}
+	//
+	//	if kemHelper != nil {
+	//		if len(successResp.WireGuard.KemCipher_Kyber1024) == 0 && len(successResp.WireGuard.KemCipher_ClassicMcEliece348864) == 0 {
+	//			log.Warning("The server did not respond with KEM ciphers. The WireGuard PresharedKey has not been initialized!")
+	//		} else {
+	//			if err := kemHelper.SetCipher(kem.AlgName_Kyber1024, successResp.WireGuard.KemCipher_Kyber1024); err != nil {
+	//				log.Error(err)
+	//			}
+	//			if err := kemHelper.SetCipher(kem.AlgName_ClassicMcEliece348864, successResp.WireGuard.KemCipher_ClassicMcEliece348864); err != nil {
+	//				log.Error(err)
+	//			}
+	//
+	//			wgPresharedKey, err = kemHelper.CalculatePresharedKey()
+	//			if err != nil {
+	//				log.Error(fmt.Sprintf("Failed to decode KEM ciphers! (%s). Retry Log-in without WireGuard PresharedKey...", err))
+	//				kemHelper = nil
+	//				kemKeys = api_types.KemPublicKeys{}
+	//				if err := s.SessionDelete(true); err != nil {
+	//					log.Error("Creating new session (retry 2) -> Failed to delete active session: ", err)
+	//				}
+	//				continue
+	//			}
+	//		}
+	//	}
+	//	break
+	//}
+	//// get account status info
+	//accountInfo = s.createAccountStatus(successResp.ServiceStatus)
+	//
+	//s.setCredentials(accountInfo,
+	//	accountID,
+	//	successResp.Token,
+	//	successResp.VpnUsername,
+	//	successResp.VpnPassword,
+	//	publicKey,
+	//	privateKey,
+	//	successResp.WireGuard.IPAddress, 0, wgPresharedKey)
+	//
+	//log.Info(fmt.Sprintf("(logging in) WG keys updated (%s:%s; psk:%v)", successResp.WireGuard.IPAddress, publicKey, len(wgPresharedKey) > 0))
+	//
+	//// Apply SplitTunnel configuration. It is applicable for Inverse mode of SplitTunnel
+	//if err := s.splitTunnelling_ApplyConfig(); err != nil {
+	//	log.Error(err)
+	//}
 
 	return apiCode, "", accountInfo, rawResponse, nil
 }
@@ -1718,55 +1714,55 @@ func (s *Service) logOut(sessionNeedToDeleteOnBackend bool, isCanDeleteSessionLo
 	// - disconnect VPN (if connected)
 	// - disable Split Tunnel mode
 	// - etc. ...
-	if err := s.unInitialise(); err != nil {
-		log.Error(err)
-	}
-
-	defer func() {
-		s._evtReceiver.OnSplitTunnelStatusChanged()
-	}()
-
-	// stop session checker (use goroutine to avoid deadlocks)
-	go s.stopSessionChecker()
-
-	// stop WG keys rotation
-	s._wgKeysMgr.StopKeysRotation()
-
-	if sessionNeedToDeleteOnBackend {
-
-		// Temporary allow API server access (If Firewall is enabled)
-		// Otherwise, there will not be any possibility to Login (because all connectivity is blocked)
-		fwStatus, _ := s.KillSwitchState()
-		if fwStatus.IsEnabled && !fwStatus.IsAllowApiServers {
-			s.SetKillSwitchAllowAPIServers(true)
-		}
-		defer func() {
-			if fwStatus.IsEnabled && !fwStatus.IsAllowApiServers {
-				// restore state for 'AllowAPIServers' configuration (previously, was enabled)
-				s.SetKillSwitchAllowAPIServers(false)
-			}
-		}()
-
-		session := s.Preferences().Session
-		if session.IsLoggedIn() {
-			log.Info("Logging out")
-			err := s._api.SessionDelete(session.Session)
-			if err != nil {
-				log.Info("Logging out error:", err)
-				if !isCanDeleteSessionLocally {
-					return err // do not allow to logout if failed to delete session on backend
-				}
-			} else {
-				log.Info("Logging out: done")
-			}
-		}
-	}
-
-	s._preferences.SetSession(preferences.AccountStatus{}, "", "", "", "", "", "", "", "")
-	log.Info("Logged out locally")
-
-	// notify clients about session update
-	s._evtReceiver.OnServiceSessionChanged()
+	//if err := s.unInitialise(); err != nil {
+	//	log.Error(err)
+	//}
+	//
+	//defer func() {
+	//	s._evtReceiver.OnSplitTunnelStatusChanged()
+	//}()
+	//
+	//// stop session checker (use goroutine to avoid deadlocks)
+	//go s.stopSessionChecker()
+	//
+	//// stop WG keys rotation
+	//s._wgKeysMgr.StopKeysRotation()
+	//
+	//if sessionNeedToDeleteOnBackend {
+	//
+	//	// Temporary allow API server access (If Firewall is enabled)
+	//	// Otherwise, there will not be any possibility to Login (because all connectivity is blocked)
+	//	fwStatus, _ := s.KillSwitchState()
+	//	if fwStatus.IsEnabled && !fwStatus.IsAllowApiServers {
+	//		s.SetKillSwitchAllowAPIServers(true)
+	//	}
+	//	defer func() {
+	//		if fwStatus.IsEnabled && !fwStatus.IsAllowApiServers {
+	//			// restore state for 'AllowAPIServers' configuration (previously, was enabled)
+	//			s.SetKillSwitchAllowAPIServers(false)
+	//		}
+	//	}()
+	//
+	//	session := s.Preferences().Session
+	//	if session.IsLoggedIn() {
+	//		log.Info("Logging out")
+	//		err := s._api.SessionDelete(session.Session)
+	//		if err != nil {
+	//			log.Info("Logging out error:", err)
+	//			if !isCanDeleteSessionLocally {
+	//				return err // do not allow to logout if failed to delete session on backend
+	//			}
+	//		} else {
+	//			log.Info("Logging out: done")
+	//		}
+	//	}
+	//}
+	//
+	//s._preferences.SetSession(preferences.AccountStatus{}, "", "", "", "", "", "", "", "")
+	//log.Info("Logged out locally")
+	//
+	//// notify clients about session update
+	//s._evtReceiver.OnServiceSessionChanged()
 	return nil
 }
 
@@ -1793,76 +1789,76 @@ func (s *Service) RequestSessionStatus() (
 	accountInfo preferences.AccountStatus,
 	err error) {
 
-	session := s.Preferences().Session
-	if !session.IsLoggedIn() {
-		return apiCode, "", "", accountInfo, srverrors.ErrorNotLoggedIn{}
-	}
-
-	// if no connectivity - skip request (and activate _isWaitingToUpdateAccInfoChan)
-	if err := s.IsConnectivityBlocked(); err != nil {
-		s._isNeedToUpdateSessionInfo = true
-		return apiCode, "", "", accountInfo, fmt.Errorf("session status request skipped (%w)", err)
-	}
-	// defer: ensure s._isWaitingToUpdateAccInfoChan is empty
-	defer func() {
-		s._isNeedToUpdateSessionInfo = false
-	}()
-
-	log.Info("Requesting session status...")
-	stat, apiErr, err := s._api.SessionStatus(session.Session)
-	log.Info("Session status request: done")
-
-	currSession := s.Preferences().Session
-	if currSession.Session != session.Session {
-		// It could happen that logout\login was performed during the session check
-		// Ignoring result if there is already a new session
-		log.Info("Ignoring requested session status result. Local session already changed.")
-		return apiCode, "", "", accountInfo, srverrors.ErrorNotLoggedIn{}
-	}
-
-	apiCode = 0
-	if apiErr != nil {
-		apiCode = apiErr.Status
-
-		// Session not found - can happens when user forced to logout from another device
-		if apiCode == api_types.SessionNotFound {
-			s.OnSessionNotFound()
-		}
-
-		// save last account info AND notify clients that account not active
-		if apiCode == api_types.AccountNotActive {
-			accountInfo = preferences.AccountStatus{}
-			if stat != nil {
-				accountInfo = s.createAccountStatus(*stat)
-			}
-			accountInfo.Active = false
-			// notify about account status
-			s.OnAccountStatus(session.Session, accountInfo)
-			return apiCode, apiErr.Message, session.Session, accountInfo, err
-		}
-	}
-
-	if err != nil {
-		// in case of other API error
-		if apiErr != nil {
-			return apiCode, apiErr.Message, "", accountInfo, err
-		}
-
-		// not API error
-		return apiCode, "", "", accountInfo, err
-	}
-
-	if stat == nil {
-		return apiCode, "", "", accountInfo, fmt.Errorf("unexpected error when creating requesting session status")
-	}
-
-	// get account status info
-	accountInfo = s.createAccountStatus(*stat)
-	// ave last account info AND notify about account status
-	s.OnAccountStatus(session.Session, accountInfo)
+	//session := s.Preferences().Session
+	//if !session.IsLoggedIn() {
+	//	return apiCode, "", "", accountInfo, srverrors.ErrorNotLoggedIn{}
+	//}
+	//
+	//// if no connectivity - skip request (and activate _isWaitingToUpdateAccInfoChan)
+	//if err := s.IsConnectivityBlocked(); err != nil {
+	//	s._isNeedToUpdateSessionInfo = true
+	//	return apiCode, "", "", accountInfo, fmt.Errorf("session status request skipped (%w)", err)
+	//}
+	//// defer: ensure s._isWaitingToUpdateAccInfoChan is empty
+	//defer func() {
+	//	s._isNeedToUpdateSessionInfo = false
+	//}()
+	//
+	//log.Info("Requesting session status...")
+	//stat, apiErr, err := s._api.SessionStatus(session.Session)
+	//log.Info("Session status request: done")
+	//
+	//currSession := s.Preferences().Session
+	//if currSession.Session != session.Session {
+	//	// It could happen that logout\login was performed during the session check
+	//	// Ignoring result if there is already a new session
+	//	log.Info("Ignoring requested session status result. Local session already changed.")
+	//	return apiCode, "", "", accountInfo, srverrors.ErrorNotLoggedIn{}
+	//}
+	//
+	//apiCode = 0
+	//if apiErr != nil {
+	//	apiCode = apiErr.Status
+	//
+	//	// Session not found - can happens when user forced to logout from another device
+	//	if apiCode == api_types.SessionNotFound {
+	//		s.OnSessionNotFound()
+	//	}
+	//
+	//	// save last account info AND notify clients that account not active
+	//	if apiCode == api_types.AccountNotActive {
+	//		accountInfo = preferences.AccountStatus{}
+	//		if stat != nil {
+	//			accountInfo = s.createAccountStatus(*stat)
+	//		}
+	//		accountInfo.Active = false
+	//		// notify about account status
+	//		s.OnAccountStatus(session.Session, accountInfo)
+	//		return apiCode, apiErr.Message, session.Session, accountInfo, err
+	//	}
+	//}
+	//
+	//if err != nil {
+	//	// in case of other API error
+	//	if apiErr != nil {
+	//		return apiCode, apiErr.Message, "", accountInfo, err
+	//	}
+	//
+	//	// not API error
+	//	return apiCode, "", "", accountInfo, err
+	//}
+	//
+	//if stat == nil {
+	//	return apiCode, "", "", accountInfo, fmt.Errorf("unexpected error when creating requesting session status")
+	//}
+	//
+	//// get account status info
+	//accountInfo = s.createAccountStatus(*stat)
+	//// ave last account info AND notify about account status
+	//s.OnAccountStatus(session.Session, accountInfo)
 
 	// success
-	return apiCode, "", session.Session, accountInfo, nil
+	return apiCode, "", "", accountInfo, nil //session.Session, accountInfo, nil
 }
 
 func (s *Service) createAccountStatus(apiResp api_types.ServiceStatusAPIResp) preferences.AccountStatus {

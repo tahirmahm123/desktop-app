@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -27,16 +27,17 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/api"
-	"github.com/ivpn/desktop-app/daemon/api/types"
-	"github.com/ivpn/desktop-app/daemon/kem"
-	"github.com/ivpn/desktop-app/daemon/logger"
-	"github.com/ivpn/desktop-app/daemon/service/platform"
-	"github.com/ivpn/desktop-app/daemon/vpn"
-	"github.com/ivpn/desktop-app/daemon/vpn/wireguard"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/api"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/kem"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn/wireguard"
 )
 
 var log *logger.Logger
@@ -265,7 +266,7 @@ func (m *KeysManager) generateKeys(onlyUpdateIfNecessary bool) (retErr error) {
 
 		wgPresharedKey string
 		localIP        net.IP
-		resp           types.SessionsWireGuardResponse
+		resp           *types.WGKeysUpdateResponse
 	)
 	for {
 		pub, priv, err = wireguard.GenerateKeys(m.wgToolBinPath)
@@ -274,9 +275,9 @@ func (m *KeysManager) generateKeys(onlyUpdateIfNecessary bool) (retErr error) {
 		}
 
 		// trying to update WG keys with notifying API about current active public key (if it exists)
-		resp, err = m.api.WireGuardKeySet(session, pub, activePublicKey, kemKeys)
+		resp, _, err = m.api.WireGuardKeySet(session, pub) //, activePublicKey, kemKeys)
 		if err == nil {
-			localIP = net.ParseIP(resp.IPAddress)
+			localIP = net.ParseIP(strings.Split("/", resp.LocalIP)[0])
 			if localIP == nil {
 				err = fmt.Errorf("failed to set WG key (failed to parse local IP in API response)")
 			}
@@ -300,26 +301,26 @@ func (m *KeysManager) generateKeys(onlyUpdateIfNecessary bool) (retErr error) {
 			return fmt.Errorf("WG keys not updated. Please check your internet connection")
 		}
 
-		if kemHelper != nil {
-			if len(resp.KemCipher_Kyber1024) == 0 && len(resp.KemCipher_ClassicMcEliece348864) == 0 {
-				log.Warning("The server did not respond with KEM ciphers. The WireGuard PresharedKey has not been initialized!")
-			} else {
-				if err := kemHelper.SetCipher(kem.AlgName_Kyber1024, resp.KemCipher_Kyber1024); err != nil {
-					log.Error(err)
-				}
-				if err := kemHelper.SetCipher(kem.AlgName_ClassicMcEliece348864, resp.KemCipher_ClassicMcEliece348864); err != nil {
-					log.Error(err)
-				}
-
-				wgPresharedKey, err = kemHelper.CalculatePresharedKey()
-				if err != nil {
-					log.Error(fmt.Sprintf("Failed to decode KEM ciphers! (%s). Generating new keys without PresharedKey...", err))
-					kemHelper = nil
-					kemKeys = types.KemPublicKeys{}
-					continue
-				}
-			}
-		}
+		//if kemHelper != nil {
+		//	if len(resp.KemCipher_Kyber1024) == 0 && len(resp.KemCipher_ClassicMcEliece348864) == 0 {
+		//		log.Warning("The server did not respond with KEM ciphers. The WireGuard PresharedKey has not been initialized!")
+		//	} else {
+		//		if err := kemHelper.SetCipher(kem.AlgName_Kyber1024, resp.KemCipher_Kyber1024); err != nil {
+		//			log.Error(err)
+		//		}
+		//		if err := kemHelper.SetCipher(kem.AlgName_ClassicMcEliece348864, resp.KemCipher_ClassicMcEliece348864); err != nil {
+		//			log.Error(err)
+		//		}
+		//
+		//		wgPresharedKey, err = kemHelper.CalculatePresharedKey()
+		//		if err != nil {
+		//			log.Error(fmt.Sprintf("Failed to decode KEM ciphers! (%s). Generating new keys without PresharedKey...", err))
+		//			kemHelper = nil
+		//			kemKeys = types.KemPublicKeys{}
+		//			continue
+		//		}
+		//	}
+		//}
 		break
 	}
 	// notify service about new keys

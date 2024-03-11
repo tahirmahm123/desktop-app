@@ -1,181 +1,23 @@
 <template>
-  <div class="left_panel_block" style="margin-top: 26px">
-    <div style="display: flex; justify-content: space-between">
-      <div align="left">
-        <div class="small_text">Your status is</div>
-        <div>
-          <div class="large_text">
-            {{ protectedText }}
-          </div>
-        </div>
-      </div>
-
-      <div class="buttons">
-        <div class="buttonWithPopup" style="margin-right: 17px">
-          <transition name="fade">
-            <div v-if="isCanPause || isCanResume">
-              <button
-                v-if="isCanPause"
-                class="settingsBtn"
-                style="background: var(--background-color); position: relative"
-                v-on:click="onPauseMenu"
-                v-click-outside="onPauseMenuClickOutside"
-              >
-                <imgPause />
-              </button>
-
-              <button
-                v-else-if="isCanResume"
-                class="settingsBtnResume"
-                style="position: relative"
-                v-on:click="onPauseResume(null)"
-              >
-                <img src="@/assets/resume.svg" style="margin-left: 2px" />
-              </button>
-            </div>
-          </transition>
-
-          <!-- Popup -->
-          <div
-            class="popup"
-            v-bind:class="{
-              popupMin: isMinimizedUI,
-            }"
-          >
-            <div
-              class="popuptext"
-              v-bind:class="{
-                show: isCanShowPauseMenu,
-                popuptextMin: isMinimizedUI,
-              }"
-            >
-              <div
-                class="popup_menu_block_clickable"
-                v-on:click="onPauseMenuItem(5 * 60)"
-              >
-                <button>Pause for 5 min</button>
-              </div>
-              <div class="popup_dividing_line" />
-              <div
-                class="popup_menu_block_clickable"
-                v-on:click="onPauseMenuItem(30 * 60)"
-              >
-                <button>Pause for 30 min</button>
-              </div>
-              <div class="popup_dividing_line" />
-              <div
-                class="popup_menu_block_clickable"
-                v-on:click="onPauseMenuItem(1 * 60 * 60)"
-              >
-                <button>Pause for 1 hour</button>
-              </div>
-              <div class="popup_dividing_line" />
-              <div
-                class="popup_menu_block_clickable"
-                v-on:click="onPauseMenuItem(3 * 60 * 60)"
-              >
-                <button>Pause for 3 hours</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style="min-width: 50px; margin-left: auto; margin-right: 0">
-          <SwitchProgress
-            v-bind:class="{ lowOpacity: isCanResume }"
-            :onChecked="onChecked"
-            :isChecked="isChecked"
-            :isProgress="isProgress"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- SECOND LINE start-->
-    <div style="display: flex; justify-content: space-between">
-      <!-- PAUSE BUTTON start-->
-      <div
-        v-if="isCanResume"
-        class="buttonWithPopup"
-        style="align-items: start"
+  <div class="text-center">
+    <div class="pt-3 pb-5 align-items-center connect-status-bg">
+      <img v-bind:src="protectedImage" alt="" />
+      <h6
+        v-bind:class="[`text-${protectedColor}`, 'mb-0']"
+        style="font-size: 16px; font-weight: 700"
       >
-        <button
-          class="noBordersBtn"
-          style="padding: 0"
-          v-on:click="onAddPauseTimeMenu"
-          v-click-outside="onPauseMenuClickOutside"
-        >
-          <div class="small_text" align="left" style="min-width: 80px">
-            {{ pauseTimeLeftText }}
-          </div>
-        </button>
-
-        <!-- Popup -->
-        <div
-          style="background: red; margin-top: -5px"
-          class="popup"
-          v-bind:class="{
-            popupMinShiftedRight: true,
-          }"
-        >
-          <div
-            class="popuptext"
-            v-bind:class="{
-              show: isPauseExtendMenuShow,
-              popuptextMinShiftedRight: true,
-            }"
-          >
-            <div
-              class="popup_menu_block_clickable"
-              v-on:click="onPauseMenuItem(null)"
-            >
-              <button>Resume now</button>
-            </div>
-            <div class="popup_dividing_line" />
-            <div
-              class="popup_menu_block_clickable"
-              v-on:click="onPauseMenuItem(5 * 60)"
-            >
-              <button>Resume in 5 min</button>
-            </div>
-            <div class="popup_dividing_line" />
-            <div
-              class="popup_menu_block_clickable"
-              v-on:click="onPauseMenuItem(30 * 60)"
-            >
-              <button>Resume in 30 min</button>
-            </div>
-            <div class="popup_dividing_line" />
-            <div
-              class="popup_menu_block_clickable"
-              v-on:click="onPauseMenuItem(1 * 60 * 60)"
-            >
-              <button>Resume in 1 hour</button>
-            </div>
-            <div class="popup_dividing_line" />
-            <div
-              class="popup_menu_block_clickable"
-              v-on:click="onPauseMenuItem(3 * 60 * 60)"
-            >
-              <button>Resume in 3 hours</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- PAUSE BUTTON end-->
-      <transition name="fade">
-        <button
-          v-show="this.$store.getters['vpnState/isInverseSplitTunnel']"
-          class="noBordersTextBtn"
-          v-on:click="onSplitTunnelInfoClick"
-        >
-          <div class="small_text_warning">
-            Inverse Split Tunnel mode is active
-          </div>
-        </button>
-      </transition>
+        {{ protectedText }}
+      </h6>
     </div>
-    <!-- SECIND LINE end-->
+    <div class="connect-action my-3 text-center [`text-${protectedColor}`]">
+      <div class="line-btn-bg"></div>
+      <SwitchProgress
+        v-bind:class="{ lowOpacity: isCanResume }"
+        :onChecked="onChecked"
+        :isChecked="isChecked"
+        :isProgress="isProgress"
+      />
+    </div>
   </div>
 </template>
 
@@ -183,7 +25,6 @@
 const sender = window.ipcSender;
 
 import SwitchProgress from "@/components/controls/control-switch.vue";
-import imgPause from "@/components/images/img-pause.vue";
 import { GetTimeLeftText } from "@/helpers/renderer";
 import vClickOutside from "click-outside-vue3";
 
@@ -193,7 +34,6 @@ export default {
   },
   components: {
     SwitchProgress,
-    imgPause,
   },
   props: ["onChecked", "onPauseResume", "isChecked", "isProgress"],
   data: () => ({
@@ -297,21 +137,33 @@ export default {
 <style scoped lang="scss">
 @import "@/components/scss/constants";
 @import "@/components/scss/popup";
+
 $shadow:
   0px 3px 1px rgba(0, 0, 0, 0.06),
   0px 3px 8px rgba(0, 0, 0, var(--shadow-opacity-koef));
 
 .main {
   @extend .left_panel_block;
-  margin-top: 26px;
-}
 
-.buttons {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
 }
-
+.connect-action {
+  position: relative;
+}
+.connect-action::after {
+  content: "";
+  background: rgba(255, 255, 255, 0.15);
+  height: 1px;
+  width: 100%;
+  z-index: 0;
+  position: absolute;
+  top: 50%;
+  left: 0;
+}
+.buttons {
+  align-items: center;
+  min-height: 92px;
+}
 .lowOpacity {
   opacity: 0.5;
 }
@@ -331,32 +183,20 @@ $shadow:
   color: var(--text-color-details);
 }
 
-.small_text_warning {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: -0.3px;
-  color: var(--warning-color);
-}
-
 .settingsBtn {
   float: right;
-
-  width: 32px;
-  height: 32px;
-
-  padding: 0px;
+  padding: 8px;
   border: none;
-  border-radius: 50%;
   background-color: #ffffff;
   outline-width: 0;
   cursor: pointer;
-
   box-shadow: $shadow;
 
   // centering content
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 5px;
 }
 
 .settingsBtn:hover {
@@ -365,34 +205,10 @@ $shadow:
 
 .settingsBtnResume {
   @extend .settingsBtn;
-  background-color: #449cf8;
+  background-color: #fd2411;
 }
 
 .settingsBtnResume:hover {
-  background-color: #3377ff;
-}
-
-.popup_menu_block_clickable {
-  @extend .popup_menu_block;
-  cursor: pointer;
-}
-//------------------------------------------------------
-// in use for minimalistic UI
-// (reduced width and position shifted left)
-.popupMin .popuptextMin {
-  min-width: 160px;
-  max-width: 160px;
-  margin-left: -80px;
-}
-//------------------------------------------------------
-// (reduced width and position shifted right)
-.popupMinShiftedRight .popuptextMinShiftedRight {
-  min-width: 160px;
-  max-width: 160px;
-  margin-left: 8px;
-}
-// arrow location shifted left
-.popupMinShiftedRight .popuptextMinShiftedRight::after {
-  margin-left: -55px;
+  background-color: #a80004;
 }
 </style>

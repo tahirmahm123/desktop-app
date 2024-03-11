@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -32,8 +32,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	protocolTypes "github.com/ivpn/desktop-app/daemon/protocol/types"
-	"github.com/ivpn/desktop-app/daemon/service/preferences"
+	protocolTypes "github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
 )
 
 func (s *Service) implIsCanApplyUserPreferences(userPrefs preferences.UserPreferences) error {

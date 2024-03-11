@@ -1,46 +1,37 @@
 <template>
-  <div id="main">
-    <button class="serverSelectBtn" v-on:click="showServersList()">
-      <div class="flexRow" style="height: 100%">
-        <div class="flexColumn" align="left">
-          <div class="small_text" style="margin-top: 8px">
-            {{
-              this.isExitServer
-                ? "Exit server"
-                : isConnected
-                ? "Connected to"
-                : isConnecting
-                ? "Connecting to ..."
-                : "Connect to"
-            }}
-          </div>
-          <div style="min-height: 4px" />
-          <div class="flexRow">
-            <serverNameControl
-              class="serverName"
-              style="max-width: 245px"
-              SecondLineMaxWidth="245px"
-              :isLargeText="true"
-              :server="this.server"
-              :serverHostName="this.serverHostName"
-              :isFastestServer="isFastestServer"
-              :isRandomServer="isRandomServer"
-              :isShowPingPicture="!(isFastestServer || isRandomServer)"
-            />
-          </div>
-        </div>
-
-        <div class="flexRow flexRowRestSpace" />
-
-        <serverPingInfoControl
-          v-show="!(isFastestServer || isRandomServer)"
+  <div>
+    <div
+      class="server-card d-flex align-items-center mx-5 justify-content-between"
+    >
+      <div class="flexRow">
+        <serverNameControl
+          class="serverName"
+          style="max-width: 245px"
+          :isLargeText="true"
           :server="this.server"
-          style="margin-left: 9px; margin-right: 8px"
+          :isCountryFirst="!(isFastestServer || isRandomServer)"
+          :isFastestServer="isFastestServer"
+          :isRandomServer="isRandomServer"
+          :isShowPingPicture="!(isFastestServer || isRandomServer)"
         />
-
-        <div class="arrowRightSimple"></div>
       </div>
-    </button>
+      <serverPingInfoControl
+        v-show="!(isFastestServer || isRandomServer)"
+        :server="this.server"
+        style="
+          margin-left: 9px;
+          margin-right: 8px;
+          position: absolute;
+          bottom: 12px;
+          left: 30px;
+        "
+      />
+      <div>
+        <a href="#" class="mt-3" v-on:click.prevent="showServersList()">
+          <button class="change-location">Change</button>
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -109,6 +100,9 @@ export default {
 
 #main {
   @extend .left_panel_block;
+  border: 1px solid rgba(139, 154, 171, 0.17);
+  border-radius: 12px;
+  margin: 10px;
 }
 
 .small_text {
@@ -118,20 +112,48 @@ export default {
   color: var(--text-color-details);
 }
 
+img.pic {
+  width: 35px;
+  box-shadow: none !important;
+}
+
 .serverSelectBtn {
-  padding: 0px;
+  padding: 16px;
   border: none;
   background-color: inherit;
   outline-width: 0;
   cursor: pointer;
-
-  height: 82px;
   width: 100%;
+}
 
-  padding-bottom: 4px;
+.server-card {
+  border: 1px solid rgba(139, 154, 171, 0.17);
+  min-height: 72px;
+  max-height: 72px;
+  border-radius: 12px;
+  padding: 0 15px;
+  margin: 10px;
+  position: relative;
+}
+
+.server-card .country-name {
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .serverName {
   max-width: 270px;
+}
+.change-location {
+  padding: 3px 10px;
+  background-color: #ebc553;
+  border: 1px solid #ebc553;
+  font-weight: 500;
+  color: #fff;
+  border-radius: 50px;
+}
+.change-location:hover {
+  background-color: #fff;
+  color: #ebc553;
 }
 </style>

@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -107,4 +107,62 @@ type GeoLookupResponse struct {
 	Longitude float32 `json:"longitude"`
 
 	//isIvpnServer bool
+}
+
+type UserLoginResponse struct {
+	Response UserLoginResponseDetails `json:"response"`
+	Message  string                   `json:"message"`
+	State    bool                     `json:"state"`
+}
+type UserLoginResponseDetails struct {
+	Auth                bool            `json:"auth"`
+	Active              bool            `json:"active"`
+	Expired             bool            `json:"expired"`
+	AllowLogin          bool            `json:"allowLogin"`
+	ExpiryDate          string          `json:"expiry_date"`
+	Token               string          `json:"ApiToken"`
+	TotalSessionAllowed int             `json:"totalSessionAllowed"`
+	LoggedInSessions    int             `json:"loggedInSessions"`
+	IsPaid              bool            `json:"is_paid"`
+	ActiveSessions      []DeviceSession `json:"activeSessions"`
+	ActiveUntil         int64           `json:"timestamp"`
+	Email               string          `json:"email"`
+	Plan                string          `json:"plan"`
+	VPNUsername         string          `json:"vpn_username"`
+	VPNPassword         string          `json:"vpn_password"`
+	WGLocalIP           string          `json:"localIP"`
+}
+type DeviceSession struct {
+	TokenId       int                  `json:"tokenId"`
+	Details       DeviceSessionDetails `json:"details,omitempty"`
+	LastUsedAt    string               `json:"_last_used_at"`
+	CurrentDevice bool                 `json:"currentSession"`
+}
+type DeviceSessionDetails struct {
+	DeviceId   string `json:"id"`
+	DeviceName string `json:"name"`
+	DeviceType string `json:"type"`
+}
+
+type UserDetailsResponse struct {
+	Plan                string          `json:"plan"`
+	Active              bool            `json:"active"`
+	Expired             bool            `json:"expired"`
+	ActiveUntil         int64           `json:"timestamp"`
+	TotalSessionAllowed int             `json:"totalSessionAllowed"`
+	LoggedInSessions    int             `json:"loggedInSessions"`
+	ActiveSessions      []DeviceSession `json:"activeSessions"`
+}
+
+type UserLogoutResponse struct {
+	Message string `json:"message"`
+}
+type UserLogoutDeviceResponse struct {
+	ActiveSessions      []DeviceSession `json:"activeSessions"`
+	TotalSessionAllowed int             `json:"totalSessionsAllowed,omitempty"`
+	LoggedInSessions    int             `json:"loggedInSessions,omitempty"`
+}
+type WGKeysUpdateResponse struct {
+	Message string `json:"message"`
+	LocalIP string `json:"localIP"`
 }

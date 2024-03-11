@@ -19,7 +19,7 @@
 	<key>SMPrivilegedExecutables</key>
 	<dict>
 		<key>net.ivpn.client.Helper</key>
-		<string>identifier net.ivpn.client.Helper and certificate leaf[subject.OU] = WQXXM75BYN</string>
+		<string>identifier net.ivpn.client.Helper and certificate leaf[subject.OU] = 27RKRQ769G</string>
 	</dict>
 </dict>
 </plist>

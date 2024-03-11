@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -34,16 +34,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/api"
-	"github.com/ivpn/desktop-app/daemon/logger"
-	"github.com/ivpn/desktop-app/daemon/netchange"
-	"github.com/ivpn/desktop-app/daemon/protocol"
-	"github.com/ivpn/desktop-app/daemon/service"
-	"github.com/ivpn/desktop-app/daemon/service/firewall"
-	"github.com/ivpn/desktop-app/daemon/service/platform"
-	"github.com/ivpn/desktop-app/daemon/service/preferences"
-	"github.com/ivpn/desktop-app/daemon/service/wgkeys"
-	"github.com/ivpn/desktop-app/daemon/version"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/api"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/netchange"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/protocol"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/firewall"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/wgkeys"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/version"
 )
 
 var log *logger.Logger
@@ -235,17 +235,17 @@ func doCleanup() (osExitCode int) {
 		}
 
 		// API object
-		apiObj, err := api.CreateAPI()
-		if err != nil {
-			return fmt.Errorf("the API object initialization failed: %w", err)
-		}
+		//apiObj, err := api.CreateAPI()
+		//if err != nil {
+		//	return fmt.Errorf("the API object initialization failed: %w", err)
+		//}
 
-		log.Info("Logging out ...")
-		err = apiObj.SessionDelete(session.Session)
-		if err != nil {
-			return err
-		}
-		log.Info("Logging out: done")
+		//log.Info("Logging out ...")
+		//err = apiObj.SessionDelete(session.Session)
+		//if err != nil {
+		//	return err
+		//}
+		//log.Info("Logging out: done")
 		return nil
 	}
 	if err := f(); err != nil {

@@ -53,30 +53,23 @@ InitDefaultCopyMenus();
 @import "@/components/scss/constants";
 
 html * {
-  // disable elements\text selelection
+  // disable elements\text selection
   -webkit-user-select: none;
 
   // assign default properties globally for all elements
-  color: var(--text-color);
-
-  font-family: $base-font-family; // !important;
 }
 
-input {
-  background: var(--input-background);
-}
-textarea {
-  background: var(--input-background);
+@font-face {
+  font-family: "Outfit";
+  src:
+    local("Outfit"),
+    url("~@/assets/fonts/outfit/Outfit.woff") format("woff");
 }
 
 body {
-  background: var(--background-color);
+  font-family: "Outfit", serif;
 }
-/*
-button:hover {
-  opacity: 80%;
-}
-*/
+
 #app {
   position: absolute;
   left: 0;
@@ -84,13 +77,13 @@ button:hover {
   width: 100vw;
   height: 100vh;
 
-  // disable scroolbars
+  // disable scrollbars
   overflow-y: hidden;
   overflow-x: hidden;
 }
 
 .title {
-  // Panel can be dragable by mouse
+  // Panel can be draggable by mouse
   // (we need this because using no title style for main window (for  macOS))
   -webkit-app-region: drag;
   height: 24px;
@@ -98,6 +91,7 @@ button:hover {
 
   position: absolute;
 }
+
 .border {
   // For no-bordered windows: print border manually -
   // show transparent but bordered div top of the window
@@ -107,13 +101,29 @@ button:hover {
   z-index: 100;
   // full window
   position: absolute;
-  left: 0px;
-  right: 0px;
-  top: 0px;
-  bottom: 0px;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
   // allow elements located under this div to receive mouse events
   pointer-events: none;
   // border style
-  border: 1px solid rgba(128, 128, 128, 0.5);
+  //border: 1px solid rgba(128, 128, 128, 0.5);
+}
+
+::-webkit-scrollbar {
+  background: transparent;
+  width: 8px;
+  margin-left: 10pc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d2d2d2;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #232323;
+  border-radius: 10px;
 }
 </style>

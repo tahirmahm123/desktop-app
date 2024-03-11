@@ -1,6 +1,6 @@
 package wifiNotifier
 
-import "github.com/ivpn/desktop-app/daemon/logger"
+import "github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
 
 var log *logger.Logger
 

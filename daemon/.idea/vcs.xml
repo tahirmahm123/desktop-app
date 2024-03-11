@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/References/macOS/_deps/dnscryptproxy_build/dnscrypt-proxy" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/References/macOS/_deps/kem-helper/liboqs/liboqs" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/References/macOS/_deps/obfs4proxy_build/obfs4" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/References/macOS/_deps/openvpn_build/openvpn" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/References/macOS/_deps/v2ray_build/v2ray-core" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/References/macOS/_deps/wg_build/wireguard-go" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/References/macOS/_deps/wg_build/wireguard-tools" vcs="Git" />
+  </component>
+</project>

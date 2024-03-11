@@ -16,7 +16,7 @@
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
-  "main": "background.js",
+  "main": "index.js",
   "dependencies": {
     "@sentry/electron": "4.11.1",
     "auto-launch": "5.0.6",

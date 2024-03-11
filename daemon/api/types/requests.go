@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -57,4 +57,47 @@ type SessionWireGuardKeySetRequest struct {
 	PublicKey          string `json:"public_key"`
 	ConnectedPublicKey string `json:"connected_public_key"`
 	KemPublicKeys
+}
+
+// UserLoginRequest request to create new session
+type UserLoginRequest struct {
+	Username string        `json:"username"`
+	Password string        `json:"password"`
+	Device   DeviceDetails `json:"deviceDetails"`
+}
+type DeviceDetails struct {
+	Type string `json:"type"`
+	Name string `json:"name"`
+	Id   string `json:"id"`
+}
+type UserDeviceDetails struct {
+	Type string `json:"type"`
+	Name string `json:"name"`
+}
+
+// UserStatusRequest request logout user
+type UserStatusRequest struct {
+}
+
+// ServerListRequest ServerList request
+type ServerListRequest struct {
+}
+
+// UserLogoutRequest request logout user
+type UserLogoutRequest struct {
+}
+
+// DeviceLogoutRequest request to Logout any other Device
+type DeviceLogoutRequest struct {
+	DeviceId int `json:"device_id"`
+}
+
+// DeviceLogoutAllRequest request to logout all other Devices
+type DeviceLogoutAllRequest struct {
+}
+
+// WGKeyUpdateRequest request for rotation of WG keys
+type WGKeyUpdateRequest struct {
+	PublicKey  string `json:"publicKey"`
+	PrivateKey string `json:"privateKey"`
 }

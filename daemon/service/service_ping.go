@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -34,11 +34,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ivpn/desktop-app/daemon/api/types"
-	"github.com/ivpn/desktop-app/daemon/helpers"
-	"github.com/ivpn/desktop-app/daemon/ping"
-	protocolTypes "github.com/ivpn/desktop-app/daemon/protocol/types"
-	"github.com/ivpn/desktop-app/daemon/vpn"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/helpers"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/ping"
+	protocolTypes "github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
 )
 
 const (
@@ -212,7 +212,7 @@ func (s *Service) ping_getHosts(vpnTypePrioritized vpn.Type, skipSecondPhase boo
 		return 2
 	}
 
-	getHostsFunc := func(svrs []types.ServerGeneric, isFirstPhase bool, vpnTypePriority int) {
+	getHostsFunc := func(svrs []types.ServerListCountryItem, isFirstPhase bool, vpnTypePriority int) {
 		if len(svrs) == 0 {
 			return
 		}
@@ -223,15 +223,14 @@ func (s *Service) ping_getHosts(vpnTypePrioritized vpn.Type, skipSecondPhase boo
 		}
 
 		for _, s := range svrs {
-			sBase := s.GetServerInfoBase()
-			hosts := s.GetHostsInfoBase()
+			hosts := s.Hosts
 			for i, h := range hosts {
 				vpnPriority := vpnTypePriority
 
 				htp := pingHost{
-					latitude:  sBase.Latitude,
-					longitude: sBase.Longitude,
-					host:      net.ParseIP(strings.Split(h.Host, "/")[0]),
+					latitude:  h.Latitude(),
+					longitude: h.Longitude(),
+					host:      net.ParseIP(strings.Split(h.Ip, "/")[0]),
 				}
 				htp.setPriority(phasePriority, vpnPriority, i)
 

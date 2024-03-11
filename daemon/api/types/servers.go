@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/ivpn/desktop-app
+//  https://github.com/tahirmahm123/vpn-desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -24,8 +24,80 @@ package types
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
+
+type OpenVPNProtocol struct {
+	Certificate string `json:"certificate"`
+	Ports       []struct {
+		Protocol string `json:"protocol"`
+		Port     int    `json:"port"`
+	} `json:"ports"`
+}
+type DNSServers struct {
+	DNS1 string `json:"dns1"`
+	DNS2 string `json:"dns2"`
+}
+type WireGuardInstance struct {
+	PublicKey string `json:"PublicKey"`
+	Port      int    `json:"port"`
+	LocalIP   string `json:"local_ip,omitempty"`
+	DNS       string `json:"dnsServers,omitempty"`
+}
+type OpenVPNInstance struct {
+	Protocol string `json:"proto"`
+	Port     int    `json:"port"`
+}
+type ServerListItem struct {
+	Id          int                 `json:"id"`
+	Name        string              `json:"name"`
+	Ip          string              `json:"ip"`
+	Port        int                 `json:"port"`
+	Flag        string              `json:"flag"`
+	DNS1        string              `json:"dns1"`
+	DNS2        string              `json:"dns2"`
+	Premium     bool                `json:"premium"`
+	Country     string              `json:"country"`
+	CountryCode string              `json:"country_code"`
+	OpenVPN     []OpenVPNInstance   `json:"openvpn"`
+	WireGuard   []WireGuardInstance `json:"wg"`
+	Location    struct {
+		Latitude  string `json:"latitude"`
+		Longitude string `json:"longitude"`
+	} `json:"location"`
+}
+
+func (s *ServerListItem) Latitude() float32 {
+	value, err := strconv.ParseFloat(s.Location.Latitude, 32)
+	if err != nil {
+		return 0
+	}
+	return float32(value)
+}
+func (s *ServerListItem) Longitude() float32 {
+	value, err := strconv.ParseFloat(s.Location.Longitude, 32)
+	if err != nil {
+		return 0
+	}
+	return float32(value)
+}
+
+type ServerListCountryItem struct {
+	Flag    string           `json:"flag"`
+	Country string           `json:"country"`
+	Hosts   []ServerListItem `json:"servers"`
+}
+type ServerListProtoItem struct {
+	OpenVPNServers   []ServerListCountryItem `json:"openvpn"`
+	WireGuardServers []ServerListCountryItem `json:"wireguard"`
+}
+type ServerListResponse struct {
+	ServerList ServerListProtoItem `json:"servers,omitempty"`
+	DnsServers DNSServers          `json:"dnsServers"`
+	OpenVPN    OpenVPNProtocol     `json:"openvpn"`
+	WireGuard  []int               `json:"wireguard"`
+}
 
 // -----------------------------------------------------------
 type ServerGeneric interface {
@@ -224,22 +296,22 @@ type ConfigInfo struct {
 	Ports           PortsInfo           `json:"ports"`
 }
 
-// ServersInfoResponse all info from servers.json
-type ServersInfoResponse struct {
+// ServerInfoResponse all info from servers.json
+type ServerInfoResponse struct {
 	WireguardServers []WireGuardServerInfo `json:"wireguard"`
 	OpenvpnServers   []OpenvpnServerInfo   `json:"openvpn"`
 	Config           ConfigInfo            `json:"config"`
 }
 
-func (si ServersInfoResponse) ServersGenericWireguard() (ret []ServerGeneric) {
-	for _, s := range si.WireguardServers {
+func (si ServerListResponse) ServersGenericWireguard() (ret []ServerListCountryItem) {
+	for _, s := range si.ServerList.WireGuardServers {
 		ret = append(ret, s)
 	}
 	return
 }
 
-func (si ServersInfoResponse) ServersGenericOpenvpn() (ret []ServerGeneric) {
-	for _, s := range si.OpenvpnServers {
+func (si ServerListResponse) ServersGenericOpenvpn() (ret []ServerListCountryItem) {
+	for _, s := range si.ServerList.OpenVPNServers {
 		ret = append(ret, s)
 	}
 	return
