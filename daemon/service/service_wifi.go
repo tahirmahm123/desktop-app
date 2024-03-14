@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -25,7 +25,7 @@ package service
 import (
 	"time"
 
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/wifiNotifier"
+	"github.com/ivpn/desktop-app/daemon/wifiNotifier"
 )
 
 var timerDelayedWifiNotify *time.Timer

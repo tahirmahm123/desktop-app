@@ -50,10 +50,10 @@ export default {
         DnsHost: "",      // string // DNS host IP address
 	      Encryption: 0,    // DnsEncryption [	EncryptionNone = 0,	EncryptionDnsOverTls = 1,	EncryptionDnsOverHttps = 2]
 	      DohTemplate: "",  // string // DoH/DoT template URI (for Encryption = DnsOverHttps or Encryption = DnsOverTls)
-      },
+      },      
       IsTCP:      false,
-      Mtu:        int ,  // (for WireGuard connections)
-      IsPaused:   bool,  // When "true" - the actual connection may be "disconnected" (depending on the platform and VPN protocol), but the daemon responds "connected"
+      Mtu:        int ,  // (for WireGuard connections)	 
+      IsPaused:   bool,  // When "true" - the actual connection may be "disconnected" (depending on the platform and VPN protocol), but the daemon responds "connected"   
       PausedTill  string // pausedTill.Format(time.RFC3339)
     }*/,
 
@@ -132,8 +132,8 @@ export default {
               dns_name: "",
               public_key: "",
               local_ip: "",
-              ipv6:
-              {
+              ipv6: 
+              {                        
                 local_ip: "",
                 host: "",
                 multihop_port: 0
@@ -176,7 +176,7 @@ export default {
                "Description":"",
                "Normal":"", // IP string
                "Hardcore":"" // IP string
-            },
+            },           
           ]
         },
         api: { ips: [""], ipv6s:[""] }
@@ -363,13 +363,13 @@ export default {
                 l.latitude,
                 l.longitude,
                 a.latitude,
-                a.longitude,
+                a.longitude
               );
               var distB = getDistanceFromLatLonInKm(
                 l.latitude,
                 l.longitude,
                 b.latitude,
-                b.longitude,
+                b.longitude
               );
               if (distA === distB) return 0;
               if (distA < distB) return -1;
@@ -440,7 +440,7 @@ export default {
             // V2Ray (TCP) uses only TCP ports
             customPortsType = PortTypeEnum.TCP;
             const portsFiltered = ports.filter(
-              (p) => p.type === PortTypeEnum.TCP,
+              (p) => p.type === PortTypeEnum.TCP
             );
 
             if (portsFiltered.length > 0) ports = portsFiltered;

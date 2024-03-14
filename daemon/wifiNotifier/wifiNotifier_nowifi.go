@@ -3,7 +3,7 @@
 
 package wifiNotifier
 
-import "github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
+import "github.com/ivpn/desktop-app/daemon/logger"
 
 // GetAvailableSSIDs returns the list of the names of available Wi-Fi networks
 func implGetAvailableSSIDs() []string {

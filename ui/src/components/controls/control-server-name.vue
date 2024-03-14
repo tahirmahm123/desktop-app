@@ -1,34 +1,62 @@
 <template>
-  <div class="d-flex align-items-center">
-    <div>
+  <div class="main">
+    <div class="flexColumn" style="min-width: 24px">
       <img
-        v-show="isImgLoadError !== true"
-        :src="serverImage"
         class="pic"
         v-bind:class="{
           flag: isCountryFlagInUse,
         }"
+        :src="serverImage"
+        v-show="isImgLoadError !== true"
+        @error="onImgLoadError"
       />
     </div>
-    <div class="ms-2">
-      <div
-        v-if="isShowSingleLine"
-        class="text"
-        v-bind:class="{ text_large: isLargeText, firstLine: !isSingleLine }"
-      >
-        {{ singleLine }}
-      </div>
-      <div v-else class="textBloack text">
-        <div class="text secondLine">Selected Location</div>
-        <div class="text firstLine">
-          {{ multilineFirstLine }}
+
+    <div
+      class="textBlock text"
+      v-if="isShowSingleLine"
+      v-bind:class="{ text_large: isLargeText, firstLine: !isSingleLine }"
+    >
+      {{ singleLine }}
+    </div>
+    <div class="textBlock" v-else>
+      <div class="firstLine flexRow" style="max-width: 154px">
+        <div class="text">{{ multilineFirstLine }}</div>
+        <div>
+          <button
+            class="noBordersBtn expandButton"
+            v-if="onExpandClick != null && isExpanded !== undefined"
+            v-on:click.stop
+            v-on:click="onExpandClick(server)"
+          >
+            <img
+              v-if="isExpanded"
+              style="transform: rotate(180deg)"
+              src="@/assets/arrow-bottom.svg"
+            />
+            <img v-else src="@/assets/arrow-bottom.svg" />
+          </button>
         </div>
       </div>
-      <!--      <div class="country-name">Germany</div>
-            <div class="text-muted">Hamburg</div>-->
+
+      <div
+        class="text secondLine flexRow"
+        :style="{ maxWidth: SecondLineMaxWidth }"
+      >
+        <div v-if="isShowIPVersionBage && isIPv6" class="bage">IPv6</div>
+        {{ multilineSecondLine }} {{ selectedHostInfo }}
+        <div
+          v-show="showISPInfo && isFavoriteServersView === false"
+          style="margin-left: 4px"
+          class="text secondLine"
+        >
+          {{ isp }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
+
 <script>
 import { PingQuality } from "@/store/types";
 import { IsServerSupportIPv6 } from "@/helpers/helpers_servers";
@@ -170,15 +198,14 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style lang="scss" scoped>
+<style scoped lang="scss">
 @import "@/components/scss/constants";
-
 .main {
   display: flex;
 }
 
 img.pic {
-  width: 38px;
+  width: 22px;
   margin: 1px;
   margin-top: 2.4px;
 }
@@ -196,7 +223,7 @@ img.flag {
   text-overflow: ellipsis;
 }
 
-div.textBloack {
+div.textBlock {
   font-size: 14px;
   line-height: 20.8px;
   margin-left: 16px;
@@ -228,6 +255,7 @@ div.bage {
   padding-right: 4px;
   border: 1px solid #777777;
   border-radius: 4px;
+  margin-right: 4px;
 }
 
 .flexRow {
@@ -241,5 +269,12 @@ div.bage {
 
 .pingtext {
   color: var(--text-color-details);
+}
+
+button.expandButton {
+  opacity: 0.6;
+}
+button.expandButton:hover {
+  opacity: 1;
 }
 </style>

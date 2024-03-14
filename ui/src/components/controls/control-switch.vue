@@ -1,17 +1,11 @@
 <template>
-  <div class="switch">
-    <label v-bind:class="{ load: isProgress }" class="btn-connection">
+  <div>
+    <label class="switch" v-bind:class="{ load: isProgress }">
       <input
-        style="display: none"
         type="checkbox"
         :checked="isConnected"
         v-on:click="DoSwitch($event)"
       />
-      <span v-if="isProgress"> Connection in progress </span>
-      <span v-else-if="isConnected"> Click to Disconnect </span>
-      <span v-else-if="isChecked">Is checked</span>
-      <span v-else> Click to connect </span>
-
       <div :style="style"></div>
     </label>
   </div>
@@ -42,43 +36,121 @@ export default {
   },
 };
 </script>
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+@use "sass:math";
+
+$switchSize: 31px;
+$wToHproportion: 2;
+$switchBorder: transparent; //#d1d7e3;
+$switchBorderActive: transparent; //#5d9bfb;
+$switchAnimationPieBorder: #449cf8;
+
+$switchBackground: #ff6258; //#d1d7e3;
+// $switchBackground: #d1d7e3; //#d1d7e3;
+$switchDot: var(--background-color); // #fff;
+$switchActive: #449cf8;
+// $switchActive: #449cf8;
+
 .switch {
-  width: fit-content;
-  height: fit-content;
-  margin: 0 auto;
-}
-.switch label {
+  margin: 0;
   cursor: pointer;
-  font-size: 16.5px;
-  font-style: normal;
-  font-weight: 500;
-}
-
-.switch input:checked {
-  background-color: #ebc553;
-}
-
-.switch:hover {
+  & > span {
+    line-height: $switchSize;
+    margin: 0 0 0 4px;
+    vertical-align: top;
+  }
   input {
+    display: none;
     & + div {
-      opacity: 0.7;
+      width: $switchSize * 1.6; // !!!
+      height: $switchSize;
+      border: 1px solid $switchBorder;
+      background: $switchBackground;
+      border-radius: math.div($switchSize, 2);
+      vertical-align: top;
+      position: relative;
+      display: inline-block;
+      user-select: none;
+      transition: all 0.4s ease;
+      &:before {
+        content: "";
+        float: left;
+        width: $switchSize - 6;
+        height: $switchSize - 6;
+        background: $switchDot;
+        pointer-events: none;
+        margin-top: 2px;
+        margin-left: 2px;
+        border-radius: inherit;
+        transition: all 0.4s ease 0s;
+      }
+      &:after {
+        content: "";
+        left: -1px;
+        top: -1px;
+        width: $switchSize;
+        height: $switchSize;
+        border: 3px solid transparent;
+        border-top-color: $switchAnimationPieBorder; //$switchBorderActive;
+        border-radius: 50%;
+        position: absolute;
+        opacity: 0;
+      }
+    }
+    &:checked + div {
+      background: $switchActive;
+      border: 1px solid $switchBorderActive;
+      &:before {
+        transform: translate(math.div($switchSize, 1.6), 0); // !!!
+      }
+    }
+  }
+  &.load {
+    input {
+      & + div {
+        width: $switchSize;
+        margin: 0 math.div($switchSize, 4); // !!!
+        &:after {
+          opacity: 1;
+          animation: rotate 0.9s infinite linear;
+          animation-delay: 0.2s;
+        }
+      }
+    }
+  }
+  &:hover {
+    input {
+      & + div {
+        opacity: 0.7;
+      }
     }
   }
 }
-label.btn-connection {
-  background: #fff;
-  border-radius: 50px;
-  position: relative;
-  border: 3px solid #fff;
-  color: black !important;
-  cursor: pointer;
-  z-index: 10000;
-  padding: 13.626px 27.253px;
+
+@keyframes rotate {
+  0%,
+  15% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(290deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
-.btn-connection:hover {
-  border: 3px solid #ebc553;
-  background: #fff;
+
+div {
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: inherit;
+  &:before,
+  &:after {
+    box-sizing: inherit;
+  }
 }
 </style>

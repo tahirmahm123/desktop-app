@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -28,7 +28,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/shell"
+	"github.com/ivpn/desktop-app/daemon/shell"
 )
 
 // doDefaultGatewayIP - returns: default gateway

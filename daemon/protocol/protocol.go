@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -35,17 +35,17 @@ import (
 	"sync"
 	"time"
 
-	api_types "github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/oshelpers"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/eaa"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
-	service_types "github.com/tahirmahm123/vpn-desktop-app/daemon/service/types"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/wifiNotifier"
+	api_types "github.com/ivpn/desktop-app/daemon/api/types"
+	"github.com/ivpn/desktop-app/daemon/logger"
+	"github.com/ivpn/desktop-app/daemon/oshelpers"
+	"github.com/ivpn/desktop-app/daemon/protocol/eaa"
+	"github.com/ivpn/desktop-app/daemon/protocol/types"
+	"github.com/ivpn/desktop-app/daemon/service/dns"
+	"github.com/ivpn/desktop-app/daemon/service/platform"
+	"github.com/ivpn/desktop-app/daemon/service/preferences"
+	service_types "github.com/ivpn/desktop-app/daemon/service/types"
+	"github.com/ivpn/desktop-app/daemon/vpn"
+	"github.com/ivpn/desktop-app/daemon/wifiNotifier"
 )
 
 var log *logger.Logger
@@ -68,11 +68,11 @@ type Service interface {
 
 	// ServersList returns servers info
 	// (if there is a cached data available - will be returned data from cache)
-	ServersList() (*api_types.ServerListResponse, error)
+	ServersList() (*api_types.ServersInfoResponse, error)
 	// ServersListForceUpdate returns servers list info.
 	// The daemon will make request to update servers from the backend.
 	// The cached data will be ignored in this case.
-	ServersListForceUpdate() (*api_types.ServerListResponse, error)
+	ServersListForceUpdate() (*api_types.ServersInfoResponse, error)
 
 	PingServers(timeoutMs int, vpnTypePrioritized vpn.Type, skipSecondPhase bool) (map[string]int, error)
 
@@ -540,7 +540,7 @@ func (p *Protocol) processRequest(conn net.Conn, message string) {
 			break
 		}
 
-		sendResponseFunc := func(retServ *api_types.ServerListResponse, retErr error) {
+		sendResponseFunc := func(retServ *api_types.ServersInfoResponse, retErr error) {
 			if retErr != nil {
 				p.sendErrorResponse(conn, reqCmd, retErr)
 				return

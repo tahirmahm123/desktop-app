@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -27,11 +27,11 @@ import (
 	"fmt"
 	"math/big"
 
-	api_types "github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/obfsproxy"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/v2r"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
+	api_types "github.com/ivpn/desktop-app/daemon/api/types"
+	"github.com/ivpn/desktop-app/daemon/obfsproxy"
+	"github.com/ivpn/desktop-app/daemon/service/dns"
+	"github.com/ivpn/desktop-app/daemon/v2r"
+	"github.com/ivpn/desktop-app/daemon/vpn"
 )
 
 type ServerSelectionEnum int
@@ -96,7 +96,7 @@ type ConnectionParams struct {
 		}
 
 		EntryVpnServer struct {
-			Hosts []api_types.ServerListItem
+			Hosts []api_types.WireGuardServerHostInfo
 		}
 
 		MultihopExitServer MultiHopExitServer_WireGuard
@@ -108,8 +108,11 @@ type ConnectionParams struct {
 
 	OpenVpnParameters struct {
 		EntryVpnServer struct {
-			Hosts []api_types.ServerListItem
+			Hosts []api_types.OpenVPNServerHostInfo
 		}
+
+		MultihopExitServer MultiHopExitServer_OpenVpn
+
 		Proxy struct {
 			Type     string
 			Address  string
@@ -130,11 +133,10 @@ type ConnectionParams struct {
 }
 
 func (p ConnectionParams) IsMultiHop() bool {
-	//if p.VpnType == vpn.OpenVPN {
-	//	return len(p.OpenVpnParameters.MultihopExitServer.Hosts) > 0
-	//}
-	//return len(p.WireGuardParameters.MultihopExitServer.Hosts) > 0
-	return false
+	if p.VpnType == vpn.OpenVPN {
+		return len(p.OpenVpnParameters.MultihopExitServer.Hosts) > 0
+	}
+	return len(p.WireGuardParameters.MultihopExitServer.Hosts) > 0
 }
 
 func (p ConnectionParams) CheckIsDefined() error {
@@ -181,10 +183,67 @@ func (p *ConnectionParams) NormalizeHosts() error {
 			if rnd, err := rand.Int(rand.Reader, big.NewInt(int64(len(entryHosts)))); err == nil {
 				rndHost = entryHosts[rnd.Int64()]
 			}
-			p.OpenVpnParameters.EntryVpnServer.Hosts = []api_types.ServerListItem{rndHost}
+			p.OpenVpnParameters.EntryVpnServer.Hosts = []api_types.OpenVPNServerHostInfo{rndHost}
+		}
+
+		// in case of multiple exit hosts - take random host from the list
+		exitHosts := p.OpenVpnParameters.MultihopExitServer.Hosts
+		if len(exitHosts) > 1 {
+			rndHost := exitHosts[0]
+			if rnd, err := rand.Int(rand.Reader, big.NewInt(int64(len(exitHosts)))); err == nil {
+				rndHost = exitHosts[rnd.Int64()]
+			}
+			p.OpenVpnParameters.MultihopExitServer.Hosts = []api_types.OpenVPNServerHostInfo{rndHost}
 		}
 
 	} else if vpn.Type(p.VpnType) == vpn.WireGuard {
+		// filter entry hosts: use IPv6 hosts
+		if p.IPv6 {
+			hosts := p.WireGuardParameters.EntryVpnServer.Hosts
+			var ipv6Hosts []api_types.WireGuardServerHostInfo
+			for _, h := range hosts {
+				if h.IPv6.LocalIP != "" {
+					ipv6Hosts = append(ipv6Hosts, h)
+				}
+			}
+			if len(ipv6Hosts) == 0 {
+				if p.IPv6Only {
+					return fmt.Errorf("unable to make IPv6 connection inside tunnel. Server does not support IPv6")
+				}
+			} else {
+				p.WireGuardParameters.EntryVpnServer.Hosts = ipv6Hosts
+			}
+		}
+
+		// filter exit servers (Multi-Hop connection):
+		// 1) each exit server must have initialized 'multihop_port' field
+		// 2) (in case of IPv6Only) IPv6 local address should be defined
+		multihopExitHosts := p.WireGuardParameters.MultihopExitServer.Hosts
+		if len(multihopExitHosts) > 0 {
+			isHasMHPort := false
+			//filteredExitHosts := append(multihopExitHosts[0:0], multihopExitHosts...)
+			var filteredExitHosts []api_types.WireGuardServerHostInfo
+			for _, h := range multihopExitHosts {
+				if h.MultihopPort == 0 {
+					continue
+				}
+				isHasMHPort = true
+				if p.IPv6 && h.IPv6.LocalIP == "" {
+					continue
+				}
+				filteredExitHosts = append(filteredExitHosts, h)
+			}
+			if len(filteredExitHosts) == 0 {
+				if !isHasMHPort {
+					return fmt.Errorf("unable to make Multi-Hop connection inside tunnel. Exit server does not support Multi-Hop")
+				}
+				if p.IPv6Only {
+					return fmt.Errorf("unable to make IPv6 Multi-Hop connection inside tunnel. Exit server does not support IPv6")
+				}
+			} else {
+				p.WireGuardParameters.MultihopExitServer.Hosts = filteredExitHosts
+			}
+		}
 
 		// in case of multiple entry hosts - take random host from the list
 		if len(p.WireGuardParameters.EntryVpnServer.Hosts) > 1 {
@@ -192,7 +251,16 @@ func (p *ConnectionParams) NormalizeHosts() error {
 			if rnd, err := rand.Int(rand.Reader, big.NewInt(int64(len(p.WireGuardParameters.EntryVpnServer.Hosts)))); err == nil {
 				rndHost = p.WireGuardParameters.EntryVpnServer.Hosts[rnd.Int64()]
 			}
-			p.WireGuardParameters.EntryVpnServer.Hosts = []api_types.ServerListItem{rndHost}
+			p.WireGuardParameters.EntryVpnServer.Hosts = []api_types.WireGuardServerHostInfo{rndHost}
+		}
+
+		// in case of multiple exit hosts - take random host from the list
+		if len(p.WireGuardParameters.MultihopExitServer.Hosts) > 1 {
+			rndHost := p.WireGuardParameters.MultihopExitServer.Hosts[0]
+			if rnd, err := rand.Int(rand.Reader, big.NewInt(int64(len(p.WireGuardParameters.MultihopExitServer.Hosts)))); err == nil {
+				rndHost = p.WireGuardParameters.MultihopExitServer.Hosts[rnd.Int64()]
+			}
+			p.WireGuardParameters.MultihopExitServer.Hosts = []api_types.WireGuardServerHostInfo{rndHost}
 		}
 
 	} else {

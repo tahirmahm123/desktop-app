@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -22,6 +22,8 @@
 
 package types
 
+import "fmt"
+
 const (
 	// CodeSuccess - success
 	CodeSuccess int = 200
@@ -33,7 +35,7 @@ const (
 	WGPublicKeyNotFound int = 424
 
 	// SessionNotFound - Session not found Session not found
-	SessionNotFound int = 401
+	SessionNotFound int = 601
 
 	// CodeSessionsLimitReached - You've reached the session limit, log out from other device
 	CodeSessionsLimitReached int = 602
@@ -50,19 +52,10 @@ const (
 	The2FAInvalidToken int = 70012
 )
 
-type ErrorMessage struct {
-	Message string `json:"message,omitempty"`
-}
-
 // APIError - error, user not logged in into account
 type APIError struct {
 	ErrorCode int
 	Message   string
-}
-
-func (A APIError) Error() string {
-	//TODO implement me
-	panic("implement me")
 }
 
 // CreateAPIError creates new API error object
@@ -72,11 +65,6 @@ func CreateAPIError(errorCode int, message string) APIError {
 		Message:   message}
 }
 
-type UnprocessableEntity struct {
-	Message string `json:"message"`
-	Errors  struct {
-		Username []string `json:"username,omitempty"`
-		Email    []string `json:"email,omitempty"`
-		Password []string `json:"password,omitempty"`
-	} `json:"errors"`
+func (e APIError) Error() string {
+	return fmt.Sprintf("API error: [%d] %s", e.ErrorCode, e.Message)
 }

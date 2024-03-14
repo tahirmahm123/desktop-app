@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -29,8 +29,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns/dnscryptproxy"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
+	"github.com/ivpn/desktop-app/daemon/service/dns/dnscryptproxy"
+	"github.com/ivpn/desktop-app/daemon/service/platform"
 )
 
 // For reference: DNS configuration in Linux

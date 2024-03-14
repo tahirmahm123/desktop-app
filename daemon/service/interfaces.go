@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -25,12 +25,12 @@ package service
 import (
 	"net"
 
-	api_types "github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
-	service_types "github.com/tahirmahm123/vpn-desktop-app/daemon/service/types"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/wgkeys"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/wifiNotifier"
+	api_types "github.com/ivpn/desktop-app/daemon/api/types"
+	"github.com/ivpn/desktop-app/daemon/service/preferences"
+	service_types "github.com/ivpn/desktop-app/daemon/service/types"
+	"github.com/ivpn/desktop-app/daemon/service/wgkeys"
+	"github.com/ivpn/desktop-app/daemon/vpn"
+	"github.com/ivpn/desktop-app/daemon/wifiNotifier"
 )
 
 // IServersUpdater - interface for updating server info mechanism
@@ -39,11 +39,11 @@ type IServersUpdater interface {
 	StartUpdater() error
 	// GetServers - get servers list.
 	// Use cached data (if exists), otherwise - download servers list.
-	GetServers() (*api_types.ServerListResponse, error)
+	GetServers() (*api_types.ServersInfoResponse, error)
 	// GetServersForceUpdate returns servers list info (locations, hosts and host load).
 	// The daemon will make request to update servers from the backend.
 	// The cached data will be ignored in this case.
-	GetServersForceUpdate() (*api_types.ServerListResponse, error)
+	GetServersForceUpdate() (*api_types.ServersInfoResponse, error)
 	// UpdateNotifierChannel returns channel which is notifying when servers was updated
 	UpdateNotifierChannel() chan struct{}
 }
@@ -75,7 +75,7 @@ type IServiceEventsReceiver interface {
 	OnKillSwitchStateChanged()
 	OnWiFiChanged(wifiNotifier.WifiInfo)
 	OnPingStatus(retMap map[string]int)
-	OnServersUpdated(*api_types.ServerListResponse)
+	OnServersUpdated(*api_types.ServersInfoResponse)
 	OnSplitTunnelStatusChanged()
 	OnVpnStateChanged(state vpn.StateInfo)
 	OnVpnPauseChanged()

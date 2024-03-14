@@ -139,7 +139,7 @@ ipcMain.handle(
     if (!width) width = config.UpdateWindowWidth;
     if (!height) height = updateWindow.getContentSize()[1];
     updateWindow.setContentSize(width, height);
-  },
+  }
 );
 ipcMain.handle("renderer-request-SplitTunnelAddApp", async (event, execCmd) => {
   LaunchAppInSplitTunnel(execCmd, event);
@@ -319,7 +319,7 @@ if (gotTheLock) {
       (webContents, permission, callback) => {
         console.log("Permission request blocked: ", permission);
         callback(false);
-      },
+      }
     );
 
     try {
@@ -328,7 +328,7 @@ if (gotTheLock) {
         menuOnPreferences,
         menuOnAccount,
         menuOnCheckUpdates,
-        LaunchAppInSplitTunnel,
+        LaunchAppInSplitTunnel
       );
       isTrayInitialized = true;
     } catch (e) {
@@ -482,7 +482,7 @@ if (gotTheLock) {
               ) {
                 if (AutoLaunchIsEnabled() !== true) {
                   console.log(
-                    "Background VPN management is active: Enabling 'Launch at login' ...",
+                    "Background VPN management is active: Enabling 'Launch at login' ..."
                   );
                   AutoLaunchSet(true);
                 }
@@ -823,8 +823,8 @@ async function applyMinimizedState() {
 }
 
 function onDaemonExiting() {
-  // isAppReadyToQuit = true;
-  // app.quit();
+  isAppReadyToQuit = true;
+  app.quit();
 }
 
 // SETTINGS WINDOW
@@ -862,7 +862,7 @@ function createSettingsWindow(viewName) {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     settingsWindow.loadURL(
-      process.env.WEBPACK_DEV_SERVER_URL + `#settings/${viewName}`,
+      process.env.WEBPACK_DEV_SERVER_URL + `#settings/${viewName}`
     );
   } else {
     createProtocol("app");
@@ -955,7 +955,7 @@ function closeUpdateWindow() {
 async function connectToDaemon(
   doNotTryToInstall,
   isCanRetry,
-  doNotTryToMacosStart,
+  doNotTryToMacosStart
 ) {
   // MACOS ONLY: install daemon (privileged helper) if required
   if (Platform() === PlatformEnum.macOS && doNotTryToInstall !== true) {
@@ -970,13 +970,13 @@ async function connectToDaemon(
           if (code == 0) {
             // error: the helper not installed (we still detecting that helper must be installed (code == 0))
             console.error(
-              `Error installing helper [code1: ${exitCode}, code2: ${code}]`,
+              `Error installing helper [code1: ${exitCode}, code2: ${code}]`
             );
 
             // set daemon state 'NotConnected'
             store.commit(
               "daemonConnectionState",
-              DaemonConnectionType.NotConnected,
+              DaemonConnectionType.NotConnected
             );
 
             // do not forget to notify that daemon installation is finished
@@ -990,7 +990,7 @@ async function connectToDaemon(
           // force UI to show 'connecting' state
           store.commit(
             "daemonConnectionState",
-            DaemonConnectionType.Connecting,
+            DaemonConnectionType.Connecting
           );
 
           // show/activate application window
@@ -1009,7 +1009,7 @@ async function connectToDaemon(
             else await connectToDaemon(true, false, doNotTryToMacosStart);
           }, 500);
         });
-      }, //onInstallationFinished
+      } //onInstallationFinished
     );
     return;
   }

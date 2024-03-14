@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -25,15 +25,15 @@ package types
 import (
 	"fmt"
 
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
-	api_types "github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/obfsproxy"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
-	service_types "github.com/tahirmahm123/vpn-desktop-app/daemon/service/types"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/v2r"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
+	"github.com/ivpn/desktop-app/daemon/api/types"
+	api_types "github.com/ivpn/desktop-app/daemon/api/types"
+	"github.com/ivpn/desktop-app/daemon/logger"
+	"github.com/ivpn/desktop-app/daemon/obfsproxy"
+	"github.com/ivpn/desktop-app/daemon/service/dns"
+	"github.com/ivpn/desktop-app/daemon/service/preferences"
+	service_types "github.com/ivpn/desktop-app/daemon/service/types"
+	"github.com/ivpn/desktop-app/daemon/v2r"
+	"github.com/ivpn/desktop-app/daemon/vpn"
 )
 
 var log *logger.Logger
@@ -292,7 +292,7 @@ type VpnStateResp struct {
 // ServerListResp returns list of servers
 type ServerListResp struct {
 	CommandBase
-	VpnServers types.ServerListResponse
+	VpnServers types.ServersInfoResponse
 }
 
 // PingResultType represents information ping TTL for a host (is a part of 'PingServersResp')

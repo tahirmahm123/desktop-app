@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -29,12 +29,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/helpers"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/version"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
+	"github.com/ivpn/desktop-app/daemon/helpers"
+	"github.com/ivpn/desktop-app/daemon/protocol/types"
+	"github.com/ivpn/desktop-app/daemon/service/dns"
+	"github.com/ivpn/desktop-app/daemon/service/platform"
+	"github.com/ivpn/desktop-app/daemon/version"
+	"github.com/ivpn/desktop-app/daemon/vpn"
 )
 
 // ----------------------------------------------------------------------

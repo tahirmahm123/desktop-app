@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -31,8 +31,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/ping"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/firewall/winlib"
+	"github.com/ivpn/desktop-app/daemon/ping"
+	"github.com/ivpn/desktop-app/daemon/service/firewall/winlib"
 )
 
 func TestBlockAll(t *testing.T) {

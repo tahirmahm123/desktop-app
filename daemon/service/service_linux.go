@@ -1,6 +1,6 @@
 //
 //  Daemon for IVPN Client Desktop
-//  https://github.com/tahirmahm123/vpn-desktop-app
+//  https://github.com/ivpn/desktop-app
 //
 //  Created by Stelnykovych Alexandr.
 //  Copyright (c) 2023 IVPN Limited.
@@ -33,12 +33,12 @@ import (
 	"regexp"
 	"strings"
 
-	protocolTypes "github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/firewall"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/platform"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/shell"
-	"github.com/tahirmahm123/vpn-desktop-app/daemon/splittun"
+	protocolTypes "github.com/ivpn/desktop-app/daemon/protocol/types"
+	"github.com/ivpn/desktop-app/daemon/service/firewall"
+	"github.com/ivpn/desktop-app/daemon/service/platform"
+	"github.com/ivpn/desktop-app/daemon/service/preferences"
+	"github.com/ivpn/desktop-app/daemon/shell"
+	"github.com/ivpn/desktop-app/daemon/splittun"
 )
 
 func (s *Service) implIsCanApplyUserPreferences(userPrefs preferences.UserPreferences) error {

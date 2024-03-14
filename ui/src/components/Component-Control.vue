@@ -1,42 +1,82 @@
 <template>
-  <div>
-    <Sidebar active="connect" />
-    <div
-      :class="[
-        'body-content',
-        'connection-layout',
-        { 'w-60': this.serverSectionOpen },
-      ]"
-    >
-      <div class="d-flex justify-content-end"></div>
-      <div>
-        <ConnectBlock
-          :isChecked="isConnected"
-          :isProgress="isInProgress"
-          :onChecked="switchChecked"
-          :onPauseResume="onPauseResume"
-          :pauseState="this.$store.state.vpnState.pauseState"
+  <div class="flexColumn">
+    <transition name="fade-super-quick" mode="out-in">
+      <div
+        class="flexColumn"
+        v-if="uiView === 'serversEntry'"
+        key="entryServers"
+      >
+        <Servers
+          :onBack="backToMainView"
+          :onServerChanged="onServerChanged"
+          :onFastestServer="onFastestServer"
+          :onRandomServer="onRandomServer"
         />
+      </div>
 
+      <div
+        class="flexColumn"
+        v-else-if="uiView === 'serversExit'"
+        key="exitServers"
+      >
+        <Servers
+          :onBack="backToMainView"
+          isExitServer="true"
+          :onServerChanged="onServerChanged"
+          :onRandomServer="() => onRandomServer(true)"
+        />
+      </div>
+
+      <div v-else class="flexColumn">
         <div>
+          <ConnectBlock
+            :onChecked="switchChecked"
+            :isChecked="isConnected"
+            :isProgress="isInProgress"
+            :onPauseResume="onPauseResume"
+          />
+          <div class="horizontalLine hopButtonsSeparator" />
+        </div>
+
+        <div
+          ref="scrollArea"
+          class="scrollableColumnContainer"
+          @scroll="recalcScrollButtonVisiblity()"
+        >
+          <div v-if="isMultihopAllowed">
+            <HopButtonsBlock />
+            <div class="horizontalLine hopButtonsSeparator" />
+          </div>
+
           <SelectedServerBlock :onShowServersPressed="onShowServersPressed" />
+
+          <div v-if="this.$store.state.settings.isMultiHop">
+            <div class="horizontalLine" />
+            <SelectedServerBlock
+              :onShowServersPressed="onShowServersPressed"
+              isExitServer="true"
+            />
+          </div>
 
           <ConnectionDetailsBlock
             :onShowPorts="onShowPorts"
             :onShowWifiConfig="onShowWifiConfig"
+            :onShowFirewallConfig="onFirewallSettings"
+            :onShowAntiTrackerConfig="onAntiTrackerSettings"
           />
+
+          <transition name="fade">
+            <button
+              class="btnScrollDown"
+              v-if="isShowScrollButton"
+              v-on:click="onScrollDown()"
+            >
+              <img src="@/assets/arrow-bottom.svg" />
+            </button>
+          </transition>
         </div>
       </div>
-    </div>
-    <div v-if="this.serverSectionOpen" class="server-pane">
-      <Servers
-        :closeServerSection="closeServerSection"
-        :onBack="backToMainView"
-        :onFastestServer="onFastestServer"
-        :onRandomServer="onRandomServer"
-        :onServerChanged="onServerChanged"
-      />
-    </div>
+    </transition>
   </div>
 </template>
 
@@ -45,11 +85,11 @@ import Servers from "./Component-Servers.vue";
 import ConnectBlock from "./blocks/block-connect.vue";
 import ConnectionDetailsBlock from "./blocks/block-connection-details.vue";
 import SelectedServerBlock from "@/components/blocks/block-selected-server.vue";
+import HopButtonsBlock from "./blocks/block-hop-buttons.vue";
 
 const sender = window.ipcSender;
 import { VpnStateEnum, VpnTypeEnum } from "@/store/types";
 import { capitalizeFirstLetter } from "@/helpers/helpers";
-import Sidebar from "@/components/Component-Sidebar.vue";
 
 const viewTypeEnum = Object.freeze({
   default: "default",
@@ -84,7 +124,7 @@ export default {
   },
 
   components: {
-    Sidebar,
+    HopButtonsBlock,
     Servers,
     ConnectBlock,
     SelectedServerBlock,
@@ -108,9 +148,6 @@ export default {
   },
 
   computed: {
-    serverSectionOpen: function () {
-      return this.uiView === "serversEntry";
-    },
     isConnected: function () {
       return this.$store.getters["vpnState/isConnected"];
     },
