@@ -3,24 +3,21 @@
 _source_dmg=$1
 _signature_file=$2
 _signature_file_tmp_decoded="$2.decoded"
-_pub_key_file="/Applications/IVPN.app/Contents/Resources/public.pem"
+_pub_key_file="/Applications/VPN.app/Contents/Resources/public.pem"
 
 _volume=""
 
-_app_path="/Applications/IVPN.app"
+_app_path="/Applications/VPN.app"
 _app_plist="${_app_path}/Contents/Info.plist"
 _app_backup="${_app_path}.old"
 
-function echoerr
-{
-  echo "[!] ERROR: $@" 1>&2;
-}
+echoerr() { echo "[!] ERROR: $@" 1>&2; }
 
 function UnmountDMG
 {
     if [ ! -z "${_volume}" ] && [ -d "${_volume}" ]; then
         echo "[+] Unmounting '${_volume}' ..."
-        hdiutil detach -quiet "${_volume}"
+        hdiutil detach -quiet ${_volume}
     fi
 }
 
@@ -42,8 +39,8 @@ function RestoreBackup
 
 function CntAppRunningProcesses
 {
-    return `ps aux | grep -v grep | grep -c "/Applications/IVPN.app/Contents/MacOS/IVPN"`
-}
+    return `ps aux | grep -v grep | grep -c "/Applications/VPN.app/Contents/MacOS/VPN"`
+} 
 
 function KillAppProcess
 {
@@ -51,13 +48,13 @@ function KillAppProcess
     _cnt=$?
     if [ "${_cnt}" != "0" ]; then
         echo "Killing application process ..."
-        killall "IVPN"
+        killall "VPN"
         sleep 1
 
         CntAppRunningProcesses
         _cnt=$?
         if [ "${_cnt}" != "0" ]; then
-            killall "IVPN"
+            killall "VPN"
         fi
     fi
 }
@@ -128,23 +125,20 @@ fi
 CheckSignature || { echoerr "Signature check failed"; exit 60; }
 
 echo "[+] Mounting '${_source_dmg}' ..."
-# Mount and get volume name.
-# awk '{ $1=""; $2=""; print substr($0,3)}' => print everything starting from column $3 (and skip leading 3 symbols, which are spaces)
-#   Example: "/dev/disk3s1  Apple_HFS /Volumes/IVPN-3.9.32 1" => "/Volumes/IVPN-3.9.32 1"
-_volume=`hdiutil attach -nobrowse "${_source_dmg}" | grep Volumes | awk '{ $1=""; $2=""; print substr($0,3)}'`
+_volume=`hdiutil attach -nobrowse "${_source_dmg}" | grep Volumes | awk '{print $3}'` 
 if [ -z "${_volume}" ]; then
     echoerr "Failed to mount: '${_source_dmg}'"
     exit 66
 fi
 
-_app_path_src="${_volume}/IVPN.app"
+_app_path_src="${_volume}/VPN.app"
 _app_plist_src="${_app_path_src}/Contents/Info.plist"
 
 if [ ! -d "${_app_path_src}" ]; then
     echoerr "Source application file not exists: '${_app_path_src}'"
     UnmountDMG
     exit 67
-fi
+fi 
 
 if [ -d "${_app_path}" ]; then
 

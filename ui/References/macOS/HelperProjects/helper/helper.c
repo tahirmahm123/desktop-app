@@ -7,9 +7,6 @@
 #include <sys/stat.h>
 #include <syslog.h>
 
-#define IVPN_APP "/Applications/IVPN.app"
-#define AGENT_APP "/Applications/IVPN.app/Contents/MacOS/IVPN Agent"
-
 // TEAM_IDENTIFIER should be passed by compiler
 //  Makefile example: cc -D TEAM_IDENTIFIER='"${SIGN_CERT}"' ...
 //#define TEAM_IDENTIFIER "XXXXXXXXXX"
@@ -63,7 +60,7 @@ int check_signature()
     int result;
 
     // Check the validity of certificate
-    result = system("/usr/bin/codesign -v \"" AGENT_APP "\"");
+    result = system("/usr/bin/codesign -v \"/Applications/" APP_NAME ".app/Contents/MacOS/" APP_SLUG " Agent\"");
     if (result != 0)
     {
         syslog(LOG_ALERT, "[helper] The agent app seems to be not signed or was modified");
@@ -72,7 +69,7 @@ int check_signature()
     }
 
     // Check who signed the app (authority field)
-    result = system("/usr/bin/codesign -dvv \"" AGENT_APP "\" 2>&1|grep -q \"^Authority=.*(" TEAM_IDENTIFIER ")\"");
+    result = system("/usr/bin/codesign -dvv \"/Applications/" APP_NAME ".app/Contents/MacOS/" APP_SLUG " Agent\" 2>&1|grep -q \"^Authority=.*(" TEAM_IDENTIFIER ")\"");
     if (result != 0)
     {
         syslog(LOG_ALERT, "[helper] The app seems to be signed by the wrong party");
@@ -88,23 +85,23 @@ int main(int argc, char **argv)
     syslog(LOG_ALERT, "[helper] Start");
     puts("[helper] Start");
 
-    if (!is_safe_dir("/Applications/IVPN.app"))
+    if (!is_safe_dir("/Applications/" APP_NAME ".app"))
     {
-        syslog(LOG_ALERT, "[helper] IVPN Agent seems not to have the correct(root) privileges.");
-        puts("[helper] IVPN Agent seems not to have the correct(root) privileges.");
+        syslog(LOG_ALERT, "[helper] VPN Agent seems not to have the correct(root) privileges.");
+        puts("[helper] VPN Agent seems not to have the correct(root) privileges.");
 
         if (check_signature() != 0)
             return 1;
 
-        system("/usr/sbin/chown -R 0:0 " IVPN_APP);
-        system("/bin/chmod 755 " IVPN_APP);
+        system("/usr/sbin/chown -R 0:0 /Applications/" APP_NAME ".app" );
+        system("/bin/chmod 755 /Applications/" APP_NAME ".app");
     }
 
-    syslog(LOG_ALERT, "[helper] Launching:" AGENT_APP);
-    puts("[helper] Launching:" AGENT_APP);
+    syslog(LOG_ALERT, "[helper] Launching: /Applications/" APP_NAME ".app/Contents/MacOS/" APP_SLUG " Agent");
+    puts("[helper] Launching:/Applications/" APP_NAME ".app/Contents/MacOS/" APP_SLUG " Agent");
 
     // the second argument is 'arg0' - by convention, should point to the file name associated with the file being executed.
-    execl( AGENT_APP, "IVPN Agent", NULL);
+    execl("/Applications/" APP_NAME ".app/Contents/MacOS/" APP_SLUG " Agent", APP_SLUG" Agent", NULL);
 
     syslog(LOG_ALERT, "[helper] Stop");
     puts("[helper] Stop");

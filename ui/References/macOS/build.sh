@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source ./app.sh
 #save current dir
 _BASE_DIR="$( pwd )"
 _SCRIPT=`basename "$0"`
@@ -7,7 +7,8 @@ _SCRIPT=`basename "$0"`
 cd "$(dirname "$0")"
 _SCRIPT_DIR="$( pwd )"
 
-_BUILDTAGS_USE_LIBVPN="" # can be a '-libivpn' to  use XPC listener for notifying clients about daemon connection port (latest IVPN UI not using XPC)
+
+_BUILDTAGS_USE_LIBVPN="" # can be a '-libvpn' to  use XPC listener for notifying clients about daemon connection port (latest VPN UI not using XPC)
 
 # check result of last executed command
 function CheckLastResult
@@ -23,7 +24,7 @@ function CheckLastResult
 }
 
 # The Apple DevID certificate which will be used to sign binaries (example: WQXXXXXBYN)
-_SIGN_CERT=""
+_SIGN_CERT="${TeamID}"
 # version info variables
 _VERSION=""
 
@@ -47,26 +48,20 @@ if [ -z "${_VERSION}" ]; then
   exit 1
 fi
 
-echo "[+] *** COMPILING IVPN BINARIES AND MAKING DMG ***";
+echo "[+] *** COMPILING $AppName BINARIES AND MAKING DMG ***";
 echo "    Version:                 '${_VERSION}'"
 if [ -z "${_SIGN_CERT}" ]; then
-  if [ ! -z "$GITHUB_ACTIONS" ]; then
-    echo "! GITHUB_ACTIONS detected ! It is just a build test."
-    echo "! No signinnng certificate required !"
-  else
-    echo "    ERROR: Apple DevID not defined (signing & notarization will be skipped)"
-    echo "           It is not possible to build helper and uninstaller projects."
-    echo "           Signing & notarization not possible too."
-    echo "    Usage:"
-    echo "          $0 -v <version> -c <APPLE_DEVID_CERTIFICATE>"
-    exit 1
-  fi
+  echo "    ERROR: Apple DevID not defined (signing & notarization will be skipped)"
+  echo "           It is not possible to build helper and uninstaller projects."
+  echo "           Signing & notarization not possible too."
+  echo "    Usage:"
+  echo "          $0 -v <version> -c <APPLE_DEVID_CERTIFICATE>"
+  exit 1
 else
   echo "    Apple DevID certificate: '${_SIGN_CERT}'"
 fi
 
 _PATH_REL_REPO_DAEMON="./../../../daemon"
-_PATH_REL_REPO_CLI="./../../../cli"
 _PATH_REL_REPO_UI="./../.."
 _PATH_ABS_REPO_DAEMON=""
 _PATH_ABS_REPO_CLI=""
@@ -96,10 +91,6 @@ if [ ! -d ${_PATH_REL_REPO_DAEMON} ]; then
   echo "[!] ERROR: daemon project not exists: '${_PATH_REL_REPO_DAEMON}'"
   exit -1
 fi
-if [ ! -d ${_PATH_REL_REPO_CLI} ]; then
-  echo "[!] ERROR: daemon project not exists: '${_PATH_REL_REPO_CLI}'"
-  exit -1
-fi
 if [ ! -d ${_PATH_REL_REPO_UI} ]; then
   echo "[!] ERROR: UI sources folder not exists: '${_PATH_REL_REPO_UI}'"
   exit -1
@@ -107,11 +98,6 @@ fi
 cd ${_PATH_REL_REPO_DAEMON} || CheckLastResult
 _PATH_ABS_REPO_DAEMON="$( pwd )"
 CheckLastResult "[!] ERROR obtaining absolute path to daemon project"
-
-cd ${_SCRIPT_DIR}
-cd ${_PATH_REL_REPO_CLI} || CheckLastResult
-_PATH_ABS_REPO_CLI="$( pwd )"
-CheckLastResult "[!] ERROR obtaining absolute path to CLI project"
 
 cd ${_SCRIPT_DIR}
 cd ${_PATH_REL_REPO_UI} || CheckLastResult
@@ -122,7 +108,6 @@ cd ${_SCRIPT_DIR}
 
 echo "    UI sources:     ${_PATH_ABS_REPO_UI}"
 echo "    Daemon sources: ${_PATH_ABS_REPO_DAEMON}"
-echo "    CLI sources:    ${_PATH_ABS_REPO_CLI}"
 
 echo "[+] Checking UI project version..."
 cat "${_PATH_ABS_REPO_UI}/package.json" | grep \"version\" | grep \"${_VERSION}\"
@@ -131,9 +116,9 @@ CheckLastResult "ERROR: Please set correct version in file '${_PATH_ABS_REPO_UI}
 read -p "Press enter to continue"
 
 # ============================== BUILDING PROJECTS =============================
-echo "[+] Building IVPN Daemon (${_PATH_ABS_REPO_DAEMON})...";
-${_PATH_ABS_REPO_DAEMON}/References/macOS/scripts/build-all.sh -norebuild -wifi ${_BUILDTAGS_USE_LIBVPN} -v ${_VERSION}
-CheckLastResult "[!] ERROR building IVPN Daemon"
+echo "[+] Building $AppName Daemon (${_PATH_ABS_REPO_DAEMON})...";
+${_PATH_ABS_REPO_DAEMON}/References/macOS/scripts/build-all.sh -norebuild -wifi -v ${_VERSION}
+CheckLastResult "[!] ERROR building $AppName Daemon"
 
 echo "[+] Building helper ..."
 if [ -z "${_SIGN_CERT}" ]; then
@@ -144,10 +129,10 @@ fi
 CheckLastResult "[!] ERROR building helper binary"
 
 if [ ! -z ${_BUILDTAGS_USE_LIBVPN} ]; then
-  echo "[+] Building libivpn.dylib ..."
-  cd ${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/libivpn
+  echo "[+] Building libvpn.dylib ..."
+  cd ${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/libvpn
   make
-  CheckLastResult "[!] ERROR building libivpn.dylib"
+  CheckLastResult "[!] ERROR building libvpn.dylib"
 fi
 
 cd ${_SCRIPT_DIR}
@@ -157,9 +142,6 @@ ${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/uninstaller/build.sh -c ${_
 CheckLastResult "[!] ERROR building Uninstaller/Installer"
 cd ${_SCRIPT_DIR}
 
-echo "[+] Building IVPN CLI (${_PATH_ABS_REPO_CLI})...";
-${_PATH_ABS_REPO_CLI}/References/macOS/build.sh -v ${_VERSION}
-CheckLastResult "[!] ERROR building IVPN CLI"
 
 echo ======================================================
 echo ================= Compiling UI =======================
@@ -167,13 +149,19 @@ echo ======================================================
 
 echo "[+] Building UI (${_PATH_ABS_REPO_UI})...";
 cd ${_PATH_ABS_REPO_UI}
+tmp=$(mktemp)
+cp package.json package.backup.json
+jq ".productName = \"$AppName\"" package.json > "$tmp" && mv "$tmp" package.json
+jq ".description = \"$AppName Client For VPN Connection\"" package.json > "$tmp" && mv "$tmp" package.json
+jq ".name = \"$AppID\"" package.json > "$tmp" && mv "$tmp" package.json
+jq ".author = \"$Author\"" package.json > "$tmp" && mv "$tmp"  package.json
 echo "[+] Building UI: Installing NPM molules ..."
 npm install
 CheckLastResult
 echo "[+] Building UI: Build..."
 npm run electron:build
 CheckLastResult
-
+cp package.backup.json package.json
 # ============================== STOP IF GITHUB_ACTIONS ==============================
 if [ ! -z "$GITHUB_ACTIONS" ]; then
   echo "! GITHUB_ACTIONS detected !"
@@ -197,11 +185,11 @@ else
 fi
 
 echo "[+] Preparing DMG ..."
-_FNAME_UI_COMPILED="IVPN.app"
+_FNAME_UI_COMPILED="$AppName.app"
 _PATH_IMAGE_FOLDER="${_SCRIPT_DIR}/_image"
-_PATH_UI_COMPILED_IMAGE=${_PATH_IMAGE_FOLDER}/${_FNAME_UI_COMPILED}
+_PATH_UI_COMPILED_IMAGE="${_PATH_IMAGE_FOLDER}/${_FNAME_UI_COMPILED}"
 
-_FNAME_UI_ORIG="IVPN.app"
+_FNAME_UI_ORIG="$AppName.app"
 _PATH_COMPILED_UI_ORIG="${_PATH_ABS_REPO_UI}/dist_electron/${_COMPILEDFOLDER}/${_FNAME_UI_ORIG}"
 
 # Erasing old files
@@ -209,23 +197,20 @@ rm -fr ${_PATH_IMAGE_FOLDER}
 sleep 2
 mkdir ${_PATH_IMAGE_FOLDER}  || CheckLastResult
 
-if [ ! -d ${_PATH_COMPILED_UI_ORIG} ]; then
+if [ ! -d "${_PATH_COMPILED_UI_ORIG}" ]; then
   echo "[!] ERROR: unable to find compiled UI binary: ${_PATH_COMPILED_UI_ORIG}"
 fi
 
 echo "[+] Preparing DMG image: Copying UI binaries ..."
-cp -a "${_PATH_COMPILED_UI_ORIG}" ${_PATH_UI_COMPILED_IMAGE} || CheckLastResult
-rm ${_PATH_ABS_REPO_UI}/dist_electron/IVPN* # removing all created DMG (we do not need them)
+cp -a "${_PATH_COMPILED_UI_ORIG}" "${_PATH_UI_COMPILED_IMAGE}" || CheckLastResult
+rm "${_PATH_ABS_REPO_UI}/dist_electron/$AppName"* # removing all created DMG (we do not need them)
 
 echo "[+] Preparing DMG image: Copying 'etc' ..."
 cp -R "${_PATH_ABS_REPO_DAEMON}/References/macOS/etc" "${_PATH_UI_COMPILED_IMAGE}/Contents/Resources" || CheckLastResult
-echo "[+] Preparing DMG image: Copying 'common/etc' ..."
-cp -R "${_PATH_ABS_REPO_DAEMON}/References/common/etc" "${_PATH_UI_COMPILED_IMAGE}/Contents/Resources" || CheckLastResult
-
 echo "[+] Preparing DMG image: Setting correct file permissions for 'etc' folder ..."
 echo "    (sudo pass can be asked now)"
-sudo chmod 0400 ${_PATH_UI_COMPILED_IMAGE}/Contents/Resources/etc/*.* || CheckLastResult
-sudo chmod 0700 ${_PATH_UI_COMPILED_IMAGE}/Contents/Resources/etc/*.sh || CheckLastResult
+sudo chmod 0400 "${_PATH_UI_COMPILED_IMAGE}"/Contents/Resources/etc/*.* || CheckLastResult
+sudo chmod 0700 "${_PATH_UI_COMPILED_IMAGE}"/Contents/Resources/etc/*.sh || CheckLastResult
 
 echo "[+] Preparing DMG image: Copying 'openvpn'..."
 cp "${_PATH_ABS_REPO_DAEMON}/References/macOS/_deps/openvpn_inst/bin/openvpn" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/openvpn" || CheckLastResult
@@ -234,40 +219,24 @@ echo "[+] Preparing DMG image: Copying 'obfsproxy' binaries..."
 mkdir -p "${_PATH_UI_COMPILED_IMAGE}/Contents/Resources/obfsproxy"
 cp -R "${_PATH_ABS_REPO_DAEMON}/References/macOS/_deps/obfs4proxy_inst/obfs4proxy" "${_PATH_UI_COMPILED_IMAGE}/Contents/Resources/obfsproxy/obfs4proxy" || CheckLastResult
 
-echo "[+] Preparing DMG image: Copying 'V2Ray' binaries..."
-mkdir -p "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/v2ray"
-cp "${_PATH_ABS_REPO_DAEMON}/References/macOS/_deps/v2ray_inst/v2ray" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/v2ray/v2ray" || CheckLastResult
-
 echo "[+] Preparing DMG image: Copying 'WireGuard' binaries..."
 mkdir -p "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/WireGuard"
 cp "${_PATH_ABS_REPO_DAEMON}/References/macOS/_deps/wg_inst/wg" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/WireGuard/wg" || CheckLastResult
 cp "${_PATH_ABS_REPO_DAEMON}/References/macOS/_deps/wg_inst/wireguard-go" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/WireGuard/wireguard-go" || CheckLastResult
 
-echo "[+] Preparing DMG image: Copying 'dnscrypt-proxy' binary..."
-mkdir -p "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/dnscrypt-proxy"
-cp "${_PATH_ABS_REPO_DAEMON}/References/macOS/_deps/dnscryptproxy_inst/dnscrypt-proxy" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/dnscrypt-proxy/dnscrypt-proxy" || CheckLastResult
-
-echo "[+] Preparing DMG image: Copying kem-helper..."
-mkdir -p "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/kem"
-cp "${_PATH_ABS_REPO_DAEMON}/References/macOS/_deps/kem-helper/kem-helper-bin/kem-helper" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/kem/kem-helper" || CheckLastResult
-
 echo "[+] Preparing DMG image: Copying daemon..."
-cp -R "${_PATH_ABS_REPO_DAEMON}/IVPN Agent" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS" || CheckLastResult
+cp -R "${_PATH_ABS_REPO_DAEMON}/VPN Agent" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/$App Agent" || CheckLastResult
 
-echo "[+] Preparing DMG image: Copying CLI..."
-mkdir "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/cli" || CheckLastResult
-cp -R "${_PATH_ABS_REPO_CLI}/References/macOS/_out_bin/ivpn" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/cli" || CheckLastResult
-
-echo "[+] Preparing DMG image: Copying IVPN Installer.app ..."
-cp -R "${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/uninstaller/bin/IVPN Installer.app" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS"
+echo "[+] Preparing DMG image: Copying $App Installer.app ..."
+cp -R "${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/uninstaller/bin/$App Installer.app" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS/$App Installer.app"
 CheckLastResult
-echo "[+] Preparing DMG image: Copying IVPN Uninstaller.app ..."
-cp -R "${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/uninstaller/bin/IVPN Uninstaller.app" "${_PATH_IMAGE_FOLDER}"
+echo "[+] Preparing DMG image: Copying $App Uninstaller.app ..."
+cp -R "${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/uninstaller/bin/$App Uninstaller.app" "${_PATH_IMAGE_FOLDER}/$App Uninstaller.app"
 CheckLastResult
 
 if [ ! -z ${_BUILDTAGS_USE_LIBVPN} ]; then
-  echo "[+] Preparing DMG image: Copying libivpn.dylib ..."
-  cp "${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/libivpn/libivpn.dylib" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS"
+  echo "[+] Preparing DMG image: Copying libvpn.dylib ..."
+  cp "${_PATH_ABS_REPO_UI}/References/macOS/HelperProjects/libvpn/libvpn.dylib" "${_PATH_UI_COMPILED_IMAGE}/Contents/MacOS"
   CheckLastResult
 fi
 
@@ -284,15 +253,19 @@ CheckLastResult
 #cp -a "${UNINSTALL_FILE}" ./_image/
 #CheckLastResult "Error copying ${UNINSTALL_FILE}"
 
+echo "[+] Preparing DMG image: Removing unnecessary debug files..."
+find "${_PATH_UI_COMPILED_IMAGE}/Contents/Resources/obfsproxy" -iname "*.pyc" -type f -delete || CheckLastResult
+
 #echo "[+] Preparing DMG image: Signing..."
-#../sign-file.sh "./_image/IVPN.app" || CheckLastResult
+#../sign-file.sh "./_image/VPN.app" || CheckLastResult
 
 # ============================== SIGNING ==============================
 if [ -z "${_SIGN_CERT}" ]; then
   echo "[!] WARNING! SIGNING CERTIFICATE NOT DEFINED"
   echo "             Signing skipped!"
 else
-  ${_SCRIPT_DIR}/sign_image.sh -c ${_SIGN_CERT} ${_BUILDTAGS_USE_LIBVPN}
+  cd ${_SCRIPT_DIR};
+  ./sign_image.sh -c ${_SIGN_CERT} ${_BUILDTAGS_USE_LIBVPN}
   CheckLastResult "ERROR: SIGNING FAILED!"
 fi
 # ============================== GENERATING DMG ==============================
@@ -300,19 +273,19 @@ echo "[+] GENERATING DMG ..."
 
 _PATH_COMPILED_FOLDER=${_SCRIPT_DIR}/_compiled
 
-_PATH_DMG_FILE="${_PATH_COMPILED_FOLDER}/IVPN-"${_VERSION}".dmg"
+_PATH_DMG_FILE="${_PATH_COMPILED_FOLDER}/$AppName-"${_VERSION}".dmg"
 if [ ${_ARCH} != "x86_64" ]; then
-  _PATH_DMG_FILE="${_PATH_COMPILED_FOLDER}/IVPN-"${_VERSION}-${_ARCH}".dmg"
+  _PATH_DMG_FILE="${_PATH_COMPILED_FOLDER}/$AppName-"${_VERSION}-${_ARCH}".dmg"
 fi
 
-_PATH_TMP_DMG_FILE="${_PATH_COMPILED_FOLDER}/ivpn.temp.dmg"
+_PATH_TMP_DMG_FILE="${_PATH_COMPILED_FOLDER}/vpn.temp.dmg"
 
 _BACKGROUND_FILE="back.png"
-_APPLICATION_NAME="IVPN.app"
-_UNINSTALL_APPLICATION_NAME="IVPN Uninstaller.app"
+_APPLICATION_NAME="$AppName.app"
+_UNINSTALL_APPLICATION_NAME="$App Uninstaller.app"
 _source=${_PATH_IMAGE_FOLDER}
-_title="IVPN-${_VERSION}"
-_size=409600 # max disk size (KB)
+_title="$App-${_VERSION}"
+_size=256000
 
 # creating output directory (if not exists)
 mkdir -p ${_PATH_COMPILED_FOLDER} || CheckLastResult "Failed to create '${_PATH_COMPILED_FOLDER}'"

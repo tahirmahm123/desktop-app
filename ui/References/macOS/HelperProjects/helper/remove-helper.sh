@@ -1,4 +1,5 @@
 #!/bin/sh
-sudo launchctl unload /Library/LaunchDaemons/net.ivpn.client.Helper.plist
-sudo rm /Library/LaunchDaemons/net.ivpn.client.Helper.plist
-sudo rm /Library/PrivilegedHelperTools/net.ivpn.client.Helper
+source ../../app.sh
+sudo launchctl unload /Library/LaunchDaemons/${HelperID}.Helper.plist
+sudo rm /Library/LaunchDaemons/${HelperID}.Helper.plist
+sudo rm /Library/PrivilegedHelperTools/${HelperID}.Helper

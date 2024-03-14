@@ -10,7 +10,7 @@
 # Useful commands (Ubuntu):
 #
 # To view *.deb package content:
-#     dpkg -c ivpn_1.0_amd64.deb
+#     dpkg -c vpn_1.0_amd64.deb
 # List of installet packets:
 #     dpkg --list [<mask>]
 # Install package:
@@ -18,7 +18,7 @@
 # Remove packet:
 #     dpkg --remove <packetname>
 # Remove (2):
-#     apt-get remove ivpn
+#     apt-get remove vpn
 #     apt-get purge curl
 #     apt-get autoremove
 # Remove repository (https://www.ostechnix.com/how-to-delete-a-repository-and-gpg-key-in-ubuntu/):
@@ -27,10 +27,10 @@
 # List of services:
 #     systemctl --type=service
 # Start service:
-#     systemctl start ivpn-service
+#     systemctl start vpn-service
 # Remove BROKEN package (which is unable to uninstall by normal ways)
-#     sudo mv /var/lib/dpkg/info/ivpn.* /tmp/
-#     sudo dpkg --remove --force-remove-reinstreq ivpn
+#     sudo mv /var/lib/dpkg/info/vpn.* /tmp/
+#     sudo dpkg --remove --force-remove-reinstreq vpn
 
 cd "$(dirname "$0")"
 
@@ -49,13 +49,11 @@ CheckLastResult()
   fi
 }
 
-ARCH="$( node -e 'console.log(process.arch)' )"
 SCRIPT_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 OUT_DIR="$SCRIPT_DIR/_out_bin"
 APP_UNPACKED_DIR="$SCRIPT_DIR/../../dist_electron/linux-unpacked"
-APP_UNPACKED_DIR_ARCH="$SCRIPT_DIR/../../dist_electron/linux-${ARCH}-unpacked"
 APP_BIN_DIR="$SCRIPT_DIR/../../dist_electron/bin"
-IVPN_DESKTOP_UI2_SOURCES="$SCRIPT_DIR/../../"
+VPN_DESKTOP_UI2_SOURCES="$SCRIPT_DIR/../../"
 
 # ---------------------------------------------------------
 # version info variables
@@ -78,8 +76,6 @@ then
   echo ""
   exit 1
 fi
-
-echo "Architecture: $ARCH"
 echo "======================================================"
 echo "============ Building UI binary ======================"
 echo "======================================================"
@@ -88,21 +84,16 @@ if [ -d $APP_UNPACKED_DIR ]; then
   echo "[+] Removing: $APP_UNPACKED_DIR"
   rm -fr "$APP_UNPACKED_DIR"
 fi
-if [ -d $APP_UNPACKED_DIR_ARCH ]; then
-  echo "[+] Removing: $APP_UNPACKED_DIR_ARCH"
-  rm -fr "$APP_UNPACKED_DIR_ARCH"
-fi
-
 if [ -d $APP_BIN_DIR ]; then
   echo "[+] Removing: $APP_BIN_DIR"
   rm -fr "$APP_BIN_DIR"
 fi
 
-cat "$IVPN_DESKTOP_UI2_SOURCES/package.json" | grep \"version\" | grep \"$VERSION\"
-CheckLastResult "ERROR: Please set correct version in file '${IVPN_DESKTOP_UI2_SOURCES}package.json'"
+cat "$VPN_DESKTOP_UI2_SOURCES/package.json" | grep \"version\" | grep \"$VERSION\"
+CheckLastResult "ERROR: Please set correct version in file '${VPN_DESKTOP_UI2_SOURCES}package.json'"
 
 echo "*** Installing NPM molules ... ***"
-cd $IVPN_DESKTOP_UI2_SOURCES
+cd $VPN_DESKTOP_UI2_SOURCES
 CheckLastResult
 npm install
 CheckLastResult
@@ -113,35 +104,24 @@ echo "*** Building Electron app ... ***"
 $SCRIPT_DIR/compile-ui.sh
 CheckLastResult
 
-if [ -d $APP_UNPACKED_DIR_ARCH ]; then
-    # for non-standard architecture we must use the architecture-dependend path
-    echo "Info: Non 'default' architecture!" 
-    APP_UNPACKED_DIR=$APP_UNPACKED_DIR_ARCH
-fi
 if [ -d $APP_UNPACKED_DIR ]; then
     echo "[ ] Exist: $APP_UNPACKED_DIR"
 else
   echo "[!] Folder not exists: '$APP_UNPACKED_DIR'"
-  echo "    Build IVPN UI project (do not forget to set correct version for it in 'package.json')"
+  echo "    Build VPN UI project (do not forget to set correct version for it in 'package.json')"
   exit 1
 fi
-if [ -f "$APP_UNPACKED_DIR/ivpn-ui" ]; then
-    echo "[ ] Exist: $APP_UNPACKED_DIR/ivpn-ui"
+if [ -f "$APP_UNPACKED_DIR/vpn-ui" ]; then
+    echo "[ ] Exist: $APP_UNPACKED_DIR/vpn-ui"
 else
-  echo "[!] File not exists: '$APP_UNPACKED_DIR/ivpn-ui'"
-  echo "    Build IVPN UI project (do not forget to set correct version for it in 'package.json')"
+  echo "[!] File not exists: '$APP_UNPACKED_DIR/vpn-ui'"
+  echo "    Build VPN UI project (do not forget to set correct version for it in 'package.json')"
   exit 1
 fi
 
 echo "[ ] Renaming: '$APP_UNPACKED_DIR' -> '$APP_BIN_DIR'"
 mv $APP_UNPACKED_DIR $APP_BIN_DIR
 CheckLastResult
-
-if [ ! -z "$SNAPCRAFT_BUILD_ENVIRONMENT" ]; then
-    echo "! SNAPCRAFT_BUILD_ENVIRONMENT detected !"
-    echo "! DEB/RPM packages build skipped !"
-    exit 0
-fi
 
 echo "======================================================"
 echo "============== Building packages ====================="
@@ -184,55 +164,20 @@ CreatePackage()
   #   after_remove
   #
   # NOTE! 'remove' scripts is using from old version!
-  #
-  # EXAMPLES:
-  #
-  # DEB
-  # (Useful link: https://wiki.debian.org/MaintainerScripts)
-  #
-  # DEB (apt) Install3.3.30:
-  #   [*] Before install (3.3.30 : deb : install)
-  #   [*] After install (3.3.30 : deb : configure)
-  # DEB (apt) Upgrade 3.3.20->3.3.30:
-  #   [*] Before remove (3.3.20 : deb : upgrade)
-  #   [*] Before install (3.3.30 : deb : upgrade)
-  #   [*] After remove (3.3.20 : deb : upgrade)
-  #   [*] After install (3.3.30 : deb : configure)
-  # DEB (apt) Remove:
-  #   [*] Before remove (3.3.20 : deb : remove)
-  #   [*] After remove (3.3.20 : deb : remove)
-  #
-  # RPM
-  # (Useful link: https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/)
-  #   When scriptlets are called, they will be supplied with an argument.
-  #   This argument, accessed via $1 (for shell scripts) is the number of packages of this name
-  #   which will be left on the system when the action completes.
-  #
-  # RPM (dnf) install:
-  #   [*] Before install (3.3.30 : rpm : 1)
-  #   [*] After install (3.3.30 : rpm : 1)
-  # RPM (dnf) upgrade:
-  #   [*] Before install (3.3.30 : rpm : 2)
-  #   [*] After install (3.3.30 : rpm : 2)
-  #   [*] Before remove (3.3.20 : rpm : 1)
-  #   [*] After remove (3.3.20 : rpm : 1)
-  # RPM (dnf) remove:
-  #   [*] Before remove (3.3.30 : rpm : 0)
-  #   [*] After remove (3.3.30 : rpm : 0)
 
-  fpm -d ivpn $EXTRA_ARGS \
+  fpm -d vpn $EXTRA_ARGS \
     --rpm-rpmbuild-define "_build_id_links none" \
-    --deb-no-default-config-files -s dir -t $PKG_TYPE -n ivpn-ui -v $VERSION --url https://www.ivpn.net --license "GNU GPL3" \
+    --deb-no-default-config-files -s dir -t $PKG_TYPE -n vpn-ui -v $VERSION --url https://www.vpn.net --license "GNU GPL3" \
     --template-scripts --template-value pkg=$PKG_TYPE --template-value version=$VERSION \
-    --vendor "IVPN Limited" --maintainer "IVPN Limited" \
-    --description "$(printf "UI client for IVPN service (https://www.ivpn.net)\nGraphical interface v$VERSION.")" \
+    --vendor "Privatus Limited" --maintainer "Privatus Limited" \
+    --description "$(printf "UI client for VPN service (https://www.vpn.net)\nGraphical interface v$VERSION.")" \
     --before-install "$SCRIPT_DIR/package_scripts/before-install.sh" \
     --after-install "$SCRIPT_DIR/package_scripts/after-install.sh" \
     --before-remove "$SCRIPT_DIR/package_scripts/before-remove.sh" \
     --after-remove "$SCRIPT_DIR/package_scripts/after-remove.sh" \
-    $SCRIPT_DIR/ui/IVPN.desktop=/opt/ivpn/ui/IVPN.desktop \
-    $SCRIPT_DIR/ui/ivpnicon.svg=/opt/ivpn/ui/ivpnicon.svg \
-    $APP_BIN_DIR=/opt/ivpn/ui/
+    $SCRIPT_DIR/ui/VPN.desktop=/opt/vpn/ui/VPN.desktop \
+    $SCRIPT_DIR/ui/vpnicon.svg=/opt/vpn/ui/vpnicon.svg \
+    $APP_BIN_DIR=/opt/vpn/ui/
 }
 
 echo '---------------------------'

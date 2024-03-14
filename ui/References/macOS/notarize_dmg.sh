@@ -1,12 +1,11 @@
 #!/bin/bash
-
+source ./app.sh
 #save current dir
 _BASE_DIR="$( pwd )"
 _SCRIPT=`basename "$0"`
 #enter the script folder
 cd "$(dirname "$0")"
 _SCRIPT_DIR="$( pwd )"
-
 # check result of last executed command
 function CheckLastResult
 {
@@ -21,7 +20,7 @@ function CheckLastResult
 }
 
 # The Apple DevID certificate which will be used to sign binaries
-_SIGN_CERT=""
+_SIGN_CERT="$TeamID"
 # version info variables
 _VERSION=""
 
@@ -39,48 +38,38 @@ done
 
 if [ -z "${_VERSION}" ] || [ -z "${_SIGN_CERT}" ]; then
   echo "Usage:"
-  echo "    $0 -v <version> -c <APPLE_DEVID_SERT> -f <file_to_notarize>"
+  echo "    $0 -v <version> -c <APPLE_DEVID_SERT>"
   exit 1
 fi
 
 _PATH_COMPILED_FOLDER=${_SCRIPT_DIR}/_compiled
 
-if [ ! -f ${_PATH_DMG_FILE} ]; then
+if [ ! -f "${_PATH_DMG_FILE}" ]; then
   echo "ERROR: Unable to notarize. File not exists '${_PATH_DMG_FILE}'"
   exit 1
 fi
 
 echo "[ ] *** Ready to send for notarization ***"
-echo "    Version         : '${_VERSION}'"
-echo "    Dev TeamID      : '${_SIGN_CERT}'"
-echo "    File to notarize: '${_PATH_DMG_FILE}'"
+echo "    Version:                 '${_VERSION}'"
+echo "    Apple DevID certificate: '${_SIGN_CERT}'"
+echo "    File to notarize:        '${_PATH_DMG_FILE}'"
 echo " "
 
 _NOTARIZATION_SENT=0
 echo " *** [APPLE NOTARIZATION] Do you wish to upload '${_PATH_DMG_FILE}' to Apple for notarization? *** "
 read -p "(y\n)" yn
-
-
     case $yn in
         [Yy]* )
           echo "UPLOADING TO APPLE NOTARIZATION SERVICE...";
-          read -p  'Apple credentials - apple-id (email): ' _uservar
+          read -p  'Apple credentials - Username (email): ' _uservar
           read -sp 'Apple credentials - Password        : ' _passvar
           echo ""
-
-          # !OLD!: using deprecated tool to upload file for notarisation "altool"
-          # echo "Uploading (will take few minutes of time, no progress indication) ..."
-          # xcrun altool --notarize-app --primary-bundle-id "${_VERSION}" --username "${_uservar}" --password "${_passvar}" --file "${_PATH_DMG_FILE}"
-
-          echo "Uploading & notarizing (will take few minutes of time) ..."
-          xcrun notarytool submit --wait --team-id "${_SIGN_CERT}" --apple-id "${_uservar}" --password "${_passvar}" "${_PATH_DMG_FILE}"
-
-          # Useful commands
-          # xcrun notarytool submit --wait --team-id "${_SIGN_CERT}" --apple-id "${_uservar}" --password <password> "${_PATH_DMG_FILE}"
-          # xcrun notarytool info --team-id "${_SIGN_CERT}" --apple-id "${_uservar}" --password <password> <submissionID>
-          # xcrun notarytool history --team-id "${_SIGN_CERT}" --apple-id "${_uservar}" --password <password>
-          # xcrun notarytool log --team-id "${_SIGN_CERT}" --apple-id "${_uservar}" --password <password> <submissionID>
-
+          echo "Uploading (will take few minutes of time, no progress indication) ..."
+          xcrun altool --notarize-app --asc-provider ${_SIGN_CERT} \
+                        --primary-bundle-id "${HelperID}" \
+                        --username "${_uservar}" \
+                        --password "${_passvar}" \
+                        --file "${_PATH_DMG_FILE}"
           CheckLastResult;
           _NOTARIZATION_SENT=1
           ;;
@@ -90,13 +79,7 @@ read -p "(y\n)" yn
         * ) ;;
     esac
 
-
     if [[ ${_NOTARIZATION_SENT} == 1 ]]; then
-      echo "STAPLING NOTARIZATION INFO...";
-      xcrun stapler staple "${_PATH_DMG_FILE}"
-      CheckLastResult;
-      
-      : ' # OLD
       echo "--------------------------------------------"
       echo " *** Do you wish to stample Apple notarization result to a file? *** "
       echo "    [NOTE!] Before doing that, you must wait until Apple service"
@@ -119,5 +102,4 @@ read -p "(y\n)" yn
               [Nn]* );;
               * ) ;;
           esac
-        '
     fi
