@@ -58,10 +58,13 @@ ipcMain.handle(
       force,
       captchaID,
       captcha,
-      confirmation2FA
+      confirmation2FA,
     );
-  }
+  },
 );
+ipcMain.handle("renderer-request-verify-pin", async (event, code) => {
+  return await client.VerifyPin(code);
+});
 
 ipcMain.handle(
   "renderer-request-logout",
@@ -69,14 +72,14 @@ ipcMain.handle(
     event,
     needToResetSettings,
     needToDisableFirewall,
-    isCanDeleteSessionLocally
+    isCanDeleteSessionLocally,
   ) => {
     return await client.Logout(
       needToResetSettings,
       needToDisableFirewall,
-      isCanDeleteSessionLocally
+      isCanDeleteSessionLocally,
     );
-  }
+  },
 );
 
 ipcMain.handle("renderer-request-account-status", async () => {
@@ -102,7 +105,7 @@ ipcMain.handle(
   "renderer-request-pause-connection",
   async (event, pauseSeconds) => {
     return await client.PauseConnection(pauseSeconds);
-  }
+  },
 );
 ipcMain.handle("renderer-request-resume-connection", async () => {
   return await client.ResumeConnection();
@@ -115,32 +118,32 @@ ipcMain.handle(
   "renderer-request-KillSwitchSetAllowApiServers",
   async (event, enable) => {
     return await client.KillSwitchSetAllowApiServers(enable);
-  }
+  },
 );
 ipcMain.handle(
   "renderer-request-KillSwitchSetAllowLANMulticast",
   async (event, enable) => {
     return await client.KillSwitchSetAllowLANMulticast(enable);
-  }
+  },
 );
 ipcMain.handle(
   "renderer-request-KillSwitchSetAllowLAN",
   async (event, enable) => {
     return await client.KillSwitchSetAllowLAN(enable);
-  }
+  },
 );
 ipcMain.handle(
   "renderer-request-KillSwitchSetIsPersistent",
   async (event, enable) => {
     return await client.KillSwitchSetIsPersistent(enable);
-  }
+  },
 );
 
 ipcMain.handle(
   "renderer-request-KillSwitchSetUserExceptions",
   async (event, userExceptions) => {
     return await client.KillSwitchSetUserExceptions(userExceptions);
-  }
+  },
 );
 
 ipcMain.handle("renderer-request-SplitTunnelGetStatus", async () => {
@@ -154,15 +157,15 @@ ipcMain.handle(
       inversed,
       isAnyDns,
       allowWhenNoVpn,
-      doReset
+      doReset,
     );
-  }
+  },
 );
 ipcMain.handle(
   "renderer-request-SplitTunnelRemoveApp",
   async (event, pid, execCmd) => {
     return await client.SplitTunnelRemoveApp(pid, execCmd);
-  }
+  },
 );
 
 ipcMain.handle("renderer-request-GetInstalledApps", async () => {
@@ -178,9 +181,9 @@ ipcMain.handle(
   async (event, isEnabled, isApplicableByDaemonInBackground) => {
     return await client.SetAutoconnectOnLaunch(
       isEnabled,
-      isApplicableByDaemonInBackground
+      isApplicableByDaemonInBackground,
     );
-  }
+  },
 );
 ipcMain.handle("renderer-request-set-logging", async (event, enable) => {
   return await client.SetLogging(enable);
@@ -206,14 +209,14 @@ ipcMain.handle(
   "renderer-request-wg-set-keys-rotation-interval",
   async (event, intervalSec) => {
     return await client.WgSetKeysRotationInterval(intervalSec);
-  }
+  },
 );
 
 ipcMain.handle(
   "renderer-request-wifi-set-settings",
   async (event, wifiParams) => {
     return await client.SetWiFiSettings(wifiParams);
-  }
+  },
 );
 
 ipcMain.handle("renderer-request-wifi-get-available-networks", async () => {
@@ -305,9 +308,9 @@ ipcMain.handle(
       comment,
       dataObj,
       store.state.daemonVersion,
-      buildExtraInfo
+      buildExtraInfo,
     );
-  }
+  },
 );
 
 // UPDATES
@@ -351,7 +354,7 @@ ipcMain.handle("renderer-request-ui-color-scheme-set", (event, theme) => {
 ipcMain.on("renderer-request-showmsgboxsync", (event, diagConfig) => {
   event.returnValue = dialog.showMessageBoxSync(
     event.sender.getOwnerBrowserWindow(),
-    diagConfig
+    diagConfig,
   );
 });
 ipcMain.handle(
@@ -362,21 +365,21 @@ ipcMain.handle(
 
     return await dialog.showMessageBox(
       event.sender.getOwnerBrowserWindow(),
-      diagConfig
+      diagConfig,
     );
-  }
+  },
 );
 
 ipcMain.on("renderer-request-showOpenDialogSync", (event, options) => {
   event.returnValue = dialog.showOpenDialogSync(
     event.sender.getOwnerBrowserWindow(),
-    options
+    options,
   );
 });
 ipcMain.handle("renderer-request-showOpenDialog", async (event, options) => {
   return await dialog.showOpenDialog(
     event.sender.getOwnerBrowserWindow(),
-    options
+    options,
   );
 });
 
@@ -408,7 +411,7 @@ ipcMain.handle(
   async (event, file) => {
     file = path.normalize(file);
     return await shell.showItemInFolder(file);
-  }
+  },
 );
 ipcMain.handle("renderer-request-shell-open-external", async (event, uri) => {
   if (uri == null) return;
@@ -457,12 +460,12 @@ ipcMain.handle(
   "renderer-request-setParanoidModePassword",
   async (event, newPassword, oldPassword) => {
     return await client.SetParanoidModePassword(newPassword, oldPassword);
-  }
+  },
 );
 
 ipcMain.handle(
   "renderer-request-setLocalParanoidModePassword",
   async (event, password) => {
     return await client.SetLocalParanoidModePassword(password);
-  }
+  },
 );

@@ -22,11 +22,14 @@
 </template>
 
 <script>
-const sender = window.ipcSender;
-
 import SwitchProgress from "@/components/controls/control-switch.vue";
+// import imgPause from "@/components/images/pause-btn.vue";
+import { PauseStateEnum } from "@/store/types";
 import { GetTimeLeftText } from "@/helpers/renderer";
 import vClickOutside from "click-outside-vue3";
+import Connected from "@/assets/img/shield-tick.svg";
+import Processing from "@/assets/img/shield.svg";
+import Disconnected from "@/assets/img/shield-cross.svg";
 
 export default {
   directives: {
@@ -34,8 +37,15 @@ export default {
   },
   components: {
     SwitchProgress,
+    // imgPause,
   },
-  props: ["onChecked", "onPauseResume", "isChecked", "isProgress"],
+  props: [
+    "onChecked",
+    "onPauseResume",
+    "pauseState",
+    "isChecked",
+    "isProgress",
+  ],
   data: () => ({
     isPauseMenuAllowed: false,
     isPauseExtendMenuShow: false,
@@ -45,43 +55,63 @@ export default {
   mounted() {
     this.startPauseTimer();
   },
+  created: function () {
+    let self = this;
+    window.addEventListener("click", function (e) {
+      // close dropdown when clicked outside
+      if (!self.$el.contains(e.target)) {
+        self.isPauseMenuAllowed = false;
+      }
+    });
+  },
   computed: {
-    isMinimizedUI: function () {
-      return this.$store.state.settings.minimizedUI;
-    },
     protectedText: function () {
-      if (this.$store.getters["vpnState/isPaused"]) return "paused";
-      if (this.isChecked !== true || this.isCanResume) return "disconnected";
-      return "connected";
+      if (this.$store.state.vpnState.pauseState === PauseStateEnum.Paused)
+        return "Paused";
+      if (this.isProgress) return "You are about to secure.";
+      if (this.isChecked !== true || this.isCanResume)
+        return "You’re not secured";
+      return "You’re secured till:";
+    },
+    protectedImage: function () {
+      if (this.isProgress) return Processing;
+      if (this.isChecked !== true || this.isCanResume) return Disconnected;
+      return Connected;
+    },
+    protectedColor: function () {
+      if (this.$store.state.vpnState.pauseState === PauseStateEnum.Paused)
+        return "Paused";
+      if (this.isProgress) return "warning";
+      if (this.isChecked !== true || this.isCanResume) return "danger";
+      return "success";
     },
     isConnected: function () {
       return this.$store.getters["vpnState/isConnected"];
     },
     pauseConnectionTill: function () {
-      return this.$store.state.vpnState?.connectionInfo?.PausedTill;
+      return this.$store.state.uiState.pauseConnectionTill;
     },
     isPaused: function () {
-      return this.$store.getters["vpnState/isPaused"];
+      if (this.$store.state.vpnState.pauseState !== PauseStateEnum.Paused)
+        return false;
+      return this.pauseConnectionTill != null;
     },
     isCanPause: function () {
       if (!this.isConnected) return false;
       if (this.isProgress === true) return false;
-      if (this.$store.state.uiState.isPauseResumeInProgress === true)
-        return false;
 
       var connInfo = this.$store.state.vpnState.connectionInfo;
-      if (connInfo === null) return false;
-      if (!this.isPaused) return true;
+      if (connInfo === null || connInfo.IsCanPause === false) return false;
+      if (this.$store.state.vpnState.pauseState === PauseStateEnum.Resumed)
+        return true;
       return false;
     },
     isCanResume: function () {
       if (this.isCanPause) return false;
       if (!this.isConnected) return false;
       if (this.isProgress === true) return false;
-      if (this.$store.state.uiState.isPauseResumeInProgress === true)
-        return false;
-
-      if (this.isPaused) return true;
+      if (this.$store.state.vpnState.pauseState === PauseStateEnum.Paused)
+        return true;
       return false;
     },
     isCanShowPauseMenu: function () {
@@ -94,9 +124,6 @@ export default {
     },
   },
   methods: {
-    onSplitTunnelInfoClick() {
-      sender.ShowSplitTunnelSettings();
-    },
     onPauseMenuClickOutside() {
       this.isPauseExtendMenuShow = false;
       this.isPauseMenuAllowed = false;
@@ -116,18 +143,22 @@ export default {
     },
     startPauseTimer() {
       if (this.pauseTimeUpdateTimer) return;
-      if (!this.pauseConnectionTill) return;
+      if (!this.$store.state.uiState.pauseConnectionTill) return;
 
       this.pauseTimeUpdateTimer = setInterval(() => {
-        this.pauseTimeLeftText = GetTimeLeftText(this.pauseConnectionTill);
+        this.pauseTimeLeftText = GetTimeLeftText(
+          this.$store.state.uiState.pauseConnectionTill,
+        );
 
-        if (!this.isPaused) {
+        if (this.$store.state.vpnState.pauseState !== PauseStateEnum.Paused) {
           clearInterval(this.pauseTimeUpdateTimer);
           this.pauseTimeUpdateTimer = null;
         }
       }, 1000);
 
-      this.pauseTimeLeftText = GetTimeLeftText(this.pauseConnectionTill);
+      this.pauseTimeLeftText = GetTimeLeftText(
+        this.$store.state.uiState.pauseConnectionTill,
+      );
     },
   },
 };

@@ -29,7 +29,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -77,7 +76,6 @@ type Service interface {
 	PingServers(timeoutMs int, vpnTypePrioritized vpn.Type, skipSecondPhase bool) (map[string]int, error)
 
 	APIRequest(apiAlias string, ipTypeRequired types.RequiredIPProtocol) (responseData []byte, err error)
-	DetectAccessiblePorts(portsToTest []api_types.PortInfo) (retPorts []api_types.PortInfo, err error)
 
 	KillSwitchState() (status service_types.KillSwitchStatus, err error)
 	SetKillSwitchState(bool) error
@@ -120,8 +118,7 @@ type Service interface {
 	Resume() error
 	IsPaused() bool
 	PausedTill() time.Time
-
-	SessionNew(accountID string, forceLogin bool, captchaID string, captcha string, confirmation2FA string) (
+	VerifyPin(code string) (
 		apiCode int,
 		apiErrorMsg string,
 		accountInfo preferences.AccountStatus,
@@ -364,7 +361,7 @@ func (p *Protocol) processClient(conn net.Conn) {
 func (p *Protocol) processRequest(conn net.Conn, message string) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Error(fmt.Sprintf("%sPANIC during processing request!: ", p.connLogID(conn)), r)
+			log.Trace(fmt.Sprintf("%sPANIC during processing request!: ", p.connLogID(conn)), r)
 			if err, ok := r.(error); ok {
 				log.ErrorTrace(err)
 			}
@@ -599,19 +596,6 @@ func (p *Protocol) processRequest(conn net.Conn, message string) {
 			break
 		}
 		p.sendResponse(conn, &types.APIResponse{APIPath: req.APIPath, ResponseData: string(data)}, req.Idx)
-
-	case "CheckAccessiblePorts":
-		var req types.CheckAccessiblePorts
-		if err := json.Unmarshal(messageData, &req); err != nil {
-			p.sendErrorResponse(conn, reqCmd, err)
-			break
-		}
-		accessiblePorts, err := p._service.DetectAccessiblePorts(req.PortsToTest)
-		if err != nil {
-			p.sendErrorResponse(conn, reqCmd, err)
-			break
-		}
-		p.sendResponse(conn, &types.CheckAccessiblePortsResponse{Ports: accessiblePorts}, req.Idx)
 
 	case "WiFiAvailableNetworks":
 		networks := p._service.GetWiFiAvailableNetworks()
@@ -913,26 +897,15 @@ func (p *Protocol) processRequest(conn net.Conn, message string) {
 		p.sendResponse(conn, &types.EmptyResp{}, reqCmd.Idx)
 		// all clients will be notified by service in OnVpnPauseChanged() handler
 
-	case "SessionNew":
-		var req types.SessionNew
+	case "VerifyPin":
+		var req types.VerifyPin
 		if err := json.Unmarshal(messageData, &req); err != nil {
 			p.sendErrorResponse(conn, reqCmd, err)
 			break
 		}
 
-		// validate AccountID value
-		matched, err := regexp.MatchString("^(i-....-....-....)|(ivpn[a-zA-Z0-9]{7,8})$", req.AccountID)
-		if err != nil {
-			p.sendError(conn, fmt.Sprintf("[daemon] Account ID validation failed: %s", err), reqCmd.Idx)
-			break
-		}
-		if !matched {
-			p.sendError(conn, "[daemon] Your account ID has to be in 'i-XXXX-XXXX-XXXX' or 'ivpnXXXXXXXX' format.", reqCmd.Idx)
-			break
-		}
-
 		var resp types.SessionNewResp
-		apiCode, apiErrMsg, accountInfo, rawResponse, err := p._service.SessionNew(req.AccountID, req.ForceLogin, req.CaptchaID, req.Captcha, req.Confirmation2FA)
+		apiCode, apiErrMsg, accountInfo, rawResponse, err := p._service.VerifyPin(req.Code)
 		if err != nil {
 			if apiCode == 0 {
 				// if apiCode == 0 - it is not API error. Sending error response

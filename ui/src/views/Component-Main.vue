@@ -1,35 +1,14 @@
 <template>
-  <div id="flexview">
-    <div class="flexColumn">
-      <div class="leftPanelTopSpace">
-        <transition name="smooth-display">
-          <div
-            v-if="isMinimizedButtonsVisible"
-            class="minimizedButtonsPanel leftPanelTopMinimizedButtonsPanel"
-            v-bind:class="{
-              minimizedButtonsPanelRightElements: isWindowHasFrame,
-            }"
-          >
-            <button v-on:click="onAccountSettings()" title="Account settings">
-              <img src="@/assets/user.svg" />
-            </button>
-
-            <button v-on:click="onSettings()" title="Settings">
-              <img src="@/assets/settings.svg" />
-            </button>
-          </div>
-        </transition>
-      </div>
-      <div class="flexColumn" style="min-height: 0px">
-        <transition name="fade" mode="out-in">
+  <div class="main-container">
+    <div class="home-layout">
+      <div>
+        <Sidebar v-if="showSidebar" active="connect" />
+        <transition mode="out-in" name="fade">
           <component
             v-bind:is="currentViewComponent"
             :onConnectionSettings="onConnectionSettings"
-            :onWifiSettings="onWifiSettings"
-            :onFirewallSettings="onFirewallSettings"
-            :onAntiTrackerSettings="onAntitrackerSettings"
             :onDefaultView="onDefaultLeftView"
-            id="left"
+            :onWifiSettings="onWifiSettings"
           ></component>
         </transition>
       </div>
@@ -43,24 +22,14 @@ const sender = window.ipcSender;
 import { DaemonConnectionType } from "@/store/types";
 import { IsWindowHasFrame } from "@/platform/platform";
 import Init from "@/components/Component-Init.vue";
-import Login from "@/components/Component-Login.vue";
 import Control from "@/components/Component-Control.vue";
-import TheMap from "@/components/Component-Map.vue";
-import ParanoidModePassword from "@/components/ParanoidModePassword.vue";
 import Sidebar from "@/components/Component-Sidebar.vue";
+
 export default {
   components: {
     Init,
-    Login,
     Control,
-    TheMap,
     Sidebar,
-    ParanoidModePassword,
-  },
-  data: function () {
-    return {
-      isCanShowMinimizedButtons: true,
-    };
   },
   computed: {
     isWindowHasFrame: function () {
@@ -79,10 +48,6 @@ export default {
         return Init;
       return Control;
     },
-    isMapBlured: function () {
-      if (this.currentViewComponent !== Control) return "true";
-      return "false";
-    },
     showSidebar: function () {
       const daemonConnection = this.$store.state.daemonConnectionState;
       return !(
@@ -92,7 +57,11 @@ export default {
       );
     },
   },
-
+  watch: {
+    isMinimizedUI() {
+      this.updateUIState();
+    },
+  },
   methods: {
     onAccountSettings: function () {
       //if (this.$store.state.settings.minimizedUI)
@@ -108,16 +77,20 @@ export default {
     onWifiSettings: function () {
       sender.ShowWifiSettings();
     },
-    onFirewallSettings: function () {
-      sender.ShowFirewallSettings();
+    onDefaultLeftView: function (isDefaultView) {
+      this.isCanShowMinimizedButtons = isDefaultView;
     },
-    onAntitrackerSettings: function () {
-      sender.ShowAntitrackerSettings();
+    onMaximize: function (isMaximize) {
+      this.$store.dispatch("settings/minimizedUI", !isMaximize);
+      this.updateUIState();
+    },
+    updateUIState: function () {
+      sender.uiMinimize(this.isMinimizedUI);
     },
   },
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "@/components/scss/constants";
 </style>

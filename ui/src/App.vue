@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="dark">
     <!--
     For no-bordered windows: print border manually -
     show transparent but bordered div top of the window
@@ -30,6 +30,10 @@ export default {
     // function using to re-apply all mutations
     // This is required to send to renderer processes current storage state
     sender.RefreshStorage();
+  },
+  mounted() {},
+  data: function () {
+    return {};
   },
   computed: {
     isWindowHasFrame: function () {

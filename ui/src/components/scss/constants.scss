@@ -1,7 +1,7 @@
 @import "./settings";
 @import "./transitions";
 
-$base-font-family: "MainIVPNFont", "SF Pro Text", "Helvetica", "sans-serif";
+$base-font-family: "Outfit", "SF Pro Text", "Helvetica", "sans-serif";
 
 :root {
     --text-color-rgb: 42, 57, 75; // #2A394B
@@ -13,7 +13,7 @@ $base-font-family: "MainIVPNFont", "SF Pro Text", "Helvetica", "sans-serif";
     // NOTE! the '--background-color-rgb' values should be synchronized with JS implementation
     // (src/background.js : getBackgroundColor())
     --background-color-rgb:255,255,255; // #ffffff;
-    --background-color: rgba(var(--background-color-rgb)); 
+    --background-color: rgba(var(--background-color-rgb));
     --background-color-alternate: #f2f3f6;
 
     --shadow-opacity-koef: 0.15;
@@ -32,18 +32,15 @@ $base-font-family: "MainIVPNFont", "SF Pro Text", "Helvetica", "sans-serif";
 
     --flag-border-color-rgb: 203,210,211; // #cbd2d3;
 
-    --warning-color: #FF6258;
-
     @media (prefers-color-scheme: dark){
-         color-scheme: dark;
          --text-color-rgb: 255, 255, 255;
          --text-color:rgba(var(--text-color-rgb));
-         --text-color-details: #ffffff7f;   //rgba(#ffffff, 0.5); 
-         --text-color-settings:  #ffffffda;   //rgba(#ffffff, 0.85); 
+         --text-color-details: #ffffff7f;   //rgba(#ffffff, 0.5);
+         --text-color-settings:  #ffffffda;   //rgba(#ffffff, 0.85);
          --text-color-settings-menu:  #ffffff7f;    //rgba(#ffffff, 0.5);
 
          --background-color-rgb:28,28,30; // #1c1c1e;
-         --background-color: rgba(var(--background-color-rgb)); 
+         --background-color: rgba(var(--background-color-rgb));
          --background-color-alternate: #000000;
 
          --shadow-opacity-koef: 0.9;
@@ -62,12 +59,6 @@ $base-font-family: "MainIVPNFont", "SF Pro Text", "Helvetica", "sans-serif";
 
          --flag-border-color-rgb: 41,41,41; //#292929;
     }
-}
-.defaultMainDiv{
-    font-size: 13px;
-    line-height: 16px;
-    letter-spacing: -0.58px;
-    margin: 14px;
 }
 
 .left_panel_element {
@@ -140,46 +131,41 @@ div.arrowRightSimple {
     border: solid #8b9aab;
     border-width: 0 1px 1px 0;
     display: inline-block;
-  
+
     padding: 4px;
     transform: rotate(-45deg);
     -webkit-transform: rotate(-45deg);
 }
 
-.selectable {
-    -webkit-user-select: text;
-    user-select: text;
-}
-.selectable * {
-    -webkit-user-select: text;
-    user-select: text;
+label.selectable {
+    -webkit-user-select: text
 }
 
 // btnScrollDown
 button.btnScrollDown {
     position: fixed;
-  
+
     z-index: 7;
-  
+
     bottom: 0;
     margin-bottom: 8px;
-  
+
     left: calc(320px / 2 - 12px);
     //margin-left: calc(50% - 12px);
-  
+
     width: 24px;
     height: 24px;
-  
+
     padding: 0px;
     border: none;
     border-radius: 50%;
-    
+
     background-color: var(--background-color);
     outline-width: 0;
     cursor: pointer;
-  
+
     box-shadow: 0px 3px 1px rgba(0,0,0, 0.06), 0px 3px 8px rgba(0,0,0, var(--shadow-opacity-koef));
-  
+
     // centering content
     display: flex;
     justify-content: center;
@@ -187,9 +173,4 @@ button.btnScrollDown {
   }
   button.btnScrollDown:hover {
     background-color: var(--background-color-alternate);
-  }
-
-  div.disabled {
-    pointer-events: none;
-    opacity: 0.5;
   }

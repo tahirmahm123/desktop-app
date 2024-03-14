@@ -261,10 +261,10 @@ export default {
       state.isMultiHop = isMH;
     },
     serverEntry(state, srv) {
-      if (srv == null || srv.gateway == null)
+      if (srv == null || srv.ip == null)
         throw new Error("Unable to change server. Wrong server object.");
-      if (!isServerContainsHost(srv, state.serverEntryHostId))
-        state.serverEntryHostId = null;
+      // if (!isServerContainsHost(srv, state.serverEntryHostId))
+      //   state.serverEntryHostId = null;
       state.serverEntry = srv;
     },
     serverExit(state, srv) {
@@ -632,8 +632,7 @@ export default {
     resetToDefaults(context) {
       context.commit("resetToDefaults");
       // Necessary to initialize selected VPN servers
-      const denyMultihopServersFromSameCountry = true;
-      updateSelectedServers(context, denyMultihopServersFromSameCountry);
+      updateSelectedServers(context);
     },
 
     daemonSettings(context, val) {
@@ -960,7 +959,7 @@ function doSetPortLogic(state, val) {
   state.port = val;
 }
 
-function updateSelectedServers(context, isDenyMultihopServersFromSameCountry) {
+function updateSelectedServers(context) {
   // - define selected servers (if not initialized)
   // - update selected servers if VPN type changed (try to use vpnType-related servers from the same location [country\city])
   // - if multi-hop entry- and exit- servers are from same country -> use first default exit server from another country
@@ -978,7 +977,6 @@ function updateSelectedServers(context, isDenyMultihopServersFromSameCountry) {
   if (servers.length <= 0) return;
 
   let serverEntry = state.serverEntry;
-  let serverExit = state.serverExit;
 
   // HELPER FUNCTIONS
   function getVpnServerType(server) {
@@ -986,7 +984,7 @@ function updateSelectedServers(context, isDenyMultihopServersFromSameCountry) {
     if (!server.hosts) return null;
 
     for (let h of server.hosts) {
-      if (h && h.public_key) return VpnTypeEnum.WireGuard;
+      if (h && h.wireguard[0].public_key) return VpnTypeEnum.WireGuard;
       else return VpnTypeEnum.OpenVPN;
     }
     return null;
@@ -1006,10 +1004,7 @@ function updateSelectedServers(context, isDenyMultihopServersFromSameCountry) {
 
   // ensure if selected servers exists in a servers list and using latest data
   if (serverEntry != null) {
-    serverEntry = serversHashed[serverEntry.gateway];
-  }
-  if (serverExit != null) {
-    serverExit = serversHashed[serverExit.gateway];
+    serverEntry = serversHashed[serverEntry.ip];
   }
 
   // ensure selected servers have correct VPN type (if not - use correct server from same location)
@@ -1022,36 +1017,10 @@ function updateSelectedServers(context, isDenyMultihopServersFromSameCountry) {
       );
     }
   }
-  if (serverExit != null) {
-    if (getVpnServerType(serverExit) !== state.vpnType) {
-      serverExit = findServerFromLocation(
-        servers,
-        serverExit.country_code,
-        serverExit.city,
-      );
-    }
-  }
 
   // entry and exit servers should not have same gateway
-  if (
-    serverEntry != null &&
-    serverExit != null &&
-    serverEntry.gateway === serverExit.gateway
-  ) {
+  if (serverEntry != null) {
     if (state.isRandomServer) serverEntry = null;
-    else serverExit = null;
-  }
-
-  if (isDenyMultihopServersFromSameCountry === true) {
-    // entry and exit servers should be from different countries
-    if (
-      serverEntry != null &&
-      serverExit != null &&
-      serverEntry.country_code === serverExit.country_code
-    ) {
-      if (state.isRandomServer) serverEntry = null;
-      else serverExit = null;
-    }
   }
 
   //
@@ -1062,38 +1031,26 @@ function updateSelectedServers(context, isDenyMultihopServersFromSameCountry) {
   // entryServer
   let fallbackEntryServer = null;
   for (let i = 0; serverEntry == null && i < cnt; i++) {
-    if (serverExit == null) serverEntry = servers[i];
-    else {
-      if (servers[i].country_code !== serverExit.country_code) {
-        if (!fallbackEntryServer) fallbackEntryServer = servers[i];
-        if (servers[i].gateway !== serverExit.gateway) serverEntry = servers[i];
-      }
-    }
+    serverEntry = servers[i];
+    if (!fallbackEntryServer) fallbackEntryServer = servers[i];
   }
   if (serverEntry == null) serverEntry = fallbackEntryServer; // fallback to first applicable server
   if (serverEntry == null && cnt > 0) serverEntry = servers[0]; // fallback to first server in a list
-
-  // exitServer
-  let fallbackExitServer = null;
-  for (let i = 0; serverExit == null && i < cnt; i++) {
-    if (serverEntry == null) serverExit = servers[i];
-    else {
-      if (servers[i].country_code !== serverEntry.country_code) {
-        if (!fallbackExitServer) fallbackExitServer = servers[i];
-        if (servers[i].gateway !== serverEntry.gateway) serverExit = servers[i];
-      }
-    }
-  }
-  if (serverExit == null) serverExit = fallbackExitServer; // fallback to first applicable server
-  if (serverExit == null && cnt > 0) serverExit = servers[cnt - 1]; // fallback to last server in a list
-
   //
   // Update selected servers (in necessary)
   //
-  if (serverEntry !== state.serverEntry)
-    context.commit("serverEntry", serverEntry);
-  if (serverExit !== state.serverExit) context.commit("serverExit", serverExit);
-
+  console.log("Server Entry: ", serverEntry);
+  if (serverEntry !== state.serverEntry) {
+    if (serverEntry !== null) {
+      if (serverEntry.ip != null) {
+        context.commit("serverEntry", serverEntry);
+      } else {
+        context.commit("serverEntry", serverEntry.servers[0]);
+      }
+    } else {
+      context.commit("serverEntry", servers[0].servers[0]);
+    }
+  }
   // update selected hosts (if necessary)
   let entryHost = state.serverEntryHostId;
   let exitHost = state.serverExitHostId;

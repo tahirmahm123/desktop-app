@@ -139,12 +139,10 @@ func (p *Preferences) IsInverseSplitTunneling() bool {
 func (p *Preferences) SetSession(accountInfo AccountStatus,
 	accountID string,
 	session string,
-	vpnUser string,
-	vpnPass string,
 	wgPublicKey string,
 	wgPrivateKey string,
-	wgLocalIP string,
-	wgPreSharedKey string) {
+	wgLocalIP string) {
+	//wgPreSharedKey string
 
 	if len(session) == 0 || len(accountID) == 0 {
 		p.Account = AccountStatus{}
@@ -152,7 +150,7 @@ func (p *Preferences) SetSession(accountInfo AccountStatus,
 		p.Account = accountInfo
 	}
 
-	p.setSession(accountID, session, vpnUser, vpnPass, wgPublicKey, wgPrivateKey, wgLocalIP, wgPreSharedKey)
+	p.setSession(accountID, session, wgPublicKey, wgPrivateKey, wgLocalIP) //, wgPreSharedKey)
 	p.SavePreferences()
 }
 
@@ -165,8 +163,8 @@ func (p *Preferences) UpdateAccountInfo(acc AccountStatus) {
 }
 
 // UpdateWgCredentials save wireguard credentials
-func (p *Preferences) UpdateWgCredentials(wgPublicKey string, wgPrivateKey string, wgLocalIP string, wgPresharedKey string) {
-	p.Session.updateWgCredentials(wgPublicKey, wgPrivateKey, wgLocalIP, wgPresharedKey)
+func (p *Preferences) UpdateWgCredentials(wgPublicKey string, wgPrivateKey string, wgLocalIP string) { //}, wgPresharedKey string) {
+	p.Session.updateWgCredentials(wgPublicKey, wgPrivateKey, wgLocalIP) //, wgPresharedKey)
 	p.SavePreferences()
 }
 
@@ -293,25 +291,21 @@ func (p *Preferences) LoadPreferences() error {
 
 func (p *Preferences) setSession(accountID string,
 	session string,
-	vpnUser string,
-	vpnPass string,
 	wgPublicKey string,
 	wgPrivateKey string,
-	wgLocalIP string,
-	wgPreSharedKey string) {
+	wgLocalIP string) {
+	//wgPreSharedKey string
 
 	p.Session = SessionStatus{
 		AccountID:          strings.TrimSpace(accountID),
 		Session:            strings.TrimSpace(session),
-		OpenVPNUser:        strings.TrimSpace(vpnUser),
-		OpenVPNPass:        strings.TrimSpace(vpnPass),
 		WGKeysRegenInerval: p.Session.WGKeysRegenInerval} // keep 'WGKeysRegenInerval' from previous Session object
 
 	if p.Session.WGKeysRegenInerval <= 0 {
 		p.Session.WGKeysRegenInerval = DefaultWGKeysInterval
 	}
 
-	p.Session.updateWgCredentials(wgPublicKey, wgPrivateKey, wgLocalIP, wgPreSharedKey)
+	p.Session.updateWgCredentials(wgPublicKey, wgPrivateKey, wgLocalIP) //, wgPreSharedKey)
 }
 
 // compareVersions compares two version strings in the format "XX.XX.XX..."

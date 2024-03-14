@@ -1,0 +1,267 @@
+<template>
+  <div class="main-container">
+    <div class="home-layout">
+      <Sidebar active="location" />
+      <div class="body-content">
+        <Servers
+          :onBack="backToMainView"
+          :onFastestServer="onFastestServer"
+          :onRandomServer="onRandomServer"
+          :onServerChanged="onServerChanged"
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import Servers from "@/components/Component-Servers.vue";
+// import HopButtonsBlock from "./blocks/block-hop-buttons.vue";
+const sender = window.ipcSender;
+import { VpnStateEnum, VpnTypeEnum, PauseStateEnum } from "@/store/types";
+import { isStrNullOrEmpty } from "@/helpers/helpers";
+import Sidebar from "@/components/Component-Sidebar.vue";
+
+const viewTypeEnum = Object.freeze({
+  default: "default",
+  serversEntry: "serversEntry",
+  serversExit: "serversExit",
+});
+
+async function connect(me, isConnect) {
+  try {
+    me.isConnectProgress = true;
+    if (isConnect === true) await sender.Connect();
+    else await sender.Disconnect();
+  } catch (e) {
+    console.error(e);
+    sender.showMessageBoxSync({
+      type: "error",
+      buttons: ["OK"],
+      message: `Failed to ${isConnect ? "connect" : "disconnect"}: ` + e,
+    });
+  } finally {
+    me.isConnectProgress = false;
+  }
+}
+
+function connected(me) {
+  return me.$store.state.vpnState.connectionState === VpnStateEnum.CONNECTED;
+}
+
+export default {
+  props: {
+    onConnectionSettings: Function,
+    onWifiSettings: Function,
+    onDefaultView: Function,
+  },
+
+  components: {
+    // HopButtonsBlock,
+    Servers,
+
+    Sidebar,
+  },
+  mounted() {
+    this.recalcScrollButtonVisiblity();
+
+    // ResizeObserver sometimes is stopping to work for unknown reason. So, We do not use it for now
+    // Instead, watchers are in use: isMinimizedUI, isMultiHop
+    //const resizeObserver = new ResizeObserver(this.recalcScrollButtonVisiblity);
+    //resizeObserver.observe(this.$refs.scrollArea);
+  },
+  data: function () {
+    return {
+      isShowScrollButton: false,
+      isConnectProgress: false,
+      uiView: viewTypeEnum.default,
+      lastServersPingRequestTime: null,
+    };
+  },
+
+  computed: {
+    isConnected: function () {
+      return connected(this);
+    },
+    isOpenVPN: function () {
+      return this.$store.state.settings.vpnType === VpnTypeEnum.OpenVPN;
+    },
+    isMultihopAllowed: function () {
+      return this.$store.getters["account/isMultihopAllowed"];
+    },
+    port: function () {
+      // needed for watcher
+      return this.$store.getters["settings/getPort"];
+    },
+    isInProgress: function () {
+      if (this.isConnectProgress) return this.isConnectProgress;
+      return (
+        this.$store.state.vpnState.connectionState !== VpnStateEnum.CONNECTED &&
+        this.$store.state.vpnState.connectionState !== VpnStateEnum.DISCONNECTED
+      );
+    },
+    // needed for watcher
+    conectionState: function () {
+      return this.$store.state.vpnState.connectionState;
+    },
+    isMinimizedUI: function () {
+      return this.$store.state.settings.minimizedUI;
+    },
+    isMultiHop: function () {
+      return this.$store.state.settings.isMultiHop;
+    },
+  },
+
+  watch: {
+    conectionState(newValue, oldValue) {
+      // show connection failure description:
+
+      // only in case of changing to DISCONNECTED
+      if (newValue !== VpnStateEnum.DISCONNECTED || newValue == oldValue)
+        return;
+
+      // if disconnection reason defined
+      let failureInfo = this.$store.state.vpnState.disconnectedInfo;
+      if (!failureInfo || isStrNullOrEmpty(failureInfo.ReasonDescription))
+        return;
+
+      sender.showMessageBoxSync({
+        type: "error",
+        buttons: ["OK"],
+        message: `Failed to connect`,
+        detail: failureInfo.ReasonDescription,
+      });
+    },
+    port(newValue, oldValue) {
+      if (!connected(this)) return;
+      if (newValue == null || oldValue == null) return;
+      if (newValue.port === oldValue.port && newValue.type === oldValue.type)
+        return;
+      connect(this, true);
+    },
+    isMinimizedUI() {
+      setTimeout(() => this.recalcScrollButtonVisiblity(), 1000);
+    },
+    isMultiHop() {
+      setTimeout(() => this.recalcScrollButtonVisiblity(), 1000);
+    },
+  },
+
+  methods: {
+    async switchChecked(isConnect) {
+      connect(this, isConnect);
+    },
+    async onPauseResume(seconds) {
+      if (seconds == null || seconds == 0) {
+        // RESUME
+        if (this.$store.state.vpnState.pauseState != PauseStateEnum.Resumed)
+          await sender.ResumeConnection();
+      } else {
+        // PAUSE
+        await sender.PauseConnection(seconds);
+      }
+    },
+    onShowServersPressed(isExitServers) {
+      this.uiView = isExitServers
+        ? viewTypeEnum.serversExit
+        : viewTypeEnum.serversEntry;
+
+      if (this.onDefaultView) this.onDefaultView(false);
+
+      // request servers ping not more often than once per 30 seconds
+      if (
+        this.lastServersPingRequestTime == null ||
+        (new Date().getTime() - this.lastServersPingRequestTime.getTime()) /
+          1000 >
+          30
+      ) {
+        sender.PingServers();
+        this.lastServersPingRequestTime = new Date();
+      }
+    },
+    onShowPorts() {
+      if (this.onConnectionSettings != null) this.onConnectionSettings();
+    },
+    onShowWifiConfig() {
+      if (this.onWifiSettings != null) this.onWifiSettings();
+    },
+    backToMainView() {
+      this.uiView = viewTypeEnum.default;
+      if (this.onDefaultView) this.onDefaultView(true);
+
+      setTimeout(this.recalcScrollButtonVisiblity, 1000);
+    },
+    onServerChanged(server) {
+      if (server == null) return;
+      console.log(server);
+      let needReconnect = false;
+      if (
+        !this.$store.state.settings.serverEntry ||
+        this.$store.state.settings.serverEntry.flag !== server.flag ||
+        this.$store.state.settings.isRandomServer !== false
+      ) {
+        this.$store.dispatch("settings/isRandomServer", false);
+        this.$store.dispatch("settings/serverEntry", server);
+        needReconnect = true;
+      }
+      if (this.$store.state.settings.isFastestServer !== false) {
+        this.$store.dispatch("settings/isFastestServer", false);
+        needReconnect = true;
+      }
+
+      if (needReconnect === true && connected(this)) connect(this, true);
+    },
+    onFastestServer() {
+      this.$store.dispatch("settings/isFastestServer", true);
+      if (connected(this)) connect(this, true);
+    },
+    onRandomServer(isExitServer) {
+      if (isExitServer === true)
+        this.$store.dispatch("settings/isRandomExitServer", true);
+      else this.$store.dispatch("settings/isRandomServer", true);
+      if (connected(this)) connect(this, true);
+    },
+    recalcScrollButtonVisiblity() {
+      let sa = this.$refs.scrollArea;
+      if (sa == null) {
+        this.isShowScrollButton = false;
+        return;
+      }
+
+      const isNeedToShow = function () {
+        let pixelsToTheEndScroll =
+          sa.scrollHeight - (sa.clientHeight + sa.scrollTop);
+        // hide if the 'pixels to scroll' < 20
+        if (pixelsToTheEndScroll < 20) return false;
+        return true;
+      };
+
+      // hide - imediately; show - with 1sec delay
+      if (!isNeedToShow()) this.isShowScrollButton = false;
+      else {
+        setTimeout(() => {
+          this.isShowScrollButton = isNeedToShow();
+        }, 1000);
+      }
+    },
+    onScrollDown() {
+      let sa = this.$refs.scrollArea;
+      if (sa == null) return;
+      sa.scrollTo({
+        top: sa.scrollHeight,
+        behavior: "smooth",
+      });
+    },
+  },
+};
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style lang="scss" scoped>
+@import "@/components/scss/constants";
+
+.mainControl {
+  height: 100vw;
+  width: 100vh;
+}
+</style>

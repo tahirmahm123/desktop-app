@@ -1,6 +1,5 @@
 <template>
   <div>
-    <Sidebar active="connect" />
     <div
       :class="[
         'body-content',
@@ -37,6 +36,12 @@
         :onServerChanged="onServerChanged"
       />
     </div>
+    <div v-if="getPinPopupShown" class="pin-overlay">
+      <GetPin
+        :on-dismiss="() => (getPinPopupShown = false)"
+        :connection-handler="connectionHandler"
+      />
+    </div>
   </div>
 </template>
 
@@ -45,11 +50,11 @@ import Servers from "./Component-Servers.vue";
 import ConnectBlock from "./blocks/block-connect.vue";
 import ConnectionDetailsBlock from "./blocks/block-connection-details.vue";
 import SelectedServerBlock from "@/components/blocks/block-selected-server.vue";
-
+// import HopButtonsBlock from "./blocks/block-hop-buttons.vue";
 const sender = window.ipcSender;
-import { VpnStateEnum, VpnTypeEnum } from "@/store/types";
-import { capitalizeFirstLetter } from "@/helpers/helpers";
-import Sidebar from "@/components/Component-Sidebar.vue";
+import { VpnStateEnum, VpnTypeEnum, PauseStateEnum } from "@/store/types";
+import { isStrNullOrEmpty } from "@/helpers/helpers";
+import GetPin from "@/components/GetPin.vue";
 
 const viewTypeEnum = Object.freeze({
   default: "default",
@@ -74,17 +79,21 @@ async function connect(me, isConnect) {
   }
 }
 
+function connected(me) {
+  return me.$store.state.vpnState.connectionState === VpnStateEnum.CONNECTED;
+}
+
 export default {
   props: {
     onConnectionSettings: Function,
     onWifiSettings: Function,
-    onFirewallSettings: Function,
-    onAntiTrackerSettings: Function,
     onDefaultView: Function,
   },
 
   components: {
-    Sidebar,
+    GetPin,
+    // BlockSelectedServer,
+    // HopButtonsBlock,
     Servers,
     ConnectBlock,
     SelectedServerBlock,
@@ -104,24 +113,24 @@ export default {
       isConnectProgress: false,
       uiView: viewTypeEnum.default,
       lastServersPingRequestTime: null,
+      serverSectionOpen: false,
+      getPinPopupShown: false,
     };
   },
 
   computed: {
-    serverSectionOpen: function () {
-      return this.uiView === "serversEntry";
-    },
     isConnected: function () {
-      return this.$store.getters["vpnState/isConnected"];
-    },
-    isConnecting: function () {
-      return this.$store.getters["vpnState/isConnecting"];
+      return connected(this);
     },
     isOpenVPN: function () {
       return this.$store.state.settings.vpnType === VpnTypeEnum.OpenVPN;
     },
     isMultihopAllowed: function () {
       return this.$store.getters["account/isMultihopAllowed"];
+    },
+    port: function () {
+      // needed for watcher
+      return this.$store.getters["settings/getPort"];
     },
     isInProgress: function () {
       if (this.isConnectProgress) return this.isConnectProgress;
@@ -134,11 +143,14 @@ export default {
     conectionState: function () {
       return this.$store.state.vpnState.connectionState;
     },
-    isMinimizedUI: function () {
-      return this.$store.state.settings.minimizedUI;
+    ActiveUntil: function () {
+      return this.$store.state.account.accountStatus.ActiveUntil * 1000;
     },
-    isMultiHop: function () {
-      return this.$store.state.settings.isMultiHop;
+    IsExpired: function () {
+      return new Date().valueOf() > this.ActiveUntil;
+    },
+    IsActive: function () {
+      return this.$store.state.account.accountStatus?.Active ?? false;
     },
   },
 
@@ -152,68 +164,71 @@ export default {
 
       // if disconnection reason defined
       let failureInfo = this.$store.state.vpnState.disconnectedInfo;
-      if (!failureInfo || !failureInfo.ReasonDescription) return;
+      if (!failureInfo || isStrNullOrEmpty(failureInfo.ReasonDescription))
+        return;
 
       sender.showMessageBoxSync({
         type: "error",
         buttons: ["OK"],
         message: `Failed to connect`,
-        detail: capitalizeFirstLetter(failureInfo.ReasonDescription),
+        detail: failureInfo.ReasonDescription,
       });
     },
-    isMinimizedUI() {
-      setTimeout(() => this.recalcScrollButtonVisiblity(), 1000);
-    },
-    isMultiHop() {
-      setTimeout(() => this.recalcScrollButtonVisiblity(), 1000);
+    port(newValue, oldValue) {
+      if (!connected(this)) return;
+      if (newValue == null || oldValue == null) return;
+      if (newValue.port === oldValue.port && newValue.type === oldValue.type)
+        return;
+      connect(this, true);
     },
   },
 
   methods: {
     async switchChecked(isConnect) {
-      connect(this, isConnect);
+      console.log("Current Connection Status: ", isConnect);
+      if (isConnect) {
+        if (this.IsActive && !this.IsExpired) {
+          connect(this, isConnect);
+        } else {
+          this.getPinPopupShown = true;
+        }
+      } else {
+        connect(this, isConnect);
+      }
+    },
+    connectionHandler() {
+      connect(this, true);
     },
     async onPauseResume(seconds) {
       if (seconds == null || seconds == 0) {
         // RESUME
-        if (this.$store.getters["vpnState/isPaused"])
+        if (this.$store.state.vpnState.pauseState != PauseStateEnum.Resumed)
           await sender.ResumeConnection();
       } else {
         // PAUSE
         await sender.PauseConnection(seconds);
       }
     },
-    async onShowServersPressed(isExitServers) {
-      // send request to update servers from backend
-      sender.UpdateServersRequest();
-
-      this.uiView = isExitServers
+    onShowServersPressed(isExitServers) {
+      console.log(isExitServers);
+      /*this.uiView = isExitServers
         ? viewTypeEnum.serversExit
         : viewTypeEnum.serversEntry;
 
-      if (this.onDefaultView) this.onDefaultView(false);
+      if (this.onDefaultView) this.onDefaultView(false);*/
 
-      // request servers ping not more often than once per 15 seconds
-      let isHasPingResuls =
-        Object.keys(this.$store.state.vpnState.hostsPings).length > 0;
+      // request servers ping not more often than once per 30 seconds
       if (
-        isHasPingResuls == false ||
         this.lastServersPingRequestTime == null ||
         (new Date().getTime() - this.lastServersPingRequestTime.getTime()) /
           1000 >
-          15
+          30
       ) {
-        try {
-          await sender.PingServers();
-        } catch (e) {
-          console.error(e);
-        }
+        sender.PingServers();
         this.lastServersPingRequestTime = new Date();
-      } else {
-        console.log(
-          "Server pings request blocked (due to requests per minute limitation)",
-        );
       }
+      this.serverSectionOpen = true;
+      // this.$router.push("/servers");
     },
     onShowPorts() {
       if (this.onConnectionSettings != null) this.onConnectionSettings();
@@ -227,37 +242,28 @@ export default {
 
       setTimeout(this.recalcScrollButtonVisiblity, 1000);
     },
-    onServerChanged(server, isExitServer, serverHostName) {
+    onServerChanged(server, isExitServer) {
       if (server == null || isExitServer == null) return;
-      let hostId = null;
-      if (serverHostName) {
-        // serverHostName - not null when user selected specific host of the server
-        hostId = serverHostName.split(".")[0];
-      }
 
       let needReconnect = false;
       if (!isExitServer) {
         if (
           !this.$store.state.settings.serverEntry ||
-          this.$store.state.settings.serverEntry.gateway !== server.gateway ||
-          this.$store.state.settings.serverEntryHostId !== hostId ||
+          this.$store.state.settings.serverEntry.flag !== server.flag ||
           this.$store.state.settings.isRandomServer !== false
         ) {
           this.$store.dispatch("settings/isRandomServer", false);
           this.$store.dispatch("settings/serverEntry", server);
-          this.$store.dispatch("settings/serverEntryHostId", hostId);
           needReconnect = true;
         }
       } else {
         if (
           !this.$store.state.settings.serverExit ||
-          this.$store.state.settings.serverExit.gateway !== server.gateway ||
-          this.$store.state.settings.serverExitHostId !== hostId ||
+          this.$store.state.settings.serverExit.flag !== server.flag ||
           this.$store.state.settings.isRandomExitServer !== false
         ) {
           this.$store.dispatch("settings/isRandomExitServer", false);
           this.$store.dispatch("settings/serverExit", server);
-          this.$store.dispatch("settings/serverExitHostId", hostId);
           needReconnect = true;
         }
       }
@@ -265,19 +271,21 @@ export default {
         this.$store.dispatch("settings/isFastestServer", false);
         needReconnect = true;
       }
-
-      if (needReconnect == true && (this.isConnecting || this.isConnected))
-        connect(this, true);
+      if (needReconnect === true && connected(this)) connect(this, true);
     },
     onFastestServer() {
       this.$store.dispatch("settings/isFastestServer", true);
-      if (this.isConnected) connect(this, true);
+      if (connected(this)) connect(this, true);
+    },
+    closeServerSection() {
+      this.serverSectionOpen = false;
     },
     onRandomServer(isExitServer) {
       if (isExitServer === true)
         this.$store.dispatch("settings/isRandomExitServer", true);
       else this.$store.dispatch("settings/isRandomServer", true);
-      if (this.isConnected) connect(this, true);
+
+      if (connected(this)) connect(this, true);
     },
     recalcScrollButtonVisiblity() {
       let sa = this.$refs.scrollArea;
@@ -315,6 +323,35 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "@/components/scss/constants";
+
+.mainControl {
+  height: 100vw;
+  width: 100vh;
+}
+.w-60 {
+  width: 55%;
+}
+.server-pane {
+  width: 45%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  height: 100%;
+}
+.body-content .connect-action button {
+  background: none;
+  border: none;
+}
+
+.pin-overlay {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  height: 100%;
+  width: 100%;
+  z-index: 2;
+}
 </style>

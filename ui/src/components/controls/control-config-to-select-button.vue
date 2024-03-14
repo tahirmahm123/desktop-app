@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mainScreenCards">
     <button id="selectBtn" class="flexRow" v-on:click="click">
       <div align="left" class="flexRowRestSpace">
         <div class="small_text">{{ description }}</div>
@@ -12,7 +12,7 @@
           {{ this.markerText }}
         </div>
       </div>
-      <div class="arrowRightSimple"></div>
+      <img src="@/assets/img/arrow_right.svg" alt="" />
     </button>
   </div>
 </template>
@@ -62,11 +62,18 @@ export default {
   background-color: inherit;
   outline-width: 0;
   cursor: pointer;
-
+  margin: 0 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   width: 100%;
+}
+
+.mainScreenCards {
+  border: 1px solid rgba(139, 154, 171, 0.17);
+  border-radius: 12px;
+  width: 50%;
+  margin-left: 10px;
 }
 </style>

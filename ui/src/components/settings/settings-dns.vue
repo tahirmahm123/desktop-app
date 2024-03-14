@@ -2,160 +2,137 @@
   <div>
     <div class="settingsTitle">DNS SETTINGS</div>
 
-    <div>
-      <div class="param">
-        <input type="checkbox" id="dnsIsCustom" v-model="dnsIsCustom" />
-        <label class="defColor" for="dnsIsCustom"
-          >Use custom DNS server when connected to IVPN</label
-        >
+    <div class="param">
+      <input
+        type="checkbox"
+        class="form-check-input me-1"
+        id="dnsIsCustom"
+        v-model="dnsIsCustom"
+      />
+      <label class="defColor" for="dnsIsCustom"
+        >Use custom DNS server when connected to {{ AppName }}</label
+      >
+    </div>
+
+    <div v-bind:class="{ disabled: dnsIsCustom === false }">
+      <div class="flexRow paramProps">
+        <div class="defColor paramName">IP address:</div>
+
+        <input
+          class="settingsTextInput"
+          v-bind:class="{ badData: isIPError === true }"
+          placeholder="0.0.0.0"
+          v-model="dnsHost"
+        />
       </div>
 
-      <div v-bind:class="{ disabled: dnsIsCustom === false }">
-        <div class="flexRow paramProps">
-          <div class="defColor paramName">IP address:</div>
-
-          <input
-            class="settingsTextInput"
-            v-bind:class="{ badData: isIPError === true }"
-            placeholder="0.0.0.0"
-            v-model="dnsHost"
-          />
-        </div>
-
-        <div v-if="CanUseDnsOverHttps || CanUseDnsOverTls">
-          <div class="paramProps">
-            <div class="flexRow paramBlock">
-              <div class="defColor paramName">DNS encryption:</div>
-              <div class="settingsRadioBtnEx">
-                <input
-                  style="margin-left: 0px"
-                  type="radio"
-                  id="dnsEncryptionNone"
-                  name="dnsEnc"
-                  v-model="dnsEncryption"
-                  value="None"
-                />
-                <label class="defColor" for="dnsEncryptionNone">None</label>
-              </div>
-              <div class="settingsRadioBtnEx" v-if="CanUseDnsOverHttps">
-                <input
-                  type="radio"
-                  id="dnsEncryptionHttps"
-                  name="dnsEnc"
-                  v-model="dnsEncryption"
-                  value="DoH"
-                />
-                <label class="defColor" for="dnsEncryptionHttps"
-                  >DNS over HTTPS</label
-                >
-              </div>
-              <div class="settingsRadioBtnEx" v-if="CanUseDnsOverTls">
-                <input
-                  type="radio"
-                  id="dnsEncryptionTls"
-                  name="dnsEnc"
-                  v-model="dnsEncryption"
-                  value="DoT"
-                />
-                <label class="defColor" for="dnsEncryptionTls"
-                  >DNS over TLS</label
-                >
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="flexRowAlignTop paramProps"
-            v-bind:class="{ disabled: dnsIsEncrypted === false }"
-          >
-            <div class="defColor paramName">
-              {{ dnsEncryptionNameLabel }} URI template:
-            </div>
-
-            <div style="width: 100%">
+      <div v-if="CanUseDnsOverHttps || CanUseDnsOverTls">
+        <div class="paramProps">
+          <div class="flexRow paramBlock">
+            <div class="defColor paramName">DNS encryption:</div>
+            <div class="settingsRadioBtnEx">
               <input
-                style="width: 100%; padding-right: 24px; margin-top: 0px"
-                class="settingsTextInput"
-                v-bind:class="{ badData: isTemplateURIError === true }"
-                placeholder="https://..."
-                v-model="dnsDohTemplate"
+                style="margin-left: 0px"
+                type="radio"
+                id="dnsEncryptionNone"
+                name="dnsEnc"
+                v-model="dnsEncryption"
+                value="None"
               />
-              <div v-if="isShowDnsproxyDescription" class="fwDescription">
-                DNS over HTTPS (DoH) is implemented using dnscrypt-proxy from
-                the DNSCrypt project. Your DNS settings will be configured to
-                send requests to dnscrypt-proxy listening on localhost
-                (127.0.0.1).
-              </div>
+              <label class="defColor" for="dnsEncryptionNone">None</label>
             </div>
-
-            <!-- Predefined DoH/DoT configs -->
-            <div
-              v-bind:class="{ HiddenDiv: isHasPredefinedDohConfigs !== true }"
-              style="margin-left: 5px"
-            >
-              <div>
-                <img
-                  style="
-                    position: fixed;
-                    width: 12px;
-                    margin-left: 5px;
-                    margin-top: 10px;
-                  "
-                  src="@/assets/arrow-bottom.svg"
-                />
-                <!-- Popup -->
-                <select
-                  title="Predefined DoH configurations"
-                  @change="onPredefinedDohConfigSelected()"
-                  v-model="thePredefinedDohConfigSelected"
-                  style="cursor: pointer; width: 24px; height: 22px; opacity: 0"
-                >
-                  <option
-                    v-for="m in predefinedDohConfigs"
-                    v-bind:key="m.DohTemplate + m.DnsHost"
-                    style="color: black; background-color: white"
-                    v-bind:value="m"
-                  >
-                    {{ m.DnsHost }} ({{ m.DohTemplate }})
-                  </option>
-                </select>
-              </div>
+            <div class="settingsRadioBtnEx" v-if="CanUseDnsOverHttps">
+              <input
+                type="radio"
+                id="dnsEncryptionHttps"
+                name="dnsEnc"
+                v-model="dnsEncryption"
+                value="DoH"
+              />
+              <label class="defColor" for="dnsEncryptionHttps"
+                >DNS over HTTPS</label
+              >
+            </div>
+            <div class="settingsRadioBtnEx" v-if="CanUseDnsOverTls">
+              <input
+                type="radio"
+                id="dnsEncryptionTls"
+                name="dnsEnc"
+                v-model="dnsEncryption"
+                value="DoT"
+              />
+              <label class="defColor" for="dnsEncryptionTls"
+                >DNS over TLS</label
+              >
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="paramProps">
-        <div class="fwDescription">
-          AntiTracker will override the custom DNS when enabled.
+        <div
+          class="flexRow paramProps"
+          v-bind:class="{ disabled: dnsIsEncrypted === false }"
+        >
+          <div class="defColor paramName">
+            {{ dnsEncryptionNameLabel }} URI template:
+          </div>
+
+          <div style="width: 100%">
+            <input
+              style="width: 100%; padding-right: 24px"
+              class="settingsTextInput"
+              v-bind:class="{ badData: isTemplateURIError === true }"
+              placeholder="https://..."
+              v-model="dnsDohTemplate"
+            />
+          </div>
+          <!-- Predefined DoH/DoT configs -->
+          <div
+            v-bind:class="{ HiddenDiv: isHasPredefinedDohConfigs !== true }"
+            style="margin-left: 5px"
+          >
+            <div>
+              <img
+                style="
+                  position: fixed;
+                  width: 12px;
+                  margin-left: 5px;
+                  margin-top: 10px;
+                "
+                src="@/assets/arrow-bottom.svg"
+              />
+              <!-- Popup -->
+              <select
+                title="Predefined DoH configurations"
+                @change="onPredefinedDohConfigSelected()"
+                v-model="thePredefinedDohConfigSelected"
+                style="cursor: pointer; width: 24px; height: 22px; opacity: 0"
+              >
+                <option
+                  v-for="m in predefinedDohConfigs"
+                  v-bind:key="m.DohTemplate + m.DnsHost"
+                  style="color: black; background-color: white"
+                  v-bind:value="m"
+                >
+                  {{ m.DnsHost }} ({{ m.DohTemplate }})
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div v-if="linuxIsShowResolvConfMgmtOption">
-      <div class="param">
-        <input
-          type="checkbox"
-          id="linuxDnsIsResolvConfMgmt"
-          v-model="linuxDnsIsResolvConfMgmt"
-        />
-        <label class="defColor" for="linuxDnsIsResolvConfMgmt"
-          >Force management of DNS using resolv.conf</label
-        >
-      </div>
-      <div class="paramProps fwDescription">
-        By default IVPN manages DNS resolvers using the 'systemd-resolved'
-        daemon which is the correct method for systems based on Systemd. This
-        option enables you to override this behavior and allow the IVPN app to
-        directly modify the '/etc/resolv.conf' file.
+    <div class="paramProps">
+      <div class="fwDescription">
+        AntiTracker will override the custom DNS when enabled.
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { DnsEncryption, VpnStateEnum } from "@/store/types";
-import { Platform, PlatformEnum } from "@/platform/platform";
+import { DnsEncryption } from "@/store/types";
+import config from "@/config";
 
 const sender = window.ipcSender;
 
@@ -165,24 +142,14 @@ function checkIsDnsIPError(dnsIpString) {
 
   // IPv4
   var expression = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$/;
-  return !expression.test(dnsIpString.trim());
-}
-
-function processError(e) {
-  if (!e) return;
-  console.error(e);
-  sender.showMessageBoxSync({
-    type: "error",
-    buttons: ["OK"],
-    message: e,
-  });
+  return !expression.test(dnsIpString);
 }
 
 export default {
   props: { registerBeforeCloseHandler: Function },
   created() {
     // We have to call applyChanges() even when Settings window was closed by user
-    // (the 'beforeUnmount()' is not called in this case)
+    // (the 'beforeDestroy()' is not called in this case)
     window.addEventListener("beforeunload", this.applyChanges);
 
     if (this.registerBeforeCloseHandler != null) {
@@ -192,43 +159,23 @@ export default {
     }
   },
 
-  async beforeUnmount() {
+  async beforeDestroy() {
     window.removeEventListener("beforeunload", this.applyChanges);
     await this.applyChanges();
   },
 
   data: function () {
     return {
-      isEditingFinished: false,
+      AppName: config.AppName,
       isDnsValueChanged: false,
       thePredefinedDohConfigSelected: null,
-      val_linuxDnsIsResolvConfMgmt: false,
     };
   },
   mounted() {
     this.requestPredefinedDohConfigs();
-    this.val_linuxDnsIsResolvConfMgmt =
-      this.daemonSettings.UserPrefs.Linux.IsDnsMgmtOldStyle;
   },
   methods: {
-    checkIsDisconnectedAndWarn: function () {
-      if (
-        this.$store.state.vpnState.connectionState === VpnStateEnum.DISCONNECTED
-      )
-        return true;
-
-      sender.showMessageBoxSync({
-        type: "info",
-        buttons: ["OK"],
-        message: "You are now connected to IVPN",
-        detail: "You can change this settings only when IVPN is disconnected.",
-      });
-
-      return false;
-    },
-
     async applyChanges(e) {
-      this.isEditingFinished = true;
       // when component closing ->  update changed DNS (if necessary)
 
       if (this.dnsIsCustom && (this.isTemplateURIError || this.isIPError)) {
@@ -248,15 +195,8 @@ export default {
       }
 
       if (this.isDnsValueChanged !== true) return true;
-      try {
-        await sender.SetDNS();
-        this.isDnsValueChanged = false;
-      } catch (e) {
-        processError(e);
-        // it is 'beforeunload' handler. Prevent closing window.
-        e.preventDefault();
-        e.returnValue = "";
-      }
+      this.isDnsValueChanged = false;
+      await sender.SetDNS();
       return true;
     },
 
@@ -285,21 +225,9 @@ export default {
     dnsIsEncrypted() {
       this.requestPredefinedDohConfigs();
     },
-    daemonSettings() {
-      this.val_linuxDnsIsResolvConfMgmt =
-        this.daemonSettings.UserPrefs.Linux.IsDnsMgmtOldStyle;
-    },
   },
 
   computed: {
-    // needed for 'watch'
-    daemonSettings() {
-      return this.$store.state.settings.daemonSettings;
-    },
-
-    isShowDnsproxyDescription() {
-      return Platform() !== PlatformEnum.Windows;
-    },
     CanUseDnsOverTls: {
       get() {
         return this.$store.state.dnsAbilities.CanUseDnsOverTls === true;
@@ -318,70 +246,6 @@ export default {
       async set(value) {
         this.isDnsValueChanged = true;
         this.$store.dispatch("settings/dnsIsCustom", value);
-      },
-    },
-
-    linuxIsShowResolvConfMgmtOption() {
-      try {
-        if (Platform() !== PlatformEnum.Linux) return false;
-
-        const disabledFuncs = this.$store.state.disabledFunctions;
-        if (
-          disabledFuncs.Platform.Linux.DnsMgmtOldResolvconfError != "" ||
-          disabledFuncs.Platform.Linux.DnsMgmtNewResolvectlError != ""
-        )
-          return false;
-
-        const dSettings = this.$store.state.settings.daemonSettings;
-        if (
-          !dSettings ||
-          !dSettings.UserPrefs ||
-          !dSettings.UserPrefs.Linux ||
-          dSettings.UserPrefs.Linux.IsDnsMgmtOldStyle == undefined ||
-          dSettings.UserPrefs.Linux.IsDnsMgmtOldStyle == null
-        )
-          return false;
-
-        return true;
-      } catch (e) {
-        console.error(e);
-        return false;
-      }
-    },
-
-    linuxDnsIsResolvConfMgmt: {
-      get() {
-        return this.val_linuxDnsIsResolvConfMgmt;
-      },
-      async set(value) {
-        const clone = function (obj) {
-          return JSON.parse(JSON.stringify(obj));
-        };
-
-        try {
-          // We need to erase value in order to the check-box be updated correctly according to confirmation response from daemon
-          // The value will be updated in "watch: daemonSettings()"
-          this.val_linuxDnsIsResolvConfMgmt = null;
-
-          if (!this.checkIsDisconnectedAndWarn()) {
-            return;
-          }
-
-          let prefs = clone(
-            this.$store.state.settings.daemonSettings.UserPrefs,
-          );
-          if (prefs.Linux.IsDnsMgmtOldStyle != value) {
-            prefs.Linux.IsDnsMgmtOldStyle = value;
-            await sender.SetUserPrefs(prefs);
-          }
-        } catch (e) {
-          processError(e);
-        } finally {
-          setTimeout(() => {
-            this.val_linuxDnsIsResolvConfMgmt =
-              this.daemonSettings.UserPrefs.Linux.IsDnsMgmtOldStyle;
-          }, 0);
-        }
       },
     },
 
@@ -411,7 +275,7 @@ export default {
           {},
           this.$store.state.settings.dnsCustomCfg,
         );
-        newDnsCfg.DnsHost = value.trim();
+        newDnsCfg.DnsHost = value;
 
         if (
           this.$store.state.settings.dnsCustomCfg.Encryption ===
@@ -467,7 +331,7 @@ export default {
           {},
           this.$store.state.settings.dnsCustomCfg,
         );
-        newDnsCfg.DohTemplate = value.trim();
+        newDnsCfg.DohTemplate = value;
         this.$store.dispatch("settings/dnsCustomCfg", newDnsCfg);
       },
     },
@@ -507,8 +371,6 @@ export default {
     },
 
     isTemplateURIError: function () {
-      if (this.isEditingFinished !== true) return false;
-      if (!this.dnsIsCustom) return false;
       if (this.dnsIsEncrypted !== true) return false;
       try {
         new URL(this.dnsDohTemplate);
@@ -518,11 +380,7 @@ export default {
       return !this.dnsDohTemplate.toLowerCase().startsWith("https://");
     },
     isIPError: function () {
-      if (this.isEditingFinished !== true) return false;
-      if (!this.dnsHost) {
-        if (this.dnsIsCustom) return true;
-        return false;
-      }
+      if (!this.dnsHost) return false;
       return checkIsDnsIPError(this.dnsHost);
     },
   },
@@ -541,6 +399,7 @@ div.paramProps {
   margin-bottom: 17px;
   margin-left: 22px;
 }
+
 div.fwDescription {
   @extend .settingsGrayLongDescriptionFont;
   margin-top: 8px;
@@ -583,6 +442,7 @@ div.settingsRadioBtnEx {
 div.HiddenDiv {
   opacity: 0;
 }
+
 div.HiddenDiv > * {
   opacity: 0;
   pointer-events: none;

@@ -60,15 +60,6 @@ func (s *Service) ValidateConnectionParameters(params types.ConnectionParams, is
 		if len(params.WireGuardParameters.EntryVpnServer.Hosts) <= 0 {
 			return params, fmt.Errorf("no hosts defined for WireGuard connection")
 		}
-		if len(params.WireGuardParameters.MultihopExitServer.Hosts) > 0 {
-			if mhErr := s.IsCanConnectMultiHop(); mhErr != nil {
-				if !isCanFix {
-					return params, mhErr
-				}
-				log.Info("Multi-Hop connection is not allowed. Using Single-Hop.")
-				params.WireGuardParameters.MultihopExitServer = types.MultiHopExitServer_WireGuard{}
-			}
-		}
 	} else {
 		// OpenVPN connection parameters
 		if len(params.OpenVpnParameters.EntryVpnServer.Hosts) <= 0 {
@@ -239,7 +230,7 @@ func (s *Service) Connect(params types.ConnectionParams) (err error) {
 func (s *Service) connectOpenVPN(originalEntryServerInfo *svrConnInfo, connectionParams openvpn.ConnectionParams, manualDNS dns.DnsSettings, antiTracker types.AntiTrackerMetadata, firewallOn bool, firewallDuringConnection bool, obfsproxyConfig obfsproxy.Config, v2rayWrapper *v2r.V2RayWrapper) error {
 
 	createVpnObjfunc := func() (vpn.Process, error) {
-		prefs := s.Preferences()
+		//prefs := s.Preferences()
 
 		// checking if functionality accessible
 		disabledFuncs := s.GetDisabledFunctions()
@@ -250,7 +241,7 @@ func (s *Service) connectOpenVPN(originalEntryServerInfo *svrConnInfo, connectio
 			return nil, fmt.Errorf(disabledFuncs.ObfsproxyError)
 		}
 
-		connectionParams.SetCredentials(prefs.Session.OpenVPNUser, prefs.Session.OpenVPNPass)
+		//connectionParams.SetCredentials(prefs.Session.OpenVPNUser, prefs.Session.OpenVPNPass)
 
 		openVpnExtraParameters := ""
 		// read user-defined extra parameters for OpenVPN configuration (if exists)

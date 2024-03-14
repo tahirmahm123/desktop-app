@@ -50,7 +50,7 @@ func init() {
 
 // IWgKeysChangeReceiver WG key update handler
 type IWgKeysChangeReceiver interface {
-	WireGuardSaveNewKeys(wgPublicKey string, wgPrivateKey string, wgLocalIP string, wgPreSharedKey string)
+	WireGuardSaveNewKeys(wgPublicKey string, wgPrivateKey string, wgLocalIP string) //, wgPreSharedKey string)
 	WireGuardGetKeys() (session, wgPublicKey, wgPrivateKey, wgLocalIP string, generatedTime time.Time, updateInterval time.Duration)
 	FirewallEnabled() (bool, error)
 	Connected() bool
@@ -287,7 +287,7 @@ func (m *KeysManager) generateKeys(onlyUpdateIfNecessary bool) (retErr error) {
 			if len(activePublicKey) == 0 {
 				// IMPORTANT! As soon as server receive request with empty 'activePublicKey' - it clears all keys
 				// Therefore, we have to ensure that local keys are not using anymore (we have to clear them independently from we received response or not)
-				m.service.WireGuardSaveNewKeys("", "", "", "")
+				m.service.WireGuardSaveNewKeys("", "", "")
 			}
 			log.Info("WG keys not updated: ", err)
 
@@ -324,7 +324,7 @@ func (m *KeysManager) generateKeys(onlyUpdateIfNecessary bool) (retErr error) {
 		break
 	}
 	// notify service about new keys
-	m.service.WireGuardSaveNewKeys(pub, priv, localIP.String(), wgPresharedKey)
+	m.service.WireGuardSaveNewKeys(pub, priv, localIP.String()) //, wgPresharedKey)
 
 	log.Info(fmt.Sprintf("WG keys updated (%s:%s; psk:%v) ", localIP.String(), pub, len(wgPresharedKey) > 0))
 

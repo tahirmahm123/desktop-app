@@ -24,41 +24,32 @@
     </div>
 
     <!-- Buttons panel LEFT-->
-    <div class="buttonsPanelTopLeft" v-if="isBlured !== 'true'">
-      <button class="settingsBtn" v-on:click="onMinimize" title="Hide map">
+    <div v-if="isBlured !== 'true'" class="buttonsPanelTopLeft">
+      <button class="settingsBtn" v-on:click="onMinimize">
         <img src="@/assets/minimize.svg" />
       </button>
     </div>
 
     <!-- Buttons panel RIGHT-->
     <div
+      v-if="isBlured !== 'true'"
       class="buttonsPanelTopRight"
       v-bind:class="{
         buttonsPanelTopRightNoFrameWindow: !isWindowHasFrame,
       }"
-      v-if="isBlured !== 'true'"
     >
-      <button
-        class="settingsBtn settingsBtnMarginLeft"
-        v-on:click="onSettings"
-        title="Settings"
-      >
+      <button class="settingsBtn settingsBtnMarginLeft" v-on:click="onSettings">
         <img src="@/assets/settings.svg" />
       </button>
 
       <button
         class="settingsBtn settingsBtnMarginLeft"
         v-on:click="onAccountSettings"
-        title="Account settings"
       >
         <img src="@/assets/user.svg" />
       </button>
 
-      <button
-        class="settingsBtn"
-        v-on:click="centerCurrentLocation()"
-        title="Center map to current location"
-      >
+      <button class="settingsBtn" v-on:click="centerCurrentLocation()">
         <img src="@/assets/crosshair.svg" />
       </button>
     </div>
@@ -80,8 +71,8 @@
         <div calsss="flexRowRestSpace"></div>
       </div>
       <div
-        class="accountWillExpire"
         v-if="$store.getters['account/messageAccountExpiration']"
+        class="accountWillExpire"
       >
         <img src="@/assets/alert-triangle.svg" style="margin-right: 12px" />
         {{ $store.getters["account/messageAccountExpiration"] }}
@@ -91,9 +82,9 @@
         </button>
       </div>
       <div
+        v-if="$store.getters['account/messageFreeTrial']"
         class="trialWillExpire"
         v-on:click="onAccountRenew()"
-        v-if="$store.getters['account/messageFreeTrial']"
       >
         <img src="@/assets/alert-circle.svg" style="margin-right: 12px" />
         {{ $store.getters["account/messageFreeTrial"] }}
@@ -102,109 +93,108 @@
       </div>
     </div>
     <!-- Map -->
-    <div class="mapcontainer" ref="combined">
-      <canvas
-        class="canvas"
-        ref="canvas"
-        v-bind:class="{ blured: isBlured === 'true' }"
-        @mousedown="mouseDown"
-        @mouseup="mouseUp"
-        @mousemove="mouseMove"
-        @wheel="wheel"
-      >
-      </canvas>
-
-      <!-- Top-located canvas to be able to blure map -->
-      <canvas
-        class="canvasTop"
-        v-bind:class="{ blured: isBlured === 'true' }"
-      ></canvas>
-
-      <div class="bigMapArea" ref="bigMapArea">
-        <img ref="map" class="map" :src="mapImage" @load="mapLoaded" />
-
-        <!-- Hidden element to calculate styled text size-->
-        <div
-          ref="hiddenTestTextMeter"
-          class="mapLocationName"
-          style="opacity: 0; pointer-events: none; z-index: -1"
-        ></div>
-
-        <div class="mapLocationsContainer" ref="mapLocationsContainer">
-          <!-- Location point -->
-          <div
-            v-show="isMapLoaded"
-            class="mapLocationPoint"
-            v-for="l of locationsToDisplay"
+    <!--    <div class="mapcontainer" ref="combined">
+          <canvas
+            class="canvas"
+            ref="canvas"
+            v-bind:class="{ blured: isBlured === 'true' }"
+            @mousedown="mouseDown"
+            @mouseup="mouseUp"
+            @mousemove="mouseMove"
             @wheel="wheel"
-            v-on:click="locationClicked(l.location)"
-            v-bind:key="'point_' + l.location.city"
-            v-bind:class="{
-              mapLocationPointCurrent: l.location === location,
-              mapLocationPointConnected:
-                l.location === connectedLocation && isConnected,
-            }"
-            :style="{
-              left: l.x - l.pointRadius + 'px',
-              top: l.y - l.pointRadius + 'px',
-              height: l.pointRadius * 2 + 'px',
-              width: l.pointRadius * 2 + 'px',
-            }"
-          ></div>
-          <!-- Location name -->
-          <div
-            v-show="isMapLoaded"
-            class="mapLocationName"
-            v-for="l of locationsToDisplay"
-            @wheel="wheel"
-            v-on:click="locationClicked(l.location)"
-            v-bind:key="'name_' + l.location.city"
-            v-bind:class="{
-              mapLocationNameCurrent: l.location === location,
-              mapLocationNameConnected:
-                l.location === connectedLocation && isConnected,
-            }"
-            :style="{ left: l.left + 'px', top: l.top + 'px' }"
           >
-            {{ l.width > 0 ? l.location.city : "" }}
+          </canvas>
+
+          &lt;!&ndash; Top-located canvas to be able to blure map &ndash;&gt;
+          <canvas
+            class="canvasTop"
+            v-bind:class="{ blured: isBlured === 'true' }"
+          ></canvas>
+
+          <div class="bigMapArea" ref="bigMapArea">
+            <img ref="map" class="map" :src="mapImage" @load="mapLoaded" />
+
+            &lt;!&ndash; Hidden element to calculate styled text size&ndash;&gt;
+            <div
+              ref="hiddenTestTextMeter"
+              class="mapLocationName"
+              style="opacity: 0; pointer-events: none; z-index: -1"
+            ></div>
+
+            <div class="mapLocationsContainer" ref="mapLocationsContainer">
+              &lt;!&ndash; Location point &ndash;&gt;
+              <div
+                v-show="isMapLoaded"
+                class="mapLocationPoint"
+                v-for="l of locationsToDisplay"
+                @wheel="wheel"
+                v-on:click="locationClicked(l.location)"
+                v-bind:key="'point_' + l.location.city"
+                v-bind:class="{
+                  mapLocationPointCurrent: l.location === location,
+                  mapLocationPointConnected:
+                    l.location === connectedLocation && isConnected,
+                }"
+                :style="{
+                  left: l.x - l.pointRadius + 'px',
+                  top: l.y - l.pointRadius + 'px',
+                  height: l.pointRadius * 2 + 'px',
+                  width: l.pointRadius * 2 + 'px',
+                }"
+              ></div>
+              &lt;!&ndash; Location name &ndash;&gt;
+              <div
+                v-show="isMapLoaded"
+                class="mapLocationName"
+                v-for="l of locationsToDisplay"
+                @wheel="wheel"
+                v-on:click="locationClicked(l.location)"
+                v-bind:key="'name_' + l.location.city"
+                v-bind:class="{
+                  mapLocationNameCurrent: l.location === location,
+                  mapLocationNameConnected:
+                    l.location === connectedLocation && isConnected,
+                }"
+                :style="{ left: l.left + 'px', top: l.top + 'px' }"
+              >
+                {{ l.width > 0 ? l.location.city : "" }}
+              </div>
+
+              &lt;!&ndash; Animation elements &ndash;&gt;
+              <div
+                v-show="isMapLoaded"
+                ref="animationCurrLoactionCirecle"
+                class="mapLocationCircleCurrLocation"
+              ></div>
+
+              <div
+                v-show="isMapLoaded"
+                ref="animationSelectedCirecle1"
+                class="mapLocationCircleSelectedSvr"
+              ></div>
+              <div
+                v-show="isMapLoaded"
+                ref="animationSelectedCirecle2"
+                class="mapLocationCircleSelectedSvr"
+              ></div>
+
+              <div
+                v-show="isMapLoaded"
+                ref="animationConnectedWaves"
+                class="mapLocationCircleConnectedWaves"
+                v-bind:class="{
+                  mapLocationCircleConnectedWavesRunning: isConnected,
+                }"
+              ></div>
+            </div>
           </div>
-
-          <!-- Animation elements -->
-          <div
-            v-show="isMapLoaded"
-            ref="animationCurrLoactionCirecle"
-            class="mapLocationCircleCurrLocation"
-          ></div>
-
-          <div
-            v-show="isMapLoaded"
-            ref="animationSelectedCirecle1"
-            class="mapLocationCircleSelectedSvr"
-          ></div>
-          <div
-            v-show="isMapLoaded"
-            ref="animationSelectedCirecle2"
-            class="mapLocationCircleSelectedSvr"
-          ></div>
-
-          <div
-            v-show="isMapLoaded"
-            ref="animationConnectedWaves"
-            class="mapLocationCircleConnectedWaves"
-            v-bind:class="{
-              mapLocationCircleConnectedWavesRunning: isConnected,
-            }"
-          ></div>
-        </div>
-      </div>
-    </div>
+        </div>-->
   </div>
 </template>
 
 <script>
-import { VpnStateEnum, ColorTheme } from "@/store/types";
+import { VpnStateEnum, PauseStateEnum, ColorTheme } from "@/store/types";
 import { IsOsDarkColorScheme } from "@/helpers/renderer";
-import { CheckAndNotifyInaccessibleServer } from "@/helpers/helpers_servers";
 
 const sender = window.ipcSender;
 import popupControl from "@/components/controls/control-map-popup.vue";
@@ -346,7 +336,7 @@ export default {
     },
 
     isPaused: function () {
-      return this.$store.getters["vpnState/isPaused"];
+      return this.$store.state.vpnState.pauseState === PauseStateEnum.Paused;
     },
 
     connectedLocation: function () {
@@ -416,14 +406,12 @@ export default {
   created: function () {
     window.addEventListener("mousemove", this.windowsmousemove);
   },
-  unmounted: function () {
+  destroyed: function () {
     window.removeEventListener("mousemove", this.windowsmousemove);
   },
 
   watch: {
     servers() {
-      // NOTE! When watching an array, the callback will only trigger when the array is replaced. If you need to trigger on mutation, the 'deep' option must be specified.
-      // https://v3-migration.vuejs.org/breaking-changes/watch.html
       this.updateCities();
     },
 
@@ -530,7 +518,7 @@ export default {
       } else this.isDarkTheme = scheme === ColorTheme.dark;
     },
     onAccountRenew() {
-      sender.shellOpenExternal(`https://www.ivpn.net/account`);
+      sender.shellOpenExternal(`https://www.vpn.net/account`);
     },
     // ================= CONNECTION ====================
     async disconnect() {
@@ -553,16 +541,16 @@ export default {
         // check if we can change server (for multihop)
         var settings = this.$store.state.settings;
         if (settings.isMultiHop === true) {
+          if (location.country_code === settings.serverEntry?.country_code) {
+            // Entry and exit servers cannot be in the same country
+            return;
+          }
           this.$store.dispatch("settings/isRandomExitServer", false);
-          this.$store.dispatch("settings/serverExit", location);
-          this.$store.dispatch("settings/serverExitHostId", null);
-          await sender.Connect();
+          await sender.Connect(null, location);
         } else {
           this.$store.dispatch("settings/isFastestServer", false);
           this.$store.dispatch("settings/isRandomServer", false);
-          this.$store.dispatch("settings/serverEntry", location);
-          this.$store.dispatch("settings/serverEntryHostId", null);
-          await sender.Connect();
+          await sender.Connect(location, null);
         }
       } catch (e) {
         console.error(e);
@@ -685,37 +673,47 @@ export default {
       }
     },
 
-    async locationClicked(location) {
+    locationClicked(location) {
       if (this.$store.getters["account/isLoggedIn"] !== true) return;
 
       // does selected VPN server location?
       if (location?.gateway) {
         let settings = this.$store.state.settings;
         let conectionState = this.$store.state.vpnState.connectionState;
+        let oldSelectedServer = this.selectedServer;
 
-        const isMultihop = settings.isMultiHop;
-        let isSvrOk = null;
         if (conectionState === VpnStateEnum.DISCONNECTED) {
-          // activate selected server
-          if (isMultihop) {
-            isSvrOk = await CheckAndNotifyInaccessibleServer(true, location);
-            if (isSvrOk === true) {
+          // VPN disconnected: select cliecked server
+          if (settings.isMultiHop) {
+            // for multihop, it is not permitted to select entry- and exit- servers from the same country
+            if (location.country_code !== settings.serverEntry.country_code) {
               this.$store.dispatch("settings/serverExit", location);
-              this.$store.dispatch("settings/isRandomExitServer", false);
+            } else {
+              sender.showMessageBoxSync({
+                type: "info",
+                buttons: ["OK"],
+                message: "Entry and exit servers cannot be in the same country",
+                detail:
+                  "When using multihop you must select entry and exit servers in different countries. Please select a different entry or exit server.",
+              });
+              return;
             }
-          } else {
-            this.$store.dispatch("settings/serverEntry", location);
-            this.$store.dispatch("settings/isRandomServer", false);
-            this.$store.dispatch("settings/isFastestServer", false);
-          }
+          } else this.$store.dispatch("settings/serverEntry", location);
+
+          this.$store.dispatch("settings/isFastestServer", false);
+          this.$store.dispatch("settings/isRandomServer", false);
+          if (settings.isMultiHop)
+            this.$store.dispatch("settings/isRandomExitServer", false);
         }
 
         if (settings.connectSelectedMapLocation === true) {
-          // connect
-          if (isSvrOk == null && isMultihop)
-            isSvrOk = await CheckAndNotifyInaccessibleServer(true, location);
-
-          if (isSvrOk !== false) {
+          // connect to a selected server
+          if (
+            (this.isConnected || this.isConnecting) &&
+            location?.gateway == oldSelectedServer?.gateway
+          ) {
+            // do not connect if we already connected to the same server
+          } else {
             this.connect(location);
           }
         }
@@ -1050,14 +1048,16 @@ export default {
 
       let skippedCities = [];
       // all the rest locations
-      this.servers.forEach((s) => {
-        city = this.createCity(s, cities, PointRadius);
-        if (city == null) {
-          skippedCities.push(s);
-          return;
-        }
-        cities.push(city);
-      });
+      if (this.servers != null) {
+        this.servers.forEach((s) => {
+          city = this.createCity(s, cities, PointRadius);
+          if (city == null) {
+            skippedCities.push(s);
+            return;
+          }
+          cities.push(city);
+        });
+      }
 
       // if there is no space to show location -> trying to show at least points (without name)
       const doNotShowName = true;
@@ -1171,8 +1171,8 @@ export default {
         const point = this.getLocationXYCoordinates(this.connectedLocation);
         if (point != null) {
           if (
-            obj.IVPNLocationObj != null &&
-            obj.IVPNLocationObj.city != this.connectedLocation.city
+            obj.VPNLocationObj != null &&
+            obj.VPNLocationObj.city != this.connectedLocation.city
           ) {
             setDisconnectedObj(this);
             obj = this.animSelCircles[0];
@@ -1181,12 +1181,12 @@ export default {
           // set coordinates for selected server
           obj.style.left = `${point.x}px`;
           obj.style.top = `${point.y}px`;
-          obj.IVPNLocationObj = this.connectedLocation;
+          obj.VPNLocationObj = this.connectedLocation;
 
           // set coordinates for 'connected waves' animation object
           this.animConnectedWaves.style.left = `${point.x}px`;
           this.animConnectedWaves.style.top = `${point.y}px`;
-          this.animConnectedWaves.IVPNLocationObj = this.connectedLocation;
+          this.animConnectedWaves.VPNLocationObj = this.connectedLocation;
 
           // we are connected or connecting
           // Remove 'shrink' class
@@ -1315,7 +1315,7 @@ function isUse(drawedCities, x, y, pointRadius, left, top, width, height) {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style lang="scss" scoped>
 //$shadow: 0px 4px 24px rgba(37, 51, 72, 0.25);
 
 $shadow: 0px 3px 12px rgba(var(--shadow-color-rgb), var(--shadow-opacity));
@@ -1356,10 +1356,12 @@ $popup-background: var(--background-color);
   filter: blur(7px);
   backdrop-filter: blur(5px);
 }
+
 .bigMapArea {
   position: relative;
   background: var(--map-background-color);
 }
+
 .map {
   position: relative;
   z-index: 1;
@@ -1443,6 +1445,7 @@ div.upgradeBase {
   padding-left: 12px;
   padding-right: 12px;
 }
+
 div.upgradeBase button {
   font-size: 12px;
   line-height: 14px;
@@ -1450,19 +1453,23 @@ div.upgradeBase button {
   pointer-events: auto;
   //cursor: pointer;
 }
+
 div.accountWillExpire {
   @extend .upgradeBase;
   background: #f3e2a3;
   color: #776832;
 }
+
 div.accountWillExpire button {
   color: #776832;
 }
+
 div.trialWillExpire {
   @extend .upgradeBase;
   background: #b2d5fb;
   color: #3e6894;
 }
+
 div.trialWillExpire button {
   color: #3e6894;
 }
@@ -1472,6 +1479,7 @@ div.trialWillExpire button {
 .settingsBtnMarginLeft {
   margin-left: 24px;
 }
+
 .settingsBtn {
   float: right;
 
@@ -1548,6 +1556,7 @@ div.trialWillExpire button {
     opacity: 1;
   }
 }
+
 // ========== LOCATIONS ===========
 .mapLocationsContainer {
   position: absolute;
@@ -1631,6 +1640,7 @@ div.trialWillExpire button {
   @extend .mapLocationCircleSelectedSvr;
   @extend .mapLocationCircleConnected;
 }
+
 .mapLocationCircleConnectedWavesRunning {
   animation: growWave 5s infinite;
 }
@@ -1647,6 +1657,7 @@ div.trialWillExpire button {
 .mapLocationCircleDisonnected {
   background: #6b6b6b;
 }
+
 .mapLocationCircleConnected {
   background: #449cf8;
 }

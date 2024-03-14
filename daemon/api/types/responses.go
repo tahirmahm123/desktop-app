@@ -22,6 +22,8 @@
 
 package types
 
+import "strconv"
+
 // APIResponse - generic API response
 type APIResponse struct {
 	Status int `json:"status"` // status code
@@ -33,65 +35,10 @@ type APIErrorResponse struct {
 	Message string `json:"message,omitempty"` // Text description of the message
 }
 
-// ServiceStatusAPIResp account info
-type ServiceStatusAPIResp struct {
-	Active         bool     `json:"is_active"`
-	ActiveUntil    int64    `json:"active_until"`
-	CurrentPlan    string   `json:"current_plan"`
-	PaymentMethod  string   `json:"payment_method"`
-	IsRenewable    bool     `json:"is_renewable"`
-	WillAutoRebill bool     `json:"will_auto_rebill"`
-	IsFreeTrial    bool     `json:"is_on_free_trial"`
-	Capabilities   []string `json:"capabilities"`
-	Upgradable     bool     `json:"upgradable"`
-	UpgradeToPlan  string   `json:"upgrade_to_plan"`
-	UpgradeToURL   string   `json:"upgrade_to_url"`
-	Limit          int      `json:"limit"` // applicable for 'session limit' error
-}
-
 // KemCiphers in use for KEM: to exchange WG PresharedKey
 type KemCiphers struct {
 	KemCipher_Kyber1024             string `json:"kem_cipher1,omitempty"` // (Kyber-1024) in use for KEM: to exchange WG PresharedKey
 	KemCipher_ClassicMcEliece348864 string `json:"kem_cipher2,omitempty"` // (Classic-McEliece-348864) in use for KEM: to exchange WG PresharedKey
-}
-
-// SessionNewResponse information about created session
-type SessionNewResponse struct {
-	APIErrorResponse
-	Token       string `json:"token"`
-	VpnUsername string `json:"vpn_username"`
-	VpnPassword string `json:"vpn_password"`
-
-	CaptchaID    string `json:"captcha_id"`
-	CaptchaImage string `json:"captcha_image"`
-
-	ServiceStatus ServiceStatusAPIResp `json:"service_status"`
-
-	WireGuard struct {
-		Status    int    `json:"status"`
-		Message   string `json:"message,omitempty"`
-		IPAddress string `json:"ip_address,omitempty"`
-		KemCiphers
-	} `json:"wireguard"`
-}
-
-// SessionNewErrorLimitResponse information about session limit error
-type SessionNewErrorLimitResponse struct {
-	APIErrorResponse
-	SessionLimitData ServiceStatusAPIResp `json:"data"`
-}
-
-// SessionsWireGuardResponse Sessions WireGuard response
-type SessionsWireGuardResponse struct {
-	APIErrorResponse
-	IPAddress string `json:"ip_address,omitempty"`
-	KemCiphers
-}
-
-// SessionStatusResponse session status response
-type SessionStatusResponse struct {
-	APIErrorResponse
-	ServiceStatus ServiceStatusAPIResp `json:"service_status"`
 }
 
 // GeoLookupResponse geolocation info
@@ -103,66 +50,41 @@ type GeoLookupResponse struct {
 	//country_code string
 	//city         string
 
-	Latitude  float32 `json:"latitude"`
-	Longitude float32 `json:"longitude"`
+	SLatitude  string `json:"latitude"`
+	SLongitude string `json:"longitude"`
 
 	//isIvpnServer bool
 }
 
-type UserLoginResponse struct {
-	Response UserLoginResponseDetails `json:"response"`
-	Message  string                   `json:"message"`
-	State    bool                     `json:"state"`
+func (s *GeoLookupResponse) Latitude() float32 {
+	value, err := strconv.ParseFloat(s.SLatitude, 32)
+	if err != nil {
+		return 0
+	}
+	return float32(value)
 }
-type UserLoginResponseDetails struct {
-	Auth                bool            `json:"auth"`
-	Active              bool            `json:"active"`
-	Expired             bool            `json:"expired"`
-	AllowLogin          bool            `json:"allowLogin"`
-	ExpiryDate          string          `json:"expiry_date"`
-	Token               string          `json:"ApiToken"`
-	TotalSessionAllowed int             `json:"totalSessionAllowed"`
-	LoggedInSessions    int             `json:"loggedInSessions"`
-	IsPaid              bool            `json:"is_paid"`
-	ActiveSessions      []DeviceSession `json:"activeSessions"`
-	ActiveUntil         int64           `json:"timestamp"`
-	Email               string          `json:"email"`
-	Plan                string          `json:"plan"`
-	VPNUsername         string          `json:"vpn_username"`
-	VPNPassword         string          `json:"vpn_password"`
-	WGLocalIP           string          `json:"localIP"`
-}
-type DeviceSession struct {
-	TokenId       int                  `json:"tokenId"`
-	Details       DeviceSessionDetails `json:"details,omitempty"`
-	LastUsedAt    string               `json:"_last_used_at"`
-	CurrentDevice bool                 `json:"currentSession"`
-}
-type DeviceSessionDetails struct {
-	DeviceId   string `json:"id"`
-	DeviceName string `json:"name"`
-	DeviceType string `json:"type"`
+func (s *GeoLookupResponse) Longitude() float32 {
+	value, err := strconv.ParseFloat(s.SLongitude, 32)
+	if err != nil {
+		return 0
+	}
+	return float32(value)
 }
 
-type UserDetailsResponse struct {
-	Plan                string          `json:"plan"`
-	Active              bool            `json:"active"`
-	Expired             bool            `json:"expired"`
-	ActiveUntil         int64           `json:"timestamp"`
-	TotalSessionAllowed int             `json:"totalSessionAllowed"`
-	LoggedInSessions    int             `json:"loggedInSessions"`
-	ActiveSessions      []DeviceSession `json:"activeSessions"`
-}
-
-type UserLogoutResponse struct {
-	Message string `json:"message"`
-}
-type UserLogoutDeviceResponse struct {
-	ActiveSessions      []DeviceSession `json:"activeSessions"`
-	TotalSessionAllowed int             `json:"totalSessionsAllowed,omitempty"`
-	LoggedInSessions    int             `json:"loggedInSessions,omitempty"`
-}
 type WGKeysUpdateResponse struct {
 	Message string `json:"message"`
 	LocalIP string `json:"localIP"`
 }
+type PinValidationResponse struct {
+	Status     string `json:"status"`
+	Code       string `json:"code"`
+	Token      string `json:"token,omitempty"`
+	ExpiryDate string `json:"expiry_date"`
+	Timestamp  int64  `json:"timestamp"`
+}
+
+const (
+	ValidPin   = "Valid"
+	InvalidPin = "Invalid"
+	ExpiredPin = "Expired"
+)

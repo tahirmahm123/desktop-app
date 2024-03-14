@@ -81,7 +81,7 @@ async function checkUpdates(appUpdateType) {
       (await ValidateDataOpenSSLCertificate(
         updatesInfoData.updateInfoRespRaw,
         updatesInfoData.updateInfoSignRespRaw,
-        "IVPN_UpdateInfo"
+        "IVPN_UpdateInfo",
       )) !== true
     ) {
       console.error("Failed to validate application update info signature");
@@ -181,7 +181,7 @@ async function installMacOS(updateProgress) {
     {
       stdio: "ignore",
       detached: true,
-    }
+    },
   );
 
   cmd.on("close", (code) => {
@@ -209,7 +209,7 @@ export async function Install() {
   console.log(
     "INSTALLING :",
     updateProgress.readyToInstallBinary,
-    updateProgress.readyToInstallSignatureFile
+    updateProgress.readyToInstallSignatureFile,
   );
 
   setState({
@@ -221,7 +221,7 @@ export async function Install() {
     if (
       (await ValidateFileOpenSSLCertificate(
         updateProgress.readyToInstallBinary,
-        updateProgress.readyToInstallSignatureFile
+        updateProgress.readyToInstallSignatureFile,
       )) !== true
     ) {
       setState({
@@ -238,7 +238,7 @@ export async function Install() {
       installMacOS(updateProgress);
     } else {
       throw new Error(
-        "Automatic updates installation is not supported for this platform"
+        "Automatic updates installation is not supported for this platform",
       );
     }
   } catch (err) {
@@ -282,7 +282,7 @@ export async function Upgrade(latestVersionInfo) {
       let downloadedSignatureFile = null;
       try {
         downloadedSignatureFile = await Download(
-          latestVersionInfo.generic.signature
+          latestVersionInfo.generic.signature,
         );
       } catch (error) {
         // failed to download (or failed or save)
@@ -305,7 +305,7 @@ export async function Upgrade(latestVersionInfo) {
       try {
         downloadedFile = await Download(
           latestVersionInfo.generic.downloadLink,
-          onDownloadProgress
+          onDownloadProgress,
         );
       } catch (error) {
         // failed to download (or failed or save) binary

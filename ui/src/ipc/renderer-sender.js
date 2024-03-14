@@ -58,7 +58,7 @@ export default {
         } else
           console.log(
             "[ERROR] SafeIpcRenderer: unsupported channel to for 'send()' operation: ",
-            channel
+            channel,
           );
       },
       on: function (channel, listener) {
@@ -73,7 +73,7 @@ export default {
         } else
           console.log(
             "[ERROR] SafeIpcRenderer: unsupported channel to for registering event receiver: ",
-            channel
+            channel,
           );
       },
     };
@@ -94,7 +94,9 @@ export default {
     // This is required to send to renderer processes current storage state
     return invoke("renderer-request-refresh-storage");
   },
-
+  VerifyPin: async (code) => {
+    return await invoke("renderer-request-verify-pin", code);
+  },
   Login: async (accountID, force, captchaID, captcha, confirmation2FA) => {
     return await invoke(
       "renderer-request-login",
@@ -102,19 +104,19 @@ export default {
       force,
       captchaID,
       captcha,
-      confirmation2FA
+      confirmation2FA,
     );
   },
   Logout: async (
     needToResetSettings,
     needToDisableFirewall,
-    isCanDeleteSessionLocally
+    isCanDeleteSessionLocally,
   ) => {
     return await invoke(
       "renderer-request-logout",
       needToResetSettings,
       needToDisableFirewall,
-      isCanDeleteSessionLocally
+      isCanDeleteSessionLocally,
     );
   },
   AccountStatus: async () => {
@@ -150,13 +152,13 @@ export default {
   KillSwitchSetAllowApiServers: async (isEnable) => {
     return await invoke(
       "renderer-request-KillSwitchSetAllowApiServers",
-      isEnable
+      isEnable,
     );
   },
   KillSwitchSetAllowLANMulticast: async (isEnable) => {
     return await invoke(
       "renderer-request-KillSwitchSetAllowLANMulticast",
-      isEnable
+      isEnable,
     );
   },
   KillSwitchSetAllowLAN: async (isEnable) => {
@@ -168,7 +170,7 @@ export default {
   KillSwitchSetUserExceptions: async (userExceptions) => {
     return await invoke(
       "renderer-request-KillSwitchSetUserExceptions",
-      userExceptions
+      userExceptions,
     );
   },
 
@@ -180,7 +182,7 @@ export default {
     inversed,
     isAnyDns,
     allowWhenNoVpn,
-    doReset
+    doReset,
   ) => {
     return await invoke(
       "renderer-request-SplitTunnelSetConfig",
@@ -188,7 +190,7 @@ export default {
       inversed,
       isAnyDns,
       allowWhenNoVpn,
-      doReset
+      doReset,
     );
   },
   SplitTunnelAddApp: async (execCmd) => {
@@ -208,12 +210,12 @@ export default {
 
   SetAutoconnectOnLaunch: async (
     isEnabled,
-    isApplicableByDaemonInBackground
+    isApplicableByDaemonInBackground,
   ) => {
     return await invoke(
       "renderer-request-SetAutoconnectOnLaunch",
       isEnabled,
-      isApplicableByDaemonInBackground
+      isApplicableByDaemonInBackground,
     );
   },
   SetLogging: async (isEnabled) => {
@@ -238,7 +240,7 @@ export default {
   WgSetKeysRotationInterval: async (intervalSec) => {
     return await invoke(
       "renderer-request-wg-set-keys-rotation-interval",
-      intervalSec
+      intervalSec,
     );
   },
 
@@ -269,12 +271,12 @@ export default {
     return ipcRenderer.invoke(
       "renderer-request-update-wnd-resize",
       width,
-      height
+      height,
     );
   },
   AppUpdatesIsAbleToUpdate: () => {
     return ipcRenderer.sendSync(
-      "renderer-request-app-updates-is-able-to-update"
+      "renderer-request-app-updates-is-able-to-update",
     );
   },
   AppUpdatesCheck: async () => {
@@ -345,7 +347,7 @@ export default {
     return invoke(
       "renderer-request-showmsgbox",
       diagConfig,
-      doNotAttachToWindow
+      doNotAttachToWindow,
     );
   },
 
@@ -398,13 +400,13 @@ export default {
     return await invoke(
       "renderer-request-setParanoidModePassword",
       newPassword,
-      oldPassword
+      oldPassword,
     );
   },
   setLocalParanoidModePassword: async (password) => {
     return await invoke(
       "renderer-request-setLocalParanoidModePassword",
-      password
+      password,
     );
   },
 };

@@ -99,8 +99,6 @@ type ConnectionParams struct {
 			Hosts []api_types.ServerListItem
 		}
 
-		MultihopExitServer MultiHopExitServer_WireGuard
-
 		Mtu int // Set 0 to use default MTU value
 
 		V2RayProxy v2r.V2RayTransportType // V2Ray config
@@ -200,18 +198,4 @@ func (p *ConnectionParams) NormalizeHosts() error {
 	}
 
 	return nil
-}
-
-type MultiHopExitServer_WireGuard struct {
-	// ExitSrvID (geteway ID) just in use to keep clients notified about connected MH exit server
-	// Example: "gateway":"zz.wg.ivpn.net" => "zz"
-	ExitSrvID string
-	Hosts     []api_types.WireGuardServerHostInfo
-}
-
-type MultiHopExitServer_OpenVpn struct {
-	// ExitSrvID (gateway ID) just in use to keep clients notified about connected MH exit server
-	// Example: "gateway":"zz.wg.ivpn.net" => "zz"
-	ExitSrvID string
-	Hosts     []api_types.OpenVPNServerHostInfo
 }

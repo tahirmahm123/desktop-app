@@ -26,7 +26,6 @@ import (
 	"fmt"
 
 	"github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
-	api_types "github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
 	"github.com/tahirmahm123/vpn-desktop-app/daemon/logger"
 	"github.com/tahirmahm123/vpn-desktop-app/daemon/obfsproxy"
 	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
@@ -338,9 +337,4 @@ func (r APIResponse) LogExtraInfo() string {
 		return fmt.Sprint(r.APIPath, " Error!")
 	}
 	return fmt.Sprint(r.APIPath)
-}
-
-type CheckAccessiblePortsResponse struct {
-	RequestBase
-	Ports []api_types.PortInfo
 }

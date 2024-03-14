@@ -25,6 +25,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn/wireguard"
 	"net"
 	"os"
 	"reflect"
@@ -120,9 +121,6 @@ type Service struct {
 		_pauseTill       time.Time // time when connection will be resumed automatically (if not paused - will be zero)
 		_killSwitchState bool      // killswitch state before pause (to be able to restore it)
 	}
-
-	// variables related to connection test (e.g. ports accessibility test)
-	_connectionTest connTest
 
 	// Information about all connection settings is stored in the 'preferences' object (s._preferences.LastConnectionParams).
 	// When VPN is connected, it contains actual connection data.
@@ -1517,17 +1515,14 @@ func (s *Service) SplitTunnelling_AddedPidInfo(pid int, exec string, cmdToExecut
 // SESSIONS
 //////////////////////////////////////////////////////////
 
-func (s *Service) setCredentials(accountInfo preferences.AccountStatus, accountID, session, vpnUser, vpnPass, wgPublicKey, wgPrivateKey, wgLocalIP string, wgKeyGenerated int64, wgPreSharedKey string) error {
+func (s *Service) setCredentials(accountInfo preferences.AccountStatus, accountID, session, wgPublicKey, wgPrivateKey, wgLocalIP string, wgKeyGenerated int64) error {
 	// save session info
 	s._preferences.SetSession(accountInfo,
 		accountID,
 		session,
-		vpnUser,
-		vpnPass,
 		wgPublicKey,
 		wgPrivateKey,
-		wgLocalIP,
-		wgPreSharedKey)
+		wgLocalIP)
 
 	// manually set info about WG keys timestamp
 	if wgKeyGenerated > 0 {
@@ -1549,24 +1544,25 @@ func (s *Service) setCredentials(accountInfo preferences.AccountStatus, accountI
 	return nil
 }
 
-// SessionNew creates new session
-func (s *Service) SessionNew(accountID string, forceLogin bool, captchaID string, captcha string, confirmation2FA string) (
+// VerifyPin VerifyNewPin
+func (s *Service) VerifyPin(code string) (
 	apiCode int,
 	apiErrorMsg string,
 	accountInfo preferences.AccountStatus,
 	rawResponse string,
 	err error) {
-	//
-	//// Temporary allow API server access (If Firewall is enabled)
-	//// Otherwise, there will not be any possibility to Login (because all connectivity is blocked)
+
+	// Temporary allow API server access (If Firewall is enabled)
+	// Otherwise, there will not be any possibility to Login (because all connectivity is blocked)
 	//fwStatus, _ := s.KillSwitchState()
-	//if fwStatus.IsEnabled && !fwStatus.IsAllowApiServers {
-	//	s.SetKillSwitchAllowAPIServers(true)
+	//if fwStatus.IsEnabled {
+	//	//s.SetKillSwitchAllowAPIServers(true)
+	//
 	//}
 	//defer func() {
-	//	if fwStatus.IsEnabled && !fwStatus.IsAllowApiServers {
+	//	if fwStatus.IsEnabled {
 	//		// restore state for 'AllowAPIServers' configuration (previously, was enabled)
-	//		s.SetKillSwitchAllowAPIServers(false)
+	//		//s.SetKillSwitchAllowAPIServers(false)
 	//	}
 	//}()
 	//
@@ -1592,60 +1588,54 @@ func (s *Service) SessionNew(accountID string, forceLogin bool, captchaID string
 	//	}
 	//}
 	//
-	//log.Info("Logging in...")
-	//defer func() {
-	//	if err != nil {
-	//		log.Info("Logging in - FAILED: ", err)
-	//	} else {
-	//		log.Info("Logging in - SUCCESS")
-	//	}
-	//}()
-	//
-	//var (
-	//	publicKey  string
-	//	privateKey string
-	//
-	//	wgPresharedKey string
-	//	successResp    *api_types.SessionNewResponse
-	//	errorLimitResp *api_types.SessionNewErrorLimitResponse
-	//	apiErr         *api_types.APIErrorResponse
-	//	rawRespStr     string // RAW response
-	//)
-	//
-	//for {
-	//	// generate new keys for WireGuard
-	//	publicKey, privateKey, err = wireguard.GenerateKeys(platform.WgToolBinaryPath())
-	//	if err != nil {
-	//		log.Warning(fmt.Sprintf("Failed to generate wireguard keys for new session: %s", err.Error()))
-	//	}
-	//
-	//	successResp, errorLimitResp, apiErr, rawRespStr, err = s._api.SessionNew(accountID, publicKey, kemKeys, forceLogin, captchaID, captcha, confirmation2FA)
-	//	rawResponse = rawRespStr
-	//
-	//	apiCode = 0
-	//	if apiErr != nil {
-	//		apiCode = apiErr.Status
-	//	}
-	//
-	//	if err != nil {
-	//		// if SessionsLimit response
-	//		if errorLimitResp != nil {
-	//			accountInfo = s.createAccountStatus(errorLimitResp.SessionLimitData)
-	//			return apiCode, apiErr.Message, accountInfo, rawResponse, err
-	//		}
-	//
-	//		// in case of other API error
-	//		if apiErr != nil {
-	//			return apiCode, apiErr.Message, accountInfo, rawResponse, err
-	//		}
-	//
-	//		// not API error
-	//		return apiCode, "", accountInfo, rawResponse, err
-	//	}
-	//
-	//	if successResp == nil {
-	//		return apiCode, "", accountInfo, rawResponse, fmt.Errorf("unexpected error when creating a new session")
-	//	}
+	log.Info("Logging in...")
+	defer func() {
+		if err != nil {
+			log.Info("Logging in - FAILED: ", err)
+		} else {
+			log.Info("Logging in - SUCCESS")
+		}
+	}()
+
+	var (
+		successResp *api_types.PinValidationResponse
+		statusCode  int
+		rawRespStr  string // RAW response
+		publicKey   string
+		privateKey  string
+	)
+
+	successResp, statusCode, rawRespStr, err = s._api.VerifyPin(code)
+	rawResponse = rawRespStr
+
+	if err != nil {
+		// not API error
+		return statusCode, "", accountInfo, rawResponse, err
+	}
+
+	if successResp == nil {
+		return apiCode, "", accountInfo, rawResponse, fmt.Errorf("unexpected error when creating a new session")
+	}
+	if successResp.Status == api_types.ValidPin {
+		// generate new keys for WireGuard
+		publicKey, privateKey, err = wireguard.GenerateKeys(platform.WgToolBinaryPath())
+		if err != nil {
+			log.Warning(fmt.Sprintf("Failed to generate wireguard keys for new session: %s", err.Error()))
+		}
+		wireGuardKeySet, _, err := s._api.WireGuardKeySet(successResp.Token, publicKey)
+		if err != nil {
+			return 0, "", preferences.AccountStatus{}, "", err
+		}
+		s.setCredentials(accountInfo,
+			code,
+			successResp.Token,
+			publicKey,
+			privateKey,
+			wireGuardKeySet.LocalIP, 0)
+		accountInfo = preferences.AccountStatus{Active: true, ActiveUntil: successResp.Timestamp}
+	} else {
+		accountInfo = preferences.AccountStatus{Active: false, ActiveUntil: successResp.Timestamp}
+	}
 	//
 	//	if kemHelper != nil {
 	//		if len(successResp.WireGuard.KemCipher_Kyber1024) == 0 && len(successResp.WireGuard.KemCipher_ClassicMcEliece348864) == 0 {
@@ -1684,12 +1674,12 @@ func (s *Service) SessionNew(accountID string, forceLogin bool, captchaID string
 	//	privateKey,
 	//	successResp.WireGuard.IPAddress, 0, wgPresharedKey)
 	//
-	//log.Info(fmt.Sprintf("(logging in) WG keys updated (%s:%s; psk:%v)", successResp.WireGuard.IPAddress, publicKey, len(wgPresharedKey) > 0))
+	log.Info(fmt.Sprintf("(logging in) WG keys updated (%s)", publicKey))
 	//
-	//// Apply SplitTunnel configuration. It is applicable for Inverse mode of SplitTunnel
-	//if err := s.splitTunnelling_ApplyConfig(); err != nil {
-	//	log.Error(err)
-	//}
+	// Apply SplitTunnel configuration. It is applicable for Inverse mode of SplitTunnel
+	if err := s.splitTunnelling_ApplyConfig(); err != nil {
+		log.Error(err)
+	}
 
 	return apiCode, "", accountInfo, rawResponse, nil
 }
@@ -1861,22 +1851,6 @@ func (s *Service) RequestSessionStatus() (
 	return apiCode, "", "", accountInfo, nil //session.Session, accountInfo, nil
 }
 
-func (s *Service) createAccountStatus(apiResp api_types.ServiceStatusAPIResp) preferences.AccountStatus {
-	return preferences.AccountStatus{
-		Active:         apiResp.Active,
-		ActiveUntil:    apiResp.ActiveUntil,
-		CurrentPlan:    apiResp.CurrentPlan,
-		PaymentMethod:  apiResp.PaymentMethod,
-		IsRenewable:    apiResp.IsRenewable,
-		WillAutoRebill: apiResp.WillAutoRebill,
-		IsFreeTrial:    apiResp.IsFreeTrial,
-		Capabilities:   apiResp.Capabilities,
-		Upgradable:     apiResp.Upgradable,
-		UpgradeToPlan:  apiResp.UpgradeToPlan,
-		UpgradeToURL:   apiResp.UpgradeToURL,
-		Limit:          apiResp.Limit}
-}
-
 func (s *Service) startSessionChecker() {
 	// ensure that session checker is not running
 	s.stopSessionChecker()
@@ -1925,8 +1899,8 @@ func (s *Service) stopSessionChecker() {
 //////////////////////////////////////////////////////////
 
 // WireGuardSaveNewKeys saves WG keys
-func (s *Service) WireGuardSaveNewKeys(wgPublicKey string, wgPrivateKey string, wgLocalIP string, wgPresharedKey string) {
-	s._preferences.UpdateWgCredentials(wgPublicKey, wgPrivateKey, wgLocalIP, wgPresharedKey)
+func (s *Service) WireGuardSaveNewKeys(wgPublicKey string, wgPrivateKey string, wgLocalIP string) { //}, wgPresharedKey string) {
+	s._preferences.UpdateWgCredentials(wgPublicKey, wgPrivateKey, wgLocalIP) //, wgPresharedKey)
 
 	// notify clients about session (wg keys) update
 	s._evtReceiver.OnServiceSessionChanged()

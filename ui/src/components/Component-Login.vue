@@ -1,122 +1,103 @@
 <template>
-  <div class="flexColumn">
-    <div class="flexRow flexRowRestSpace">
-      <spinner :loading="isProcessing" />
+  <div class="main-container login-container">
+    <div>
+      <div class="card login-card">
+        <form class="card-body" @submit.prevent="Login">
+          <!-- Logo Start -->
+          <div
+            class="d-flex mt-2 mb-4 justify-content-center align-items-center"
+          >
+            <img src="@/assets/img/evolve-vpn-icon.png" alt="" />
+            <span class="logo-text"><b>Golden Guard</b>VPN</span>
+          </div>
+          <!-- Logo End -->
 
-      <div class="column">
-        <div class="centered" style="margin-top: -50px; margin-bottom: 50px">
-          <img src="@/assets/logo.svg" />
-        </div>
-
-        <div v-if="isCaptchaRequired">
-          <!-- CAPTCHA -->
-          <div class="centered">
-            <div class="large_text">Captcha Required</div>
-            <div style="height: 12px" />
-            <div class="small_text">Please enter number you see below</div>
+          <div class="welcome-heading mb-4">
+            Welcome back! <br />
+            Glad to see you, Again!
           </div>
 
-          <div style="height: 21px" />
-          <img :style="capchaImageStyle" :src="captchaImage" />
-          <div style="height: 12px" />
-          <input
-            class="styledBig"
-            ref="captcha"
-            style="text-align: center"
-            placeholder="xxxxxx"
-            v-model="captcha"
-            v-on:keyup="keyup($event)"
-          />
-        </div>
-        <div v-else-if="is2FATokenRequired">
-          <!-- 2FA TOKEN -->
-          <div class="centered">
-            <div class="large_text">2-Factor Authentication</div>
-            <div style="height: 12px" />
-            <div class="small_text">
-              Account has two-factor authentication enabled. Please enter TOTP
-              token to login
+          <div class="mb-3">
+            <input
+              type="text"
+              class="form-control form-control-lg"
+              :class="{ 'is-invalid': usernameError }"
+              ref="username"
+              v-model="username"
+              aria-describedby="helpId"
+              placeholder="Enter your email"
+              :disabled="isProcessing"
+              v-on:keyup="keyup($event)"
+            />
+
+            <div class="invalid-feedback">{{ usernameErrorText }}</div>
+          </div>
+          <div class="mb-3">
+            <input
+              type="password"
+              class="form-control form-control-lg"
+              :class="{ 'is-invalid': passwordError }"
+              v-model="password"
+              ref="password"
+              aria-describedby="helpId"
+              placeholder="Enter your password"
+              :disabled="isProcessing"
+              v-on:keyup="keyup($event)"
+            />
+            <div class="invalid-feedback">{{ passwordErrorText }}</div>
+          </div>
+          <div class="text-end mb-2">
+            <a href="#" class="float-right" @click.prevent="ForgetPassword"
+              >Forget Password?</a
+            >
+          </div>
+          <div class="d-grid gap-2">
+            <button
+              type="button"
+              name=""
+              ref="submitBtn"
+              class="btn btn-primary btn-lg"
+              :disabled="isProcessing"
+              v-on:click="Login"
+            >
+              <span v-if="isProcessing">Authenticating...</span>
+              <span v-else><i class="isax isax-login"></i> Login</span>
+            </button>
+          </div>
+          <div class="mt-4 text-center fw-light">
+            Don’t have an account?
+            <a href="#" @click.prevent="CreateAccount">Register Now</a>
+          </div>
+          <div
+            class="flexRow leftright_margins"
+            style="margin: 20px 20px 0 20px"
+          >
+            <div
+              class="flexRow flexRowRestSpace switcher_small_text"
+              style="margin-right: 10px"
+            >
+              {{ firewallStatusText }}
             </div>
+
+            <SwitchProgress
+              :isChecked="this.$store.state.vpnState.firewallState.IsEnabled"
+              :isProgress="firewallIsProgress"
+              :onChecked="firewallOnChecked"
+            />
           </div>
-
-          <div style="height: 21px" />
-
-          <input
-            class="styledBig"
-            ref="accountid"
-            style="text-align: center"
-            placeholder="xxxxxx"
-            v-model="confirmation2FA"
-            v-on:keyup="keyup($event)"
-          />
-        </div>
-        <div v-else>
-          <!-- ACCOUNT ID -->
-          <div class="centered">
-            <div class="large_text">Enter your Account ID</div>
-            <div style="height: 12px" />
-          </div>
-
-          <div style="height: 21px" />
-
-          <input
-            class="styledBig"
-            ref="accountid"
-            style="text-align: center"
-            placeholder="i-XXXX-... or ivpnXXXXXXXX"
-            v-model="accountID"
-            v-on:keyup="keyup($event)"
-          />
-        </div>
-
-        <div style="height: 24px" />
-        <button class="master" v-on:click="Login">Log In</button>
-        <div style="height: 12px" />
-
-        <button
-          v-if="!isCaptchaRequired && !is2FATokenRequired"
-          class="slave"
-          v-on:click="CreateAccount"
-        >
-          Create an account
-        </button>
-        <button v-else class="slave" v-on:click="Cancel">Cancel</button>
+        </form>
       </div>
-    </div>
-
-    <div class="flexRow leftright_margins" style="margin-bottom: 20px">
-      <div
-        class="flexRow flexRowRestSpace switcher_small_text"
-        style="margin-right: 10px"
-      >
-        {{ firewallStatusText }}
-      </div>
-
-      <SwitchProgress
-        :onChecked="firewallOnChecked"
-        :isChecked="this.$store.state.vpnState.firewallState.IsEnabled"
-        :isProgress="firewallIsProgress"
-      />
     </div>
   </div>
 </template>
 
 <script>
-import spinner from "@/components/controls/control-spinner.vue";
+// import spinner from "@/components/controls/control-spinner.vue";
 import SwitchProgress from "@/components/controls/control-switch-small2.vue";
 
-import { IsOsDarkColorScheme } from "@/helpers/renderer";
-import { ColorTheme } from "@/store/types";
+import Config from "@/config";
 
 const sender = window.ipcSender;
-import {
-  API_SUCCESS,
-  API_SESSION_LIMIT,
-  API_CAPTCHA_REQUIRED,
-  API_CAPTCHA_INVALID,
-  API_2FA_REQUIRED,
-  API_2FA_TOKEN_NOT_VALID,
-} from "@/api/statuscode";
 
 function processError(e) {
   console.error(e);
@@ -135,48 +116,29 @@ export default {
     },
   },
   components: {
-    spinner,
+    // spinner,
     SwitchProgress,
   },
   data: function () {
     return {
       firewallIsProgress: false,
-
-      accountID: "",
+      username: "",
+      password: "",
       isProcessing: false,
-
+      usernameError: false,
+      usernameErrorText: "",
+      passwordError: false,
+      passwordErrorText: "",
       rawResponse: null,
       apiResponseStatus: 0,
 
-      capchaImageStyle: "",
-
       isForceLogoutRequested: false,
-      captcha: "",
-      confirmation2FA: "",
     };
   },
   mounted() {
-    // COLOR SCHEME
-    window.matchMedia("(prefers-color-scheme: dark)").addListener(() => {
-      this.updateColorScheme();
-    });
-    this.updateColorScheme();
+    if (this.$refs.username) this.$refs.username.focus();
 
-    if (this.$refs.accountid) this.$refs.accountid.focus();
-
-    let stateParams = history.state.params;
-
-    if (stateParams && stateParams.forceLoginAccount != null) {
-      this.accountID = stateParams.forceLoginAccount;
-
-      let confirmation2FA = null;
-      if (stateParams.extraArgs) {
-        confirmation2FA = stateParams.extraArgs.confirmation2FA;
-      }
-
-      const force = true;
-      this.Login(force, confirmation2FA);
-    } else {
+    if (this.$route.params.forceLoginAccount == null) {
       if (this.$store.state.settings.isExpectedAccountToBeLoggedIn === true) {
         this.$store.dispatch("settings/isExpectedAccountToBeLoggedIn", false);
         setTimeout(() => {
@@ -189,85 +151,65 @@ export default {
       }
     }
   },
+  computed: {
+    firewallStatusText: function () {
+      if (this.$store.state.vpnState.firewallState.IsEnabled)
+        return "Firewall enabled and blocking all traffic";
+      return "Firewall disabled";
+    },
+  },
   methods: {
-    async Login(isForceLogout, confirmation2FA) {
+    async Login() {
       try {
-        // check accoundID
-        var pattern = new RegExp("^(i-....-....-....)|(ivpn[a-zA-Z0-9]{7,8})$"); // fragment locator
-        if (this.accountID) this.accountID = this.accountID.trim();
-        if (pattern.test(this.accountID) !== true) {
-          throw new Error(
-            "Your account ID has to be in 'i-XXXX-XXXX-XXXX' or 'ivpnXXXXXXXX' format. You can find it on other devices where you are logged in and in the client area of the IVPN website.",
-          );
-        }
-
-        if (this.is2FATokenRequired && !this.confirmation2FA) {
-          sender.showMessageBoxSync({
-            type: "warning",
-            buttons: ["OK"],
-            message: "Failed to login",
-            detail: `Please enter 6-digit verification code`,
-          });
-          return;
-        }
-
         this.isProcessing = true;
-        const resp = await sender.Login(
-          this.accountID,
-          isForceLogout === true || this.isForceLogoutRequested === true
-            ? true
-            : false,
-          this.captchaID,
-          this.captcha,
-          confirmation2FA ? confirmation2FA : this.confirmation2FA,
-        );
-        this.isForceLogoutRequested = false;
-
-        const oldConfirmation2FA = this.confirmation2FA;
-        this.captcha = "";
-        this.confirmation2FA = "";
+        this.usernameError = false;
+        this.passwordError = false;
+        const resp = await sender.Login(this.username, this.password);
         this.apiResponseStatus = resp.APIStatus;
-        this.rawResponse = JSON.parse(resp.RawResponse);
-
-        if (resp.APIStatus !== API_SUCCESS) {
-          if (resp.APIStatus === API_CAPTCHA_INVALID) {
-            throw new Error(`Invalid captcha, please try again`);
-          } else if (resp.APIStatus === API_CAPTCHA_REQUIRED) {
-            // UI should be updated automatically based on data from 'resp.RawResponse'
-            this.isForceLogoutRequested = isForceLogout;
-          } else if (resp.APIStatus === API_2FA_TOKEN_NOT_VALID) {
+        let rawResponse = JSON.parse(resp.RawResponse);
+        console.log(rawResponse);
+        if (this.apiResponseStatus === 422) {
+          let errors = rawResponse.errors;
+          this.usernameError = "username" in errors || "email" in errors;
+          if (this.usernameError) {
+            if ("username" in errors) {
+              this.usernameErrorText = errors["username"][0];
+            } else if ("email" in errors) {
+              this.usernameErrorText = errors["email"][0];
+            }
+          }
+          this.passwordError = "password" in errors;
+          if (this.passwordError) {
+            this.passwordErrorText = errors["password"][0];
+          }
+        } else {
+          let response = rawResponse.response;
+          if (!response.auth) {
+            throw new Error(`Invalid Credentials Provided`);
+          } else if (!response.active) {
             throw new Error(
-              `Specified two-factor authentication token is not valid`,
+              `Account has been Deactivated by Provider. Please Contact Support`,
             );
-          } else if (resp.APIStatus === API_2FA_REQUIRED) {
-            // UI should be updated automatically based on data from 'resp.RawResponse'
-            this.isForceLogoutRequested = isForceLogout;
-          } else if (
-            resp.APIStatus === API_SESSION_LIMIT &&
-            resp.Account != null
-          ) {
-            this.$router.push({
+          } else if (response.true) {
+            throw new Error(
+              `Account has been Expired. Please purchase a plan or renew previous.`,
+            );
+          } else if (!response.allowLogin) {
+            await this.$router.push({
               name: "AccountLimit",
-              state: {
-                params: {
-                  accountID: this.accountID,
-                  devicesMaxLimit: resp.Account.Limit,
-                  CurrentPlan: resp.Account.CurrentPlan,
-                  Upgradable: resp.Account.Upgradable,
-                  UpgradeToPlan: resp.Account.UpgradeToPlan,
-                  UpgradeToURL: resp.Account.UpgradeToURL,
-                  extraArgs: {
-                    confirmation2FA: oldConfirmation2FA,
-                  },
-                },
+              params: {
+                username: this.username,
+                totalDevicesAllowed: response.totalSessionsAllowed,
+                usedDevices: response.loggedInSessions,
+                activeDevices: response.activeSessions,
               },
             });
-          } else throw new Error(`[${resp.APIStatus}] ${resp.APIErrorMessage}`);
-        } else {
-          try {
-            await sender.GeoLookup();
-          } catch (e) {
-            console.error(e);
+          } else {
+            try {
+              await sender.ServerList();
+            } catch (e) {
+              console.error(e);
+            }
           }
         }
       } catch (e) {
@@ -283,7 +225,10 @@ export default {
       }
     },
     CreateAccount() {
-      sender.shellOpenExternal(`https://www.ivpn.net/signup`);
+      sender.shellOpenExternal(Config.RegisterUrl);
+    },
+    ForgetPassword() {
+      sender.shellOpenExternal(Config.ForgetPasswordUrl);
     },
     Cancel() {
       this.rawResponse = null;
@@ -298,20 +243,6 @@ export default {
         event.preventDefault();
         this.Login();
       }
-    },
-    updateColorScheme() {
-      let isDarkTheme = false;
-      let scheme = sender.ColorScheme();
-      if (scheme === ColorTheme.system) {
-        isDarkTheme = IsOsDarkColorScheme();
-      } else isDarkTheme = scheme === ColorTheme.dark;
-
-      if (isDarkTheme)
-        this.capchaImageStyle =
-          "filter: grayscale(100%) brightness(0%) invert(100%); display: block; margin-left: auto; margin-right: auto; max-width:240px; max-height:80px";
-      else
-        this.capchaImageStyle =
-          "filter: grayscale(100%) brightness(0%); display: block; margin-left: auto; margin-right: auto; max-width:240px; max-height:80px";
     },
     async firewallOnChecked(isEnabled) {
       this.firewallIsProgress = true;
@@ -343,82 +274,46 @@ export default {
       }
     },
   },
-  computed: {
-    isCaptchaRequired: function () {
-      return (
-        (this.apiResponseStatus === API_CAPTCHA_REQUIRED ||
-          this.apiResponseStatus === API_CAPTCHA_INVALID) &&
-        this.captchaImage &&
-        this.captchaID &&
-        this.accountID
-      );
-    },
-    isCaptchaInvalid: function () {
-      return this.apiResponseStatus === API_CAPTCHA_INVALID;
-    },
-    is2FATokenRequired: function () {
-      return (
-        (this.apiResponseStatus === API_2FA_REQUIRED ||
-          this.apiResponseStatus === API_2FA_TOKEN_NOT_VALID) &&
-        this.accountID
-      );
-    },
-    captchaImage: function () {
-      return this.rawResponse?.captcha_image;
-    },
-    captchaID: function () {
-      return this.rawResponse?.captcha_id;
-    },
-    firewallStatusText: function () {
-      if (this.$store.state.vpnState.firewallState.IsEnabled)
-        return "Firewall enabled and blocking all traffic";
-      return "Firewall disabled";
-    },
-  },
-  watch: {
-    isCaptchaRequired() {
-      if (!this.$refs.captcha || !this.$refs.accountid) return;
-      if (this.isCaptchaRequired) this.$refs.captcha.focus();
-      else this.$refs.accountid.focus();
-    },
-  },
+  watch: {},
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-.leftright_margins {
-  margin-left: 20px;
-  margin-right: 20px;
+<style lang="scss" scoped>
+.login-container .login-card {
+  width: 350px;
+  left: 410px;
+  top: 41px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.57);
+  backdrop-filter: blur(10.1181px);
+  border-radius: 8.06751px;
 }
 
-.column {
-  @extend .leftright_margins;
-  width: 100%;
+.login-container .login-card .logo-text {
+  font-weight: 700;
+  font-size: 22.7161px;
+  line-height: 29px;
+  margin-left: 10px;
 }
 
-.centered {
-  margin-top: auto;
-  margin-bottom: auto;
-  text-align: center;
+.login-container .login-card .welcome-heading {
+  font-weight: 700;
+  font-size: 19.65px;
+  line-height: 130%;
 }
 
-.large_text {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 120%;
+.login-container {
+  background: url("~@/assets/img/login-bg-light.png");
 }
 
-.small_text {
-  font-size: 13px;
-  line-height: 17px;
-  letter-spacing: -0.208px;
-  color: #98a5b3;
+/* Dark Styling */
+.dark .login-container {
+  background: url("~@/assets/img/login-bg-dark.png");
+  color: #fff;
 }
 
-.switcher_small_text {
-  font-size: 11px;
-  line-height: 13px;
-  color: var(--text-color-details);
+.dark .login-container .login-card {
+  background: rgba(0, 0, 0, 0.67);
 }
 </style>

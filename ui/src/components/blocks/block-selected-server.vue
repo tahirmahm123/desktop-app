@@ -48,14 +48,7 @@ export default {
   },
   computed: {
     server: function () {
-      return this.isExitServer
-        ? this.$store.state.settings.serverExit
-        : this.$store.state.settings.serverEntry;
-    },
-    serverHostName: function () {
-      return this.isExitServer
-        ? this.$store.state.settings.serverExitHostId
-        : this.$store.state.settings.serverEntryHostId;
+      return this.$store.state.settings.serverEntry;
     },
     isConnected: function () {
       return (

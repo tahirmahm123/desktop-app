@@ -83,7 +83,7 @@ export function InitTray(
   menuItemPreferences,
   menuItemAccount,
   menuItemCheckUpdates,
-  funcLaunchStApp
+  funcLaunchStApp,
 ) {
   menuHandlerShow = menuItemShow;
   menuHandlerPreferences = menuItemPreferences;
@@ -112,7 +112,7 @@ export function InitTray(
             "public",
             "tray",
             "windows",
-            "/"
+            "/",
           );
         }
 
@@ -122,16 +122,16 @@ export function InitTray(
         iconsConnecting.push(nativeImage.createFromPath(f + "connecting.ico"));
         // lightTheme
         iconConnected_ForLightTheme = nativeImage.createFromPath(
-          f + "connected_lt.ico"
+          f + "connected_lt.ico",
         );
         iconDisconnected_ForLightTheme = nativeImage.createFromPath(
-          f + "disconnected_lt.ico"
+          f + "disconnected_lt.ico",
         );
         iconPaused_ForLightTheme = nativeImage.createFromPath(
-          f + "paused_lt.ico"
+          f + "paused_lt.ico",
         );
         iconsConnecting_ForLightTheme.push(
-          nativeImage.createFromPath(f + "connecting_lt.ico")
+          nativeImage.createFromPath(f + "connecting_lt.ico"),
         );
       }
       break;
@@ -145,16 +145,16 @@ export function InitTray(
 
         // lightTheme
         iconConnected_ForLightTheme = nativeImage.createFromPath(
-          f + "connected_lt.png"
+          f + "connected_lt.png",
         );
         iconDisconnected_ForLightTheme = nativeImage.createFromPath(
-          f + "disconnected_lt.png"
+          f + "disconnected_lt.png",
         );
         iconPaused_ForLightTheme = nativeImage.createFromPath(
-          f + "paused_lt.png"
+          f + "paused_lt.png",
         );
         iconsConnecting_ForLightTheme.push(
-          nativeImage.createFromPath(f + "connecting_lt.png")
+          nativeImage.createFromPath(f + "connecting_lt.png"),
         );
       }
       break;
@@ -164,7 +164,7 @@ export function InitTray(
         iconPaused = nativeImage.createFromPath(f + "pausedTemplate.png");
         iconConnected = nativeImage.createFromPath(f + "connectedTemplate.png");
         iconDisconnected = nativeImage.createFromPath(
-          f + "disconnectedTemplate.png"
+          f + "disconnectedTemplate.png",
         );
         const c1 = nativeImage.createFromPath(f + "icon-1Template.png");
         const c2 = nativeImage.createFromPath(f + "icon-2Template.png");
@@ -260,15 +260,17 @@ function updateTrayIcon() {
 
   if (store.getters["vpnState/isPaused"] && iconPaused != null)
     tray.setImage(
-      isLightIcons === false ? iconPaused_ForLightTheme : iconPaused
+      isLightIcons === false ? iconPaused_ForLightTheme : iconPaused,
     );
   else if (store.state.vpnState.connectionState === VpnStateEnum.CONNECTED) {
     tray.setImage(
-      isLightIcons === false ? iconConnected_ForLightTheme : iconConnected
+      isLightIcons === false ? iconConnected_ForLightTheme : iconConnected,
     );
   } else {
     tray.setImage(
-      isLightIcons === false ? iconDisconnected_ForLightTheme : iconDisconnected
+      isLightIcons === false
+        ? iconDisconnected_ForLightTheme
+        : iconDisconnected,
     );
   }
 }
@@ -568,7 +570,7 @@ function updateDockMenuMacOS(mainMenuTemplate) {
           el.id == EnumMenuId.Pause ||
           el.id == EnumMenuId.Resume ||
           el.id == EnumMenuId.ResumeIn ||
-          el.id == EnumMenuId.Favorite
+          el.id == EnumMenuId.Favorite,
       );
 
       const oldMenu = app.dock.getMenu();

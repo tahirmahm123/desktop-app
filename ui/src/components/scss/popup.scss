@@ -2,10 +2,10 @@
 $popup-background: var(--background-color);
 
 div.buttonWithPopup {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-  }
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
 
 .popup {
   //position: absolute;
@@ -32,11 +32,10 @@ div.buttonWithPopup {
 
 // Popup arrow
 .popup .popuptext::after {
-   
   content: "";
   position: absolute;
   top: -24px;
-  
+
   margin-left: -12px;
 
   margin-top: 12px;
@@ -45,6 +44,39 @@ div.buttonWithPopup {
   border-color: $popup-background transparent transparent $popup-background;
   transform: rotate(45deg);
 }
+
+//------------------------------------------------------
+// in use for minimalistic UI
+// (reduced width and position shifted left)
+.popupMin .popuptextMin {
+  min-width: 160px;
+  max-width: 160px;
+  margin-left: -80px;
+}
+//------------------------------------------------------
+// in use for minimalistic UI
+// (reduced width and position shifted left)
+.popupMinShifted .popuptextMinShifted {
+  min-width: 160px;
+  max-width: 160px;
+  margin-left: -125px;
+}
+// in use for minimalistic UI (arrow location shifted right)
+.popupMinShifted .popuptextMinShifted::after {
+  margin-left: 32px;
+}
+//------------------------------------------------------
+// (reduced width and position shifted right)
+.popupMinShiftedRight .popuptextMinShiftedRight {
+  min-width: 160px;
+  max-width: 160px;
+  margin-left: -30px;
+}
+// arrow location shifted left
+.popupMinShiftedRight .popuptextMinShiftedRight::after {
+  margin-left: -50px;
+}
+//------------------------------------------------------
 
 // Toggle this class - hide and show the popup
 .popup .show {
@@ -65,7 +97,7 @@ div.buttonWithPopup {
   line-height: 16px;
   text-align: center;
   letter-spacing: -0.078px;
-  color:  rgba(var(--text-color-rgb), 0.85);
+  color: rgba(var(--text-color-rgb), 0.85);
 }
 
 .popup_menu_block > button {

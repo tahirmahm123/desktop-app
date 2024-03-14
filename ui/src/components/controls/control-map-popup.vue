@@ -28,7 +28,7 @@
 
     <div v-if="isPaused">
       <div style="height: 20px" v-if="isCanConnect || isCanDisconnect" />
-      <div v-if="pauseTimeLeftText" class="popup_description_text">
+      <div class="popup_description_text">
         Connection will resume automatically in
       </div>
       <div class="popup_pause_text">
@@ -50,7 +50,7 @@
 <script>
 import serverNameControl from "@/components/controls/control-server-name.vue";
 import serverPingInfoControl from "@/components/controls/control-server-ping.vue";
-import { VpnStateEnum } from "@/store/types";
+import { VpnStateEnum, PauseStateEnum } from "@/store/types";
 import { GetTimeLeftText } from "@/helpers/renderer";
 
 export default {
@@ -69,10 +69,12 @@ export default {
   computed: {
     // needed for watcher
     pauseConnectionTill: function () {
-      return this.$store.state.vpnState?.connectionInfo?.PausedTill;
+      return this.$store.state.uiState.pauseConnectionTill;
     },
     isPaused: function () {
-      return this.$store.getters["vpnState/isPaused"];
+      if (this.$store.state.vpnState.pauseState !== PauseStateEnum.Paused)
+        return false;
+      return this.pauseConnectionTill != null;
     },
     isTheCurrentLocation: function () {
       return (
@@ -138,18 +140,22 @@ export default {
   methods: {
     startPauseTimer() {
       if (this.pauseTimeUpdateTimer) return;
-      if (!this.pauseConnectionTill) return;
+      if (!this.$store.state.uiState.pauseConnectionTill) return;
 
       this.pauseTimeUpdateTimer = setInterval(() => {
-        this.pauseTimeLeftText = GetTimeLeftText(this.pauseConnectionTill);
+        this.pauseTimeLeftText = GetTimeLeftText(
+          this.$store.state.uiState.pauseConnectionTill,
+        );
 
-        if (!this.isPaused) {
+        if (this.$store.state.vpnState.pauseState !== PauseStateEnum.Paused) {
           clearInterval(this.pauseTimeUpdateTimer);
           this.pauseTimeUpdateTimer = null;
         }
       }, 1000);
 
-      this.pauseTimeLeftText = GetTimeLeftText(this.pauseConnectionTill);
+      this.pauseTimeLeftText = GetTimeLeftText(
+        this.$store.state.uiState.pauseConnectionTill,
+      );
     },
   },
 };

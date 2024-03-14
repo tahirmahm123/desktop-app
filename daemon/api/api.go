@@ -49,6 +49,7 @@ const (
 	_geoLookupPath             = "/location"
 	_forceDeviceLogoutByIdPath = _apiPathPrefix + "/logout/"
 	_forceAllDevicesLogoutPath = _apiPathPrefix + "/logout-all"
+	_verifyPin                 = "v2/verify-code/"
 )
 
 // Alias - alias description of API request (can be requested by UI client)
@@ -130,8 +131,7 @@ type API struct {
 	connectivityChecker   IConnectivityInfo
 
 	// last geolookups result
-	geolookupV4 geolookup
-	geolookupV6 geolookup
+	geolookup geolookup
 }
 
 // CreateAPI creates new API object
@@ -163,7 +163,7 @@ func (a *API) DoRequestByAlias(apiAlias string, ipTypeRequired protocolTypes.Req
 		if ipTypeRequired != protocolTypes.IPv4 && ipTypeRequired != protocolTypes.IPv6 {
 			return nil, fmt.Errorf("geolookup request failed: IP version not defined")
 		}
-		_, responseData, err = a.GeoLookup(0, ipTypeRequired)
+		_, responseData, err = a.GeoLookup()
 		return responseData, err
 	}
 
@@ -190,105 +190,34 @@ func (a *API) DoRequestByAlias(apiAlias string, ipTypeRequired protocolTypes.Req
 	return nil, err
 }
 
-// SessionNew - try to register new session
-//func (a *API) SessionNew(accountID string, wgPublicKey string, kemKeys types.KemPublicKeys, forceLogin bool, captchaID string, captcha string, confirmation2FA string) (
-//	*types.SessionNewResponse,
-//	*types.SessionNewErrorLimitResponse,
-//	*types.APIErrorResponse,
-//	string, // RAW response
-//	error) {
-//
-//	var successResp types.SessionNewResponse
-//	var errorLimitResp types.SessionNewErrorLimitResponse
-//	var apiErr types.APIErrorResponse
-//
-//	rawResponse := ""
-//
-//	request := &types.SessionNewRequest{
-//		AccountID:       accountID,
-//		PublicKey:       wgPublicKey,
-//		KemPublicKeys:   kemKeys,
-//		ForceLogin:      forceLogin,
-//		CaptchaID:       captchaID,
-//		Captcha:         captcha,
-//		Confirmation2FA: confirmation2FA}
-//
-//	data, err := a.requestRaw(protocolTypes.IPvAny, "", _sessionNewPath, "POST", "application/json", request, 0, 0)
-//	if err != nil {
-//		return nil, nil, nil, rawResponse, err
-//	}
-//
-//	rawResponse = string(data)
-//
-//	// Check is it API error
-//	if err := json.Unmarshal(data, &apiErr); err != nil {
-//		return nil, nil, nil, rawResponse, fmt.Errorf("failed to deserialize API response: %w", err)
-//	}
-//
-//	// success
-//	if apiErr.Status == types.CodeSuccess {
-//		if err := json.Unmarshal(data, &successResp); err != nil {
-//			return nil, nil, nil, rawResponse, fmt.Errorf("failed to deserialize API response: %w", err)
-//		}
-//
-//		return &successResp, nil, &apiErr, rawResponse, nil
-//	}
-//
-//	// Session limit check
-//	if apiErr.Status == types.CodeSessionsLimitReached {
-//		if err := json.Unmarshal(data, &errorLimitResp); err != nil {
-//			return nil, nil, nil, rawResponse, fmt.Errorf("failed to deserialize API response: %w", err)
-//		}
-//		return nil, &errorLimitResp, &apiErr, rawResponse, types.CreateAPIError(apiErr.Status, apiErr.Message)
-//	}
-//
-//	return nil, nil, &apiErr, rawResponse, types.CreateAPIError(apiErr.Status, apiErr.Message)
-//}
+func (a *API) VerifyPin(code string) (
+	successResp *types.PinValidationResponse,
+	statusCode int,
+	rawResponse string, // RAW response
+	err error) {
 
-// SessionStatus - get session status
-//func (a *API) SessionStatus(session string) (
-//	*types.ServiceStatusAPIResp,
-//	*types.APIErrorResponse,
-//	error) {
-//
-//	var resp types.SessionStatusResponse
-//	var apiErr types.APIErrorResponse
-//
-//	request := &types.SessionStatusRequest{Session: session}
-//
-//	data, err := a.requestRaw(protocolTypes.IPvAny, "", _sessionStatusPath, "POST", "application/json", request, 0, 0)
-//	if err != nil {
-//		return nil, nil, err
-//	}
-//
-//	// Check is it API error
-//	if err := json.Unmarshal(data, &apiErr); err != nil {
-//		return nil, nil, fmt.Errorf("failed to deserialize API response: %w", err)
-//	}
-//
-//	// success
-//	if apiErr.Status == types.CodeSuccess {
-//		if err := json.Unmarshal(data, &resp); err != nil {
-//			return nil, nil, fmt.Errorf("failed to deserialize API response: %w", err)
-//		}
-//		return &resp.ServiceStatus, &apiErr, nil
-//	}
-//
-//	return nil, &apiErr, types.CreateAPIError(apiErr.Status, apiErr.Message)
-//}
+	data, statusCode, err := a.requestRaw(_verifyPin+code, "POST", nil, map[string]string{
+		"Content-Type":  "application/json",
+		"Authorization": config.GetAuthCredentials(),
+	})
+	if err != nil {
+		//fmt.Printf("Error from Server %s", err)
+		return nil, 0, rawResponse, err
+	}
+	rawResponse = string(data)
+	if statusCode == 401 {
+		return nil, statusCode, rawResponse, fmt.Errorf("Unauthenticated")
+	}
+	// success
+	if statusCode == 200 {
+		if err := json.Unmarshal(data, &successResp); err != nil {
+			return nil, statusCode, rawResponse, fmt.Errorf("failed to deserialize API response Session New API Success: %w", err)
+		}
+		return successResp, statusCode, rawResponse, nil
+	}
+	return nil, statusCode, rawResponse, fmt.Errorf("request Failed with Status coode %d and Response: %s", statusCode, rawResponse)
 
-// SessionDelete - remove session
-//func (a *API) SessionDelete(session string) error {
-//	request := &types.SessionDeleteRequest{Session: session}
-//	resp := &types.APIErrorResponse{}
-//	if err := a.request("", _sessionDeletePath, "POST", "application/json", request, resp); err != nil {
-//		return err
-//	}
-//	if resp.Status != types.CodeSuccess {
-//		return types.CreateAPIError(resp.Status, resp.Message)
-//	}
-//	return nil
-//}
+}
 
 // WireGuardKeySet - update WG key
 func (a *API) WireGuardKeySet(session string, publicKey string) (
@@ -320,65 +249,50 @@ func (a *API) WireGuardKeySet(session string, publicKey string) (
 }
 
 // GeoLookup gets geolocation
-func (a *API) GeoLookup(timeoutMs int, ipTypeRequired protocolTypes.RequiredIPProtocol) (location *types.GeoLookupResponse, rawData []byte, retErr error) {
+func (a *API) GeoLookup() (location *types.GeoLookupResponse, rawData []byte, retErr error) {
 	// There could be multiple Geolookup requests at the same time.
 	// It doesn't make sense to make multiple requests to the API.
 	// The internal function below reduces the number of similar API calls.
-	// TODO : fix api location
-	return nil, nil, nil
-	//singletonFunc := func(ipType protocolTypes.RequiredIPProtocol) (*types.GeoLookupResponse, []byte, error) {
-	//	// Each IP protocol has separate request
-	//	var gl *geolookup
-	//	if ipType == protocolTypes.IPv4 {
-	//		gl = &a.geolookupV4
-	//	} else if ipType == protocolTypes.IPv6 {
-	//		gl = &a.geolookupV6
-	//	} else {
-	//		return nil, nil, fmt.Errorf("geolookup request failed: IP version not defined")
-	//	}
-	//	// Try to make API request (if not started yet). Only one API request allowed in the same time.
-	//	func() {
-	//		gl.mutex.Lock()
-	//		defer gl.mutex.Unlock()
-	//		// if API call is already running - do nosing, just wait for results
-	//		if gl.isRunning {
-	//			return
-	//		}
-	//		// mark: call is already running
-	//		gl.isRunning = true
-	//		gl.done = make(chan struct{})
-	//		// do API call in routine
-	//		go func() {
-	//			defer func() {
-	//				// API call finished
-	//				gl.isRunning = false
-	//				close(gl.done)
-	//			}()
-	//			gl.response, gl.err = a.requestRaw(ipType, "", _geoLookupPath, "GET", "", nil, timeoutMs, 0)
-	//			if err := json.Unmarshal(gl.response, &gl.location); err != nil {
-	//				gl.err = fmt.Errorf("failed to deserialize API response: %w", err)
-	//			}
-	//		}()
-	//	}()
-	//	// wait for API call result (for routine stop)
-	//	<-gl.done
-	//	return &gl.location, gl.response, gl.err
-	//}
-	//
-	//// request Geolocation info
-	//if ipTypeRequired != protocolTypes.IPvAny {
-	//	location, rawData, retErr = singletonFunc(ipTypeRequired)
-	//} else {
-	//	location, rawData, retErr = singletonFunc(protocolTypes.IPv4)
-	//	if retErr != nil {
-	//		location, rawData, retErr = singletonFunc(protocolTypes.IPv6)
-	//	}
-	//}
-	//
-	//if retErr != nil {
-	//	return nil, nil, retErr
-	//}
-	//return location, rawData, nil
+
+	singletonFunc := func() (*types.GeoLookupResponse, []byte, error) {
+		// Each IP protocol has separate request
+		var gl = &a.geolookup
+		// Try to make API request (if not started yet). Only one API request allowed in the same time.
+		func() {
+			gl.mutex.Lock()
+			defer gl.mutex.Unlock()
+			// if API call is already running - do nosing, just wait for results
+			if gl.isRunning {
+				return
+			}
+			// mark: call is already running
+			gl.isRunning = true
+			gl.done = make(chan struct{})
+			// do API call in routine
+			go func() {
+				defer func() {
+					// API call finished
+					gl.isRunning = false
+					close(gl.done)
+				}()
+				gl.response, _, gl.err = a.requestRaw(_geoLookupPath, "GET", nil, nil)
+				if err := json.Unmarshal(gl.response, &gl.location); err != nil {
+					gl.err = fmt.Errorf("failed to deserialize API response: %w", err)
+				}
+			}()
+		}()
+		// wait for API call result (for routine stop)
+		<-gl.done
+		return &gl.location, gl.response, gl.err
+	}
+
+	// request Geolocation info
+	location, rawData, retErr = singletonFunc()
+
+	if retErr != nil {
+		return nil, nil, retErr
+	}
+	return location, rawData, nil
 }
 func (a *API) ServersList() (
 	successResp *types.ServerListResponse,

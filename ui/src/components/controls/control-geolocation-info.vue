@@ -1,7 +1,7 @@
 <template>
-  <div id="main">
+  <div id="main" class="w-50">
     <!-- Loading connection info ... -->
-    <div
+    <!-- <div
       v-if="
         (!isIPv6View && isRequestingLocationIPv4) ||
         (isIPv6View && isRequestingLocationIPv6)
@@ -10,17 +10,16 @@
       class="descriptipn"
     >
       Loading connection info ...
-    </div>
+    </div> -->
 
     <!-- Main view -->
-    <div
+    <!-- <div
       v-if="
         (!isIPv6View && !isRequestingLocationIPv4) ||
         (isIPv6View && !isRequestingLocationIPv6)
       "
       style="width: 100%"
     >
-      <!-- Failed to load connection info -->
       <div
         v-if="!isInfoAvailableIPv4 && !isInfoAvailableIPv6"
         style="text-align: center"
@@ -37,9 +36,7 @@
           </button>
         </div>
       </div>
-      <!-- connection info -->
       <div v-if="isInfoAvailableIPv4 || isInfoAvailableIPv6">
-        <!-- IPV4 / IPV6 buttons-->
         <div class="flexRow" v-if="isInfoAvailableIPv4 && isInfoAvailableIPv6">
           <div class="flexRow leftColumn">
             <div class="flexRow badgeContainer">
@@ -107,7 +104,31 @@
           <div class="value">{{ isp }}</div>
         </div>
       </div>
+    </div> -->
+
+    <!--    <div class="d-flex w-100">-->
+    <div class="mainScreenCards">
+      <div class="switchButton">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="ms-2">
+            <p class="text-secondary mb-1">{{ ip }}</p>
+            <h5>{{ locationName }}</h5>
+          </span>
+          <img src="../../assets/img/location-fill.svg" alt="" />
+        </div>
+      </div>
     </div>
+
+    <!--      <div class="w-50">-->
+    <!--        <div class="d-flex justify-content-center">-->
+    <!--          <img src="../../assets/img/wifi.svg" alt="" />-->
+    <!--          <span class="ms-2">-->
+    <!--            <p class="text-secondary mb-1">Current IP</p>-->
+    <!--            <h5>{{ ip }}</h5>-->
+    <!--          </span>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
   </div>
 </template>
 
@@ -155,8 +176,8 @@ export default {
     ip: function () {
       let l = this.$store.state.location;
       if (this.isIPv6View) l = this.$store.state.locationIPv6;
-      if (!l || !l.ip_address) return null;
-      return l.ip_address;
+      if (!l || !l.ip) return null;
+      return l.ip;
     },
 
     locationName: function () {
@@ -174,7 +195,7 @@ export default {
       let l = this.$store.state.location;
       if (this.isIPv6View) l = this.$store.state.locationIPv6;
       if (!l) return null;
-      if (l.isIvpnServer == true) return "IVPN";
+      if (l.isVpnServer == true) return "VPN";
       if (!l.isp) return null;
       return l.isp;
     },

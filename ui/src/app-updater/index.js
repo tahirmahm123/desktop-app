@@ -130,7 +130,7 @@ export async function CheckUpdates(isAutomaticCheck) {
 
     let updatesInfo = await updater.CheckUpdates(
       isAutomaticCheck,
-      settingsUpdates ? settingsUpdates.isBetaProgram : null
+      settingsUpdates ? settingsUpdates.isBetaProgram : null,
     );
     store.commit("latestVersionInfo", updatesInfo);
 

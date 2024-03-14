@@ -45,12 +45,12 @@ $switchSize: 18px;
 $wToHproportion: 2;
 $switchBorder: transparent; //#d1d7e3;
 $switchBorderActive: transparent; //#5d9bfb;
-$switchAnimationPieBorder: #449cf8;
+$switchAnimationPieBorder: #fd2411;
 
-$switchBackground: #ff6258; //#d1d7e3;
+$switchBackground: rgba(139, 154, 171, 0.17); //#d1d7e3;
 // $switchBackground: #d1d7e3; //#d1d7e3;
 $switchDot: var(--background-color); // #fff;
-$switchActive: #449cf8;
+$switchActive: #fd2411;
 // $switchActive: #449cf8;
 
 .switch {

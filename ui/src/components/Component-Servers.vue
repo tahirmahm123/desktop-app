@@ -1,149 +1,68 @@
 <template>
-  <div class="flexColumn">
-    <!-- HEADER -->
-    <div class="flexRow serversButtonsHeader">
-      <div>
-        <button v-on:click="goBack" class="stateButtonOff">
-          <imgArrowLeft class="serversButtonsBack" />
-        </button>
-      </div>
-
-      <div class="serversButtonsSpace" />
-
-      <div style="width: 100%" v-if="isFastestServerConfig === false">
-        <div class="flexRow" style="flex-grow: 1">
-          <div style="flex-grow: 1">
-            <button
-              style="width: 100%"
-              v-on:click="showAll"
-              class="stateButtonOff stateButtonLeft"
-              v-bind:class="{ stateButtonOn: !isFavoritesView }"
-            >
-              all servers
-            </button>
-          </div>
-
-          <div style="flex-grow: 1">
-            <button
-              style="width: 100%"
-              v-on:click="showFavorites"
-              class="stateButtonOff stateButtonRight"
-              v-bind:class="{ stateButtonOn: isFavoritesView }"
-            >
-              favorites
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div style="width: 100%" v-if="isFastestServerConfig">
-        <div class="flexRow" style="flex-grow: 1">
-          <div style="flex-grow: 1">
-            <button
-              style="width: 100%"
-              v-on:click="showAll"
-              class="stateButtonOff"
-              v-bind:class="{ stateButtonOn: !isFavoritesView }"
-            >
-              fastest server settings
-            </button>
-          </div>
-        </div>
-      </div>
+  <div class="main-server px-3">
+    <div class="pt-5 d-flex justify-content-between align-items-center">
+      <h4>Choose Locations</h4>
+      <button @click="closeServerSection" class="border-0 close-btn">
+        <svg
+          width="38"
+          height="38"
+          viewBox="0 0 38 38"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M11.7716 29.6955H26.2164C28.8048 29.6955 30.1407 28.3595 30.1407 25.8069V11.2905C30.1407 8.73793 28.8048 7.40199 26.2164 7.40199H11.7716C9.19516 7.40199 7.84729 8.726 7.84729 11.2905V25.8069C7.84729 28.3595 9.19516 29.6955 11.7716 29.6955ZM14.9683 23.7314C14.3361 23.7314 13.8352 23.2305 13.8352 22.5864C13.8352 22.3001 13.9544 22.0138 14.1811 21.7991L17.4255 18.5428L14.1811 15.2983C13.9544 15.0836 13.8352 14.7974 13.8352 14.5111C13.8352 13.867 14.3361 13.3779 14.9683 13.3779C15.3023 13.3779 15.5647 13.4853 15.7794 13.7L19.0358 16.9444L22.304 13.6881C22.5426 13.4614 22.7931 13.3541 23.1151 13.3541C23.7473 13.3541 24.2483 13.855 24.2483 14.4872C24.2483 14.7854 24.129 15.0479 23.9024 15.2864L20.658 18.5428L23.9024 21.7872C24.1171 22.0138 24.2364 22.2882 24.2364 22.5864C24.2364 23.2305 23.7354 23.7314 23.0913 23.7314C22.7692 23.7314 22.4949 23.6122 22.2683 23.3975L19.0358 20.165L15.8033 23.3975C15.5886 23.6241 15.3023 23.7314 14.9683 23.7314Z"
+            fill="white"
+          />
+        </svg>
+      </button>
     </div>
+    <div class="serversButtonsSpace" />
+
+    <!-- HEADER -->
+    <ul v-if="isFastestServerConfig" class="nav d-flex justify-content-around">
+      <li class="nav-item">
+        <a
+          href="#"
+          class="nav-link"
+          v-bind:class="{ active: !isFavoritesView }"
+          v-on:click.prevent="showAll"
+          >Fastest Server Settings</a
+        >
+      </li>
+    </ul>
 
     <!-- EMPTY FAVORITE SERVERS DESCRIPTION BLOCK -->
     <div v-if="isShowFavoriteDescriptionBlock">
-      <div class="text">
-        Your favorite (<img :src="favoriteImageActive()" />) servers will be
-        displayed here
+      <div>
+        <h4 style="width: 300px; padding-bottom: 5px; margin: 0 auto">
+          Your Favourite servers will be displayed here
+        </h4>
+        <p style="font-size: 12px; color: rgb(191, 191, 191)">
+          Save your time by creating your won list of servers.
+        </p>
       </div>
     </div>
 
     <!-- FILTER -->
-    <div class="commonMargins flexRow" v-if="!isShowFavoriteDescriptionBlock">
+    <div v-if="!isShowFavoriteDescriptionBlock" class="flexRow mx-2">
       <input
         id="filter"
-        class="styled"
-        placeholder="Search for a server"
         v-model="filter"
+        class="form-control"
+        placeholder="Search for a server"
         v-bind:style="{ backgroundImage: 'url(' + searchImage + ')' }"
       />
 
-      <div class="buttonWithPopup">
+      <!--      <div class="buttonWithPopup">
         <button
+          v-click-outside="onSortMenuClickedOutside"
           class="noBordersBtn sortBtn sortBtnPlatform"
           v-on:click="onSortMenuClicked()"
-          v-click-outside="onSortMenuClickedOutside"
         >
-          <img :src="sortImage" />
+          &lt;!&ndash;          <img :src="sortImage" />&ndash;&gt;
         </button>
-
-        <!-- Popup -->
-        <div
-          class="popup popupMinShifted"
-          v-bind:class="{
-            popupMinShifted: isMinimizedUI,
-          }"
-        >
-          <div
-            ref="pausePopup"
-            class="popuptext"
-            v-bind:class="{
-              show: isSortMenu,
-              popuptextMinShifted: isMinimizedUI,
-            }"
-          >
-            <div class="popup_menu_block">
-              <div class="sortSelectedImg">
-                <img :src="selectedImage" v-if="sortTypeStr === 'City'" />
-              </div>
-              <button class="flexRowRestSpace" v-on:click="onSortType('City')">
-                City
-              </button>
-            </div>
-
-            <div class="popup_dividing_line" />
-            <div class="popup_menu_block">
-              <div class="sortSelectedImg">
-                <img :src="selectedImage" v-if="sortTypeStr === 'Country'" />
-              </div>
-              <button
-                class="flexRowRestSpace"
-                v-on:click="onSortType('Country')"
-              >
-                Country
-              </button>
-            </div>
-
-            <div class="popup_dividing_line" />
-            <div class="popup_menu_block">
-              <div class="sortSelectedImg">
-                <img :src="selectedImage" v-if="sortTypeStr === 'Latency'" />
-              </div>
-              <button
-                class="flexRowRestSpace"
-                v-on:click="onSortType('Latency')"
-              >
-                Latency
-              </button>
-            </div>
-
-            <div class="popup_dividing_line" />
-            <div class="popup_menu_block">
-              <div class="sortSelectedImg">
-                <img :src="selectedImage" v-if="sortTypeStr === 'Proximity'" />
-              </div>
-              <button
-                class="flexRowRestSpace"
-                v-on:click="onSortType('Proximity')"
-              >
-                Proximity
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      </div>-->
     </div>
 
     <div
@@ -157,176 +76,87 @@
     <!-- SERVERS LIST BLOCK -->
     <div
       ref="scrollArea"
-      @scroll="recalcScrollButtonVisiblity()"
-      class="commonMargins flexColumn scrollableColumnContainer"
+      style="height: 440px"
+      class="commonMargins m-0 flexColumn scrollableColumnContainer"
+      v-on:scroll="recalcScrollButtonVisiblity()"
+      v-on:wheel="recalcScrollButtonVisiblity()"
     >
-      <!-- FASTEST & RANDOM SERVER -->
-      <div v-if="isFavoritesView == false && isFastestServerConfig === false">
-        <div class="flexRow" v-if="!isMultihop">
+      <!-- FASTEST & RANDOMM SERVER -->
+      <div v-if="isFavoritesView === false && isFastestServerConfig === false">
+        <div v-if="!isMultihop" class="flexRow">
           <button
             class="serverSelectBtn flexRow"
             v-on:click="onFastestServerClicked()"
           >
-            <serverNameControl class="serverName" :isFastestServer="true" />
+            <serverNameControl :isFastestServer="true" class="serverName" />
           </button>
           <button class="noBordersBtn" v-on:click="onFastestServerConfig()">
             <img :src="settingsImage" />
           </button>
         </div>
-        <!-- RANDOM -->
-        <button
-          class="serverSelectBtn flexRow"
-          v-on:click="onRandomServerClicked()"
-        >
-          <serverNameControl class="serverName" :isRandomServer="true" />
-        </button>
       </div>
 
       <!-- SERVERS LIST -->
       <div
-        class="flexRow"
         v-for="server of filteredServers"
-        v-bind:key="server.gateway"
+        v-bind:key="server.flag"
+        class="accordion mb-0"
+        role="tablist"
       >
-        <button
-          class="serverSelectBtn"
-          v-on:click="onServerSelected(server)"
-          v-bind:class="{
-            disabledButton: isInaccessibleServer(server) !== null,
-          }"
-        >
-          <div class="flexRow" style="position: relative; overflow: hidden">
-            <serverNameControl
-              class="serverName"
-              style="max-width: 194px"
-              :SecondLineMaxWidth="
-                isFastestServerConfig === true ? '202px' : null
-              "
+        <div class="card">
+          <div class="card p-1" role="tab">
+            <ServerListAccordionHeader
               :server="server"
-              :isFavoriteServersView="isFavoritesView"
-              :isCountryFirst="sortTypeStr === 'Country'"
-              :onExpandClick="onServerExpandClick"
-              :isExpanded="isServerHostsExpanded(server)"
+              @click="() => onHeaderClicked(server)"
+              :expanded="server.flag === expandedHeader"
+              :configFastestSvrClicked="configFastestSvrClicked"
+              :isFastestServerConfig="isFastestServerConfig"
+              :isSvrExcludedFomFastest="isSvrExcludedFomFastest"
             />
-
-            <div
-              class="flexColumn"
-              v-if="isFastestServerConfig !== true"
-              style="margin-top: -22px"
-            >
-              <div class="flexRow">
-                <serverPingInfoControl
-                  class="pingInfo"
-                  :server="server"
-                  :isShowPingTime="true"
-                />
-
-                <img
-                  :src="favoriteImage(server)"
-                  v-on:click="favoriteClicked($event, server)"
-                />
-              </div>
-            </div>
           </div>
-
-          <!--HOSTS (expanded list)-->
-          <div
-            v-if="
-              isServerHostsExpanded(server) === true &&
-              isFastestServerConfig !== true
-            "
+          <Collapse
+            :when="server.flag === expandedHeader"
+            v-if="!isFastestServerConfig"
+            :id="'accordion-' + server.flag"
+            accordion="servers-list"
+            role="tabpanel"
           >
-            <div
-              class="flexRow"
-              v-for="host of server.hosts"
-              v-bind:key="host.hostname"
-            >
-              <button
-                class="serverHostSelectBtn"
-                v-on:click.stop
-                v-on:click="onServerHostSelected(server, host)"
-              >
-                <div style="display: flex; margin-top: 2px; margin-bottom: 6px">
-                  <div
-                    title="Host name"
-                    style="
-                      text-align: left;
-                      margin-left: 40px;
-                      min-width: 154px;
-                    "
-                  >
-                    {{ host.hostname }}
-                  </div>
-
-                  <!-- host load + favorite-->
-                  <div>
-                    <div class="flexRow">
-                      <div class="pingInfo" style="text-align: right">
-                        <div
-                          title="Server load"
-                          style="
-                            margin-right: 10px;
-                            color: var(--text-color-details);
-                          "
-                        >
-                          {{ Math.round(host.load) }}%
-                        </div>
-                      </div>
-
-                      <img
-                        v-if="server.hosts.length > 1"
-                        :src="favoriteImage(server, host)"
-                        v-on:click="favoriteClicked($event, server, host)"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </button>
+            <div class="card-body">
+              <ServerListAccordionBody
+                :servers="server.servers"
+                :expanded="server.flag === expandedHeader"
+                :onServerChanged="onServerSelected"
+              />
             </div>
-          </div>
-        </button>
-
-        <div class="flexRow" v-if="isFastestServerConfig">
-          <!-- CONFIG -->
-          <SwitchProgress
-            :onChecked="
-              (value, event) => {
-                configFastestSvrClicked(server, event);
-              }
-            "
-            :isChecked="!isSvrExcludedFomFastest(server)"
-          />
+          </Collapse>
         </div>
       </div>
-
-      <!-- SCROLL DOWN BUTTON -->
-      <transition name="fade">
-        <button
-          class="btnScrollDown"
-          v-if="isShowScrollButton"
-          v-on:click="onScrollDown()"
-        >
-          <img src="@/assets/arrow-bottom.svg" />
-        </button>
-      </transition>
     </div>
+    <!-- SCROOL DOWN BUTTON -->
+    <transition name="fade">
+      <button
+        style="position: absolute; left: 755px; bottom: 13px"
+        v-if="isShowScrollButton"
+        class="btnScrollDown"
+        v-on:click="onScrollDown()"
+      >
+        <img src="@/assets/arrow-bottom.svg" />
+      </button>
+    </transition>
   </div>
 </template>
 
 <script>
+import { IsOsDarkColorScheme } from "@/helpers/renderer";
+
 const sender = window.ipcSender;
 import serverNameControl from "@/components/controls/control-server-name.vue";
-import serverPingInfoControl from "@/components/controls/control-server-ping.vue";
-import SwitchProgress from "@/components/controls/control-switch-small.vue";
-import imgArrowLeft from "@/components/images/arrow-left.vue";
+import { isStrNullOrEmpty } from "@/helpers/helpers";
 import { Platform, PlatformEnum } from "@/platform/platform";
-import { enumValueName, getDistanceFromLatLonInKm } from "@/helpers/helpers";
-import {
-  CheckIsInaccessibleServer,
-  CheckAndNotifyInaccessibleServer,
-} from "@/helpers/helpers_servers";
-import { ServersSortTypeEnum } from "@/store/types";
-
+import { enumValueName } from "@/helpers/helpers";
+import { ColorTheme, ServersSortTypeEnum } from "@/store/types";
+import ServerListAccordionHeader from "@/components/accordion/server-list-accordion-header";
+import ServerListAccordionBody from "@/components/accordion/server-list-accordion-body";
 import Image_arrow_left_windows from "@/assets/arrow-left-windows.svg";
 import Image_arrow_left_macos from "@/assets/arrow-left-macos.svg";
 import Image_arrow_left_linux from "@/assets/arrow-left-linux.svg";
@@ -338,38 +168,47 @@ import Image_settings_macos from "@/assets/settings-macos.svg";
 import Image_settings_linux from "@/assets/settings-linux.svg";
 import Image_sort from "@/assets/sort.svg";
 import Image_check_thin from "@/assets/check-thin.svg";
-import Image_star_active from "@/assets/star-active.svg";
-import Image_star_inactive from "@/assets/star-inactive.svg";
+import ImageEmptyFavouritesLight from "@/assets/img/empty-favourites-light.svg";
+import ImageEmptyFavouritesDark from "@/assets/img/empty-favourites-dark.svg";
 
 import vClickOutside from "click-outside-vue3";
+import { Collapse } from "vue-collapsed";
 
 export default {
   directives: {
     clickOutside: vClickOutside.directive,
   },
   props: [
-    "onBack",
+    "closeServerSection",
     "onServerChanged",
     "isExitServer",
     "onFastestServer",
     "onRandomServer",
   ],
   components: {
+    Collapse,
     serverNameControl,
-    serverPingInfoControl,
-    SwitchProgress,
-    imgArrowLeft,
+    ServerListAccordionHeader,
+    ServerListAccordionBody,
   },
   data: function () {
     return {
+      isDarkTheme: false,
+      expandedHeader: "",
       filter: "",
       isFastestServerConfig: false,
       isSortMenu: false,
       isShowScrollButton: false,
-      expandedGateways: [], // list of server.gateway strings (list of gateways which is expanded to show server hosts)
     };
   },
+  created: function () {},
   mounted() {
+    // COLOR SCHEME
+    window.matchMedia("(prefers-color-scheme: light)").addListener(() => {
+      console.log("media changed");
+      this.updateColorScheme();
+    });
+    this.updateColorScheme();
     this.recalcScrollButtonVisiblity();
     const resizeObserver = new ResizeObserver(this.recalcScrollButtonVisiblity);
     resizeObserver.observe(this.$refs.scrollArea);
@@ -385,7 +224,9 @@ export default {
       return this.$store.state.settings.isMultiHop;
     },
     isShowFavoriteDescriptionBlock: function () {
-      return this.isFavoritesView === true && this.favorites.length == 0;
+      if (!this.isFavoritesView) return false;
+      let favSvrs = this.favoriteServers;
+      return favSvrs == null || favSvrs.length === 0;
     },
     servers: function () {
       return this.$store.getters["vpnState/activeServers"];
@@ -398,100 +239,30 @@ export default {
       );
     },
 
-    favorites: function () {
-      // Favorite servers and hosts for current protocol
-      return this.$store.getters["settings/favoriteServersAndHosts"];
+    favoriteServers: function () {
+      let favorites = this.$store.state.settings.serversFavoriteList;
+      let favouriteServersList = [];
+      this.servers.forEach((s) => {
+        favouriteServersList = favouriteServersList.concat(
+          s.servers.filter((host) => favorites.includes(host.id)),
+        );
+      });
+      return favouriteServersList;
     },
 
     filteredServers: function () {
-      let store = this.$store;
-      let sType = store.state.settings.serversSortType;
-      const funcGetPing = this.$store.getters["vpnState/funcGetPing"];
-      function compare(a, b) {
-        switch (sType) {
-          case ServersSortTypeEnum.City:
-            return a.city.localeCompare(b.city);
-
-          case ServersSortTypeEnum.Country: {
-            if (!a.country && !b.country) return 0;
-            if (!a.country) return 1;
-
-            let ret = 0;
-            ret = a.country.localeCompare(b.country);
-            if (ret != 0) return ret;
-            // If countries are the same - compare cities
-            if (a.city && b.city) return a.city.localeCompare(b.city);
-            return ret;
-          }
-
-          case ServersSortTypeEnum.Latency: {
-            const aPing = funcGetPing(a);
-            const bPing = funcGetPing(b);
-            if (aPing && bPing) return aPing - bPing;
-            if (aPing && !bPing) return -1;
-            if (!aPing && bPing) return 1;
-            return 0;
-          }
-
-          case ServersSortTypeEnum.Proximity: {
-            const l = store.getters["getLastRealLocation"];
-            if (l == null) return 0;
-
-            var distA = getDistanceFromLatLonInKm(
-              l.latitude,
-              l.longitude,
-              a.latitude,
-              a.longitude,
-            );
-            var distB = getDistanceFromLatLonInKm(
-              l.latitude,
-              l.longitude,
-              b.latitude,
-              b.longitude,
-            );
-
-            if (distA === distB) return 0;
-            if (distA < distB) return -1;
-
-            return 1;
-          }
-        }
-      }
-
-      function serverToSkip() {
-        // For Multi-Hop:
-        // -skip entry-server for exit server selection
-        // -skip exit-server for entry server selection
-        if (!this.isMultihop) return null;
-        if (this.isExitServer) {
-          if (!this.$store.state.settings.isRandomServer)
-            return this.$store.state.settings.serverEntry;
-        } else {
-          if (!this.$store.state.settings.isRandomExitServer)
-            return this.$store.state.settings.serverExit;
-        }
-        return null;
-      }
-
       let servers = this.servers;
-      if (this.isFavoritesView) servers = this.favorites;
+      if (this.isFavoritesView) servers = this.favoriteServers;
 
-      let svrToSkip = serverToSkip.bind(this)();
-      //if (!svrToSkip && !this.filter) return servers.slice().sort(compare);
+      let filtered = (servers ? servers : []).filter(
+        (s) =>
+          (s.city && s.city.toLowerCase().includes(this.filter)) ||
+          (s.country && s.country.toLowerCase().includes(this.filter)) ||
+          (s.country_code &&
+            s.country_code.toLowerCase().includes(this.filter)),
+      );
 
-      let filter = this.filter.toLowerCase();
-      let filtered = servers.filter((s) => {
-        if (s.gateway === svrToSkip?.gateway) return false;
-        if (!this.filter) return true;
-        return (
-          (s.favHost && s.favHost.hostname.toLowerCase().includes(filter)) || // only for favorite hosts (host object extended by all properties from parent server object +favHostParentServerObj +favHost)
-          (s.city && s.city.toLowerCase().includes(filter)) ||
-          (s.country && s.country.toLowerCase().includes(filter)) ||
-          (s.country_code && s.country_code.toLowerCase().includes(filter))
-        );
-      });
-
-      return filtered.slice().sort(compare);
+      return filtered.slice() /*.sort(compare)*/;
     },
 
     arrowLeftImagePath: function () {
@@ -505,7 +276,7 @@ export default {
       }
     },
     searchImage: function () {
-      if (this.filter) return null;
+      if (!isStrNullOrEmpty(this.filter)) return null;
 
       switch (Platform()) {
         case PlatformEnum.Windows:
@@ -532,9 +303,19 @@ export default {
     selectedImage: function () {
       return Image_check_thin;
     },
+
+    emptyfavouriteImage: function () {
+      return this.isDarkTheme
+        ? ImageEmptyFavouritesDark
+        : ImageEmptyFavouritesLight;
+    },
   },
 
   methods: {
+    onBack: function () {
+      // this.$router.push("/");
+      this.closeServerSection();
+    },
     goBack: function () {
       if (this.isFastestServerConfig) {
         this.filter = "";
@@ -543,69 +324,33 @@ export default {
       }
       if (this.onBack != null) this.onBack();
     },
-
-    isServerHostsExpanded: function (server) {
-      if (
-        this.$store.state.settings.showHosts !== true ||
-        this.isFastestServerConfig === true ||
-        this.$store.state.uiState.serversFavoriteView === true
-      )
-        return undefined; //hide expand button
-      return this.expandedGateways.includes(server.gateway);
-    },
-    onServerExpandClick: function (server) {
-      var index = this.expandedGateways.indexOf(server.gateway);
-      if (index === -1) this.expandedGateways.push(server.gateway);
-      else this.expandedGateways.splice(index, 1);
-
-      setTimeout(() => {
-        this.recalcScrollButtonVisiblity();
-      }, 0);
-    },
-
-    checkAndNotifyInaccessibleServer: async function (server) {
-      return CheckAndNotifyInaccessibleServer(this.isExitServer, server);
-    },
-    // isInaccessibleServer returns:
-    // - null if server is acceptble
-    // - object { sameGateway: true } - servers have same gateway
-    // - object { sameCountry: true } - servers are from same country (only if this.$store.state.settings.multihopWarnSelectSameCountries === true)
-    // - objext { sameISP: true }     - servers are operated by same ISP (only if this.$store.state.settings.multihopWarnSelectSameISPs === true)
-    isInaccessibleServer: function (server) {
-      return CheckIsInaccessibleServer(this.isExitServer, server);
-    },
-
-    onServerSelected: async function (server) {
-      if (server.favHost) {
-        return this.onServerHostSelected(
-          server.favHostParentServerObj,
-          server.favHost,
-        );
+    onHeaderClicked: function (server) {
+      if (this.expandedHeader === server.flag) {
+        this.expandedHeader = "";
+      } else {
+        this.expandedHeader = server.flag;
       }
-      if ((await this.checkAndNotifyInaccessibleServer(server)) == false)
+    },
+    onServerSelected: function (server) {
+      if (this.isInaccessibleServer(server)) {
+        sender.showMessageBoxSync({
+          type: "info",
+          buttons: ["OK"],
+          message: "Entry and exit servers cannot be in the same country",
+          detail:
+            "When using multihop you must select entry and exit servers in different countries. Please select a different entry or exit server.",
+        });
         return;
+      }
+      console.log("trying to update server");
       this.onServerChanged(server, this.isExitServer != null);
       this.onBack();
     },
-    onServerHostSelected: async function (server, host) {
-      if ((await this.checkAndNotifyInaccessibleServer(server)) == false)
-        return;
-      this.onServerChanged(server, this.isExitServer != null, host.hostname);
-      this.onBack();
-    },
-
     onSortMenuClickedOutside: function () {
       this.isSortMenu = false;
     },
     onSortMenuClicked: function () {
       this.isSortMenu = !this.isSortMenu;
-    },
-    onSortType: function (sortTypeStr) {
-      this.$store.dispatch(
-        "settings/serversSortType",
-        ServersSortTypeEnum[sortTypeStr],
-      );
-      this.isSortMenu = false;
     },
     onFastestServerClicked() {
       if (this.onFastestServer != null) this.onFastestServer();
@@ -616,115 +361,23 @@ export default {
       this.onBack();
     },
     isSvrExcludedFomFastest: function (server) {
-      const sGwId = getGatewayId(server.gateway);
-      const found = this.$store.state.settings.serversFastestExcludeList.find(
-        (excGw) => sGwId == getGatewayId(excGw),
+      return this.$store.state.settings.serversFastestExcludeList.includes(
+        server.flag,
       );
-      return found != undefined;
-    },
-    favoriteImage: function (server, host) {
-      const settings = this.$store.state.settings;
-      if (server.favHost) {
-        // favorite host: only for favorite hosts (host object extended by all properties from parent server object)
-        if (
-          settings.hostsFavoriteListDnsNames.includes(server.favHost.dns_name)
-        )
-          return Image_star_active;
-      } else if (host) {
-        // host
-        if (settings.hostsFavoriteListDnsNames.includes(host.dns_name))
-          return Image_star_active;
-      } else {
-        //server
-        if (settings.serversFavoriteList.includes(getGatewayId(server.gateway)))
-          return Image_star_active;
-      }
-      return Image_star_inactive;
-    },
-    favoriteImageActive: function () {
-      return Image_star_active;
-    },
-    onFastestServerConfig() {
-      this.isFastestServerConfig = true;
-      this.filter = "";
     },
 
-    favoriteClicked: function (evt, server, host) {
-      evt.stopPropagation();
-      if (!server && !host) return;
-
-      if (server.favHost) {
-        return this.favoriteClicked(
-          evt,
-          server.favHostParentServerObj,
-          server.favHost,
-        );
-      }
-      const settings = this.$store.state.settings;
-      const store = this.$store;
-
-      if (!host) {
-        // favorite SERVER
-        let gatewayId = server.gateway.split(".")[0]; // only gateway ID in use for serversFavoriteList ("us-tx.wg.ivpn.net" => "us-tx")
-        let favorites = settings.serversFavoriteList.slice();
-
-        if (!favorites.includes(gatewayId)) {
-          console.log(`Adding favorite location ${gatewayId}`);
-          favorites.push(gatewayId);
-        } else {
-          console.log(`Removing favorite location ${gatewayId}`);
-          favorites = favorites.filter((gw) => gw != gatewayId);
-
-          // If the server has only one host AND this host is in favorites -> remove host also
-          // Reason: If server and it's single host are in favorites - we showing only server to user.
-          // (refer to "settings/favoriteServersAndHosts" for details)
-          if (server.hosts.length == 1) {
-            // remove HOST also
-            let hostDns = server.hosts[0].dns_name;
-            let favHostsDns = settings.hostsFavoriteListDnsNames.slice();
-            if (favHostsDns.includes(hostDns)) {
-              console.log(`Removing favorite host ${hostDns} (single host)`);
-              favHostsDns = favHostsDns.filter((hn) => hn != hostDns);
-              store.dispatch("settings/hostsFavoriteListDnsNames", favHostsDns);
-            }
-          }
-        }
-        store.dispatch("settings/serversFavoriteList", favorites);
-      } else if (host.hostname) {
-        // favorite HOST
-        let favHostsDns = settings.hostsFavoriteListDnsNames.slice();
-        let hostDns = host.dns_name;
-
-        if (!favHostsDns.includes(hostDns)) {
-          // add host
-          console.log(`Adding favorite host ${hostDns}`);
-          favHostsDns.push(hostDns);
-        } else {
-          // remove host
-          console.log(`Removing favorite host ${hostDns}`);
-          favHostsDns = favHostsDns.filter((hn) => hn != hostDns);
-        }
-        store.dispatch("settings/hostsFavoriteListDnsNames", favHostsDns);
-      }
-    },
     configFastestSvrClicked(server, event) {
-      if (server == null || server.gateway == null) return;
+      if (server == null || server.flag == null) return;
       let excludeSvrs =
         this.$store.state.settings.serversFastestExcludeList.slice();
 
-      // work only with Gateway ID (not with full gateway name). We need it to have common 'serversFastestExcludeList' for all protocols
-      const sGwId = getGatewayId(server.gateway);
-      excludeSvrs = excludeSvrs.map((el) => {
-        return getGatewayId(el);
-      });
-
-      if (excludeSvrs.includes(sGwId))
-        excludeSvrs = excludeSvrs.filter((gw) => gw != sGwId);
-      else excludeSvrs.push(sGwId);
+      if (excludeSvrs.includes(server.flag))
+        excludeSvrs = excludeSvrs.filter((gw) => gw !== server.flag);
+      else excludeSvrs.push(server.flag);
 
       const activeServers = this.servers.slice();
       const notExcludedActiveServers = activeServers.filter(
-        (s) => !excludeSvrs.includes(getGatewayId(s.gateway)),
+        (s) => !excludeSvrs.includes(s.flag),
       );
 
       if (notExcludedActiveServers.length < 1) {
@@ -739,24 +392,50 @@ export default {
       } else
         this.$store.dispatch("settings/serversFastestExcludeList", excludeSvrs);
     },
+    onFastestServerConfig() {
+      this.isFastestServerConfig = true;
+      this.filter = "";
+    },
+    isInaccessibleServer: function (server) {
+      if (this.$store.state.settings.isMultiHop === false) return false;
+      let ccSkip = "";
+
+      let connected = !this.$store.getters["vpnState/isDisconnected"];
+      if (
+        // ENTRY SERVER
+        !this.isExitServer &&
+        this.$store.state.settings.serverExit &&
+        (connected || !this.$store.state.settings.isRandomExitServer)
+      )
+        ccSkip = this.$store.state.settings.serverExit.flag;
+      else if (
+        // EXIT SERVER
+        this.isExitServer &&
+        this.$store.state.settings.serverEntry &&
+        (connected || !this.$store.state.settings.isRandomServer)
+      )
+        ccSkip = this.$store.state.settings.serverEntry.flag;
+      if (server.flag === ccSkip) return true;
+      return false;
+    },
 
     showFavorites: function () {
       this.$store.dispatch("uiState/serversFavoriteView", true);
       this.filter = "";
-
-      setTimeout(() => {
-        this.recalcScrollButtonVisiblity();
-      }, 500);
     },
     showAll: function () {
       this.$store.dispatch("uiState/serversFavoriteView", false);
       this.filter = "";
-
-      setTimeout(() => {
-        this.recalcScrollButtonVisiblity();
-      }, 500);
+    },
+    updateColorScheme() {
+      let scheme = sender.ColorScheme();
+      console.log(scheme);
+      if (scheme === ColorTheme.system) {
+        this.isDarkTheme = IsOsDarkColorScheme();
+      } else this.isDarkTheme = scheme === ColorTheme.dark;
     },
     recalcScrollButtonVisiblity() {
+      console.log("Scroll Btn Added");
       let sa = this.$refs.scrollArea;
       if (sa == null) {
         this.isShowScrollButton = false;
@@ -765,7 +444,7 @@ export default {
 
       const show = sa.scrollHeight > sa.clientHeight + sa.scrollTop;
 
-      // hide - immediately; show - with 1sec delay
+      // hide - imadiately; show - with 1sec delay
       if (!show) this.isShowScrollButton = false;
       else {
         setTimeout(() => {
@@ -775,6 +454,7 @@ export default {
       }
     },
     onScrollDown() {
+      console.log("Scrolled");
       let sa = this.$refs.scrollArea;
       if (sa == null) return;
       sa.scrollTo({
@@ -784,14 +464,10 @@ export default {
     },
   },
 };
-
-function getGatewayId(gatewayName) {
-  return gatewayName.split(".")[0];
-}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "@/components/scss/constants";
 @import "@/components/scss/popup";
 
@@ -817,33 +493,14 @@ input#filter {
   border: none;
   background-color: inherit;
   outline-width: 0;
+  border-radius: 8px;
+  color: #fff !important;
   cursor: pointer;
-
-  min-height: 48px;
+  margin: 10px 0;
+  height: 48px;
   width: 100%;
 
-  padding: 0px;
-
-  padding-bottom: 3px;
-  padding-top: 3px;
-}
-
-.serverHostSelectBtn {
-  border: none;
-  background-color: inherit;
-  outline-width: 0;
-  cursor: pointer;
-
-  width: 100%;
-
-  padding: 0px;
-  font-size: 14px;
-  line-height: 13px;
-  color: var(--text-color-details);
-}
-
-.serverHostSelectBtn:hover {
-  opacity: 0.7;
+  padding: 10px;
 }
 
 .serverName {
@@ -885,17 +542,55 @@ div.sortSelectedImg {
   min-width: 13px;
 }
 
-//------------------------------------------------------
-// in use for minimalistic UI
-// (reduced width and position shifted left)
-.popupMinShifted .popuptextMinShifted {
-  min-width: 160px;
-  max-width: 160px;
-  margin-left: -125px;
+.empty-fav-img-bg {
+  height: 100vh;
+  width: 100%;
+  text-align: center;
+  padding-top: 30%;
 }
-// in use for minimalistic UI (arrow location shifted right)
-.popupMinShifted .popuptextMinShifted::after {
-  margin-left: 32px;
+
+.card {
+  --bs-card-border-color: none;
+  --bs-card-bg: rgba(246, 246, 246, 1);
+  --bs-card-spacer-y: 5px;
+  --bs-card-spacer-x: 15px;
 }
-//------------------------------------------------------
+
+.card-header {
+  border-radius: 8px !important;
+  background-color: rgba(246, 246, 246, 1) !important;
+  padding: 0 !important;
+  border-bottom: none;
+  border-color: rgba(246, 246, 246, 1);
+}
+
+.accordion {
+  border-radius: 0 !important;
+}
+
+.dark .card {
+  --bs-card-border-color: none;
+  --bs-card-bg: rgba(41, 41, 48, 0);
+}
+
+.dark .card-header {
+  background-color: #202325 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.card-body {
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.nav {
+  border-bottom: 1px solid #ebc553;
+}
+
+.close-btn {
+  background: none;
+}
+
+a.nav-link.active {
+  border-bottom: 3px solid #ebc553;
+}
 </style>

@@ -19,7 +19,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with the UI for IVPN Client Desktop. If not, see <https://www.gnu.org/licenses/>.
 //
-
+export function isStrNullOrEmpty(str) {
+  return !str || str.length === 0;
+}
 export function enumValueName(theEnum, value) {
   for (var k in theEnum) if (theEnum[k] == value) return k;
   return null;

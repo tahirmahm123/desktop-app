@@ -88,7 +88,7 @@ export function InitPersistentSettings() {
     }
   } else {
     console.log(
-      "Settings file not exist (probably, the first application start)"
+      "Settings file not exist (probably, the first application start)",
     );
   }
 
@@ -130,7 +130,7 @@ export function InitPersistentSettings() {
     } catch (e) {
       console.error(
         `Error in InitPersistentSettings (store.subscribe ${mutation.type}):`,
-        e
+        e,
       );
     }
   });

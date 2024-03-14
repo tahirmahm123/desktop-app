@@ -68,6 +68,7 @@ const daemonRequests = Object.freeze({
   SessionNew: "SessionNew",
   SessionDelete: "SessionDelete",
   AccountStatus: "AccountStatus",
+  VerifyPin: "VerifyPin",
 
   WiFiSettings: "WiFiSettings",
   ConnectSettings: "ConnectSettings",
@@ -187,7 +188,7 @@ function toJson(data) {
   if (repCount > intCount) {
     // You have a string somewhere that looks like "123#bigint";
     throw new Error(
-      "BigInt serialization pattern conflict with a string value."
+      "BigInt serialization pattern conflict with a string value.",
     );
   }
 
@@ -207,7 +208,7 @@ function send(request, reqNo) {
   }
   if (typeof request.Command === "undefined") {
     throw Error(
-      'Unable to send request. Unknown command: "' + request.Command + '"'
+      'Unable to send request. Unknown command: "' + request.Command + '"',
     );
   }
 
@@ -242,14 +243,14 @@ function addWaiter(waiter, timeoutMs) {
           if (waiters[i] === waiter) {
             waiters.splice(i, 1);
             reject(
-              new Error("Response timeout (no response from the daemon).")
+              new Error("Response timeout (no response from the daemon)."),
             );
             break;
           }
         }
       },
 
-      timeoutMs != null && timeoutMs > 0 ? timeoutMs : DefaultResponseTimeoutMs
+      timeoutMs != null && timeoutMs > 0 ? timeoutMs : DefaultResponseTimeoutMs,
     );
   });
 
@@ -331,7 +332,7 @@ async function processResponse(response) {
     if (obj.Command == "APIResponse")
       log.debug(
         `<== ${obj.Command}  [${obj.Idx}] ${obj.APIPath}` +
-          (obj.Error ? " Error!" : "")
+          (obj.Error ? " Error!" : ""),
       );
     else log.debug(`<== ${obj.Command} [${obj.Idx}]`);
   } else log.error(`<== ${response}`);
@@ -381,7 +382,7 @@ async function processResponse(response) {
         if (obj.DaemonSettings.AntiTracker)
           store.dispatch(
             "settings/antiTracker",
-            obj.DaemonSettings.AntiTracker
+            obj.DaemonSettings.AntiTracker,
           );
       }
 
@@ -465,6 +466,7 @@ async function processResponse(response) {
 
     case daemonResponses.ServerListResp:
       if (obj.VpnServers == null) break;
+      log.error("Server List Response: ", obj.VpnServers);
       store.dispatch(`vpnState/servers`, obj.VpnServers);
       break;
 
@@ -690,7 +692,7 @@ async function convertAndSyncOldSettings() {
       store.commit("settings/replaceState", settings);
     } catch (e) {
       log.error(
-        "Failed to convert old style settings (autoconnect_on_launch): " + e
+        "Failed to convert old style settings (autoconnect_on_launch): " + e,
       );
     }
   }
@@ -791,7 +793,7 @@ async function ConnectToDaemon(setConnState, onDaemonExitingCallback) {
     portInfo = { port: parsed[0], secret: parsed[1] };
   } catch (e) {
     log.error(
-      `DAEMON CONNECTION ERROR: Unable to obtain IVPN daemon connection parameters: ${e}`
+      `DAEMON CONNECTION ERROR: Unable to obtain IVPN daemon connection parameters: ${e}`,
     );
     throw e;
   }
@@ -847,7 +849,7 @@ async function ConnectToDaemon(setConnState, onDaemonExitingCallback) {
           // the 'store.state.daemonVersion' and 'store.state.daemonIsOldVersionError' must be already initialized
           if (store.state.daemonIsOldVersionError === true) {
             const err = Error(
-              `Unsupported IVPN Daemon version: v${store.state.daemonVersion} (minimum required v${config.MinRequiredDaemonVer})`
+              `Unsupported IVPN Daemon version: v${store.state.daemonVersion} (minimum required v${config.MinRequiredDaemonVer})`,
             );
             err.unsupportedDaemonVersion = true;
             disconnectDaemonFunc(err); // REJECT
@@ -926,11 +928,23 @@ async function Login(accountID, force, captchaID, captcha, confirmation2FA) {
   // it contains details about error
   return resp;
 }
+async function VerifyPin(code) {
+  let resp = await sendRecv({
+    Command: daemonRequests.VerifyPin,
+    Code: code,
+  });
+
+  if (resp.APIStatus === API_SUCCESS) commitSession(resp.Session);
+
+  // Returning whole response object (even in case of error)
+  // it contains details about error
+  return resp;
+}
 
 async function Logout(
   needToResetSettings,
   needToDisableFirewall,
-  isCanDeleteSessionLocally
+  isCanDeleteSessionLocally,
 ) {
   const isExpectedAccountToBeLoggedIn =
     store.state.settings.isExpectedAccountToBeLoggedIn;
@@ -1060,19 +1074,13 @@ async function GeoLookup() {
 
   // IPv4 request...
   doGeoLookup(_geoLookupLastRequestId);
-  // IPv6 request ...
-  doGeoLookup(_geoLookupLastRequestId, true);
 }
 
 async function doGeoLookup(requestID, isIPv6, isRetryTry) {
-  if (isIPv6 == undefined) isIPv6 = false;
-
-  let ipVerStr = isIPv6 ? "(IPv6)" : "(IPv4)";
-
+  let ipVerStr = "(IPv4)";
   // Determining the properties names (according to 'isIPv6' parameter)
-  let propName_Location = isIPv6 == true ? "locationIPv6" : "location";
-  let propName_IsRequestingLocation =
-    isIPv6 == true ? "isRequestingLocationIPv6" : "isRequestingLocation";
+  let propName_Location = "location";
+  let propName_IsRequestingLocation = "isRequestingLocation";
 
   // Function returns 'true' then we received location info in disconnected state
   let isRealGeoLocationCheck = function () {
@@ -1222,7 +1230,7 @@ async function PingServers() {
         VpnTypePrioritization: true,
         VpnTypePrioritized: store.state.settings.vpnType,
       },
-      [daemonResponses.PingServersResp]
+      [daemonResponses.PingServersResp],
     );
 
     ret = await pingServersPromise;
@@ -1296,7 +1304,7 @@ async function Connect() {
     const filterSvrsExcludeSameCountryIsp = function (servers, svr) {
       if (!servers) return servers;
       let tmpSvrs = servers.filter(
-        (s) => s.country_code !== svr.country_code && s.isp !== svr.isp
+        (s) => s.country_code !== svr.country_code && s.isp !== svr.isp,
       );
       if (tmpSvrs.length == 0) return servers; // fallback (if filtered list is empty)
       return tmpSvrs;
@@ -1310,7 +1318,7 @@ async function Connect() {
       if (fastest == null || funcGetPing(fastest) == null) {
         // request servers ping
         console.log(
-          "Connect to fastest server (fastest server not defined). Pinging servers..."
+          "Connect to fastest server (fastest server not defined). Pinging servers...",
         );
 
         try {
@@ -1344,10 +1352,10 @@ async function Connect() {
       const servers = store.getters["vpnState/activeServers"];
       const exitServers = filterSvrsExcludeSameCountryIsp(
         servers,
-        settings.serverEntry
+        settings.serverEntry,
       );
       const randomIdx = Math.floor(
-        Math.random() * Math.floor(exitServers.length)
+        Math.random() * Math.floor(exitServers.length),
       );
       store.dispatch("settings/serverExit", exitServers[randomIdx]);
     }
@@ -1388,7 +1396,7 @@ async function Disconnect() {
     {
       Command: daemonRequests.Disconnect,
     },
-    [daemonResponses.DisconnectedResp]
+    [daemonResponses.DisconnectedResp],
   );
 }
 
@@ -1479,7 +1487,7 @@ async function SplitTunnelGetStatus() {
     {
       Command: daemonRequests.SplitTunnelGetStatus,
     },
-    [daemonResponses.SplitTunnelStatus]
+    [daemonResponses.SplitTunnelStatus],
   );
   return ret;
 }
@@ -1488,7 +1496,7 @@ async function SplitTunnelSetConfig(
   IsInversed,
   IsAnyDns,
   IsAllowWhenNoVpn,
-  doReset
+  doReset,
 ) {
   let stCfg = store.state.vpnState.splitTunnelling;
   if (stCfg) {
@@ -1523,7 +1531,7 @@ async function SplitTunnelAddApp(execCmd, funcShowMessageBox) {
       Command: daemonRequests.SplitTunnelAddApp,
       Exec: execCmd,
     },
-    [daemonResponses.SplitTunnelAddAppCmdResp, daemonResponses.EmptyResp]
+    [daemonResponses.SplitTunnelAddAppCmdResp, daemonResponses.EmptyResp],
   );
 
   if (ret != null && ret.Command != daemonResponses.ErrorResp) {
@@ -1552,7 +1560,7 @@ async function SplitTunnelAddApp(execCmd, funcShowMessageBox) {
   if (ret != null && ret.Command == daemonResponses.SplitTunnelAddAppCmdResp) {
     if (Platform() != PlatformEnum.Linux) {
       throw new Error(
-        "Launching external commands in the Split Tunnel environment is not supported for this platform"
+        "Launching external commands in the Split Tunnel environment is not supported for this platform",
       );
     }
 
@@ -1618,7 +1626,7 @@ async function SplitTunnelAddApp(execCmd, funcShowMessageBox) {
 
       console.log(
         "Started command in Split Tunnel environment: PID=",
-        child.pid
+        child.pid,
       );
 
       // No necessary to send 'SplitTunnelAddedPidInfo'
@@ -1665,7 +1673,7 @@ async function GetInstalledApps() {
         let envs = { ...process.env, XDG_CURRENT_DESKTOP: XDG_CURRENT_DESKTOP };
         iconsThemeName = execSync(
           "/usr/bin/gsettings get org.gnome.desktop.interface icon-theme",
-          { env: envs }
+          { env: envs },
         )
           .toString()
           .trim()
@@ -1698,7 +1706,7 @@ async function GetInstalledApps() {
         ExtraArgsJSON: extraArgsJson,
       },
       [daemonResponses.InstalledAppsResp],
-      responseTimeoutMs
+      responseTimeoutMs,
     );
 
     if (appsResp == null) {
@@ -1778,7 +1786,7 @@ async function SetUserPrefs(userPrefs) {
 
 async function SetAutoconnectOnLaunch(
   enable,
-  isApplicableByDaemonInBackground
+  isApplicableByDaemonInBackground,
 ) {
   if (enable != null && enable != undefined) {
     await sendRecv({
@@ -1890,7 +1898,7 @@ export default {
   Login,
   Logout,
   AccountStatus,
-
+  VerifyPin,
   GetAppUpdateInfo,
 
   GeoLookup,

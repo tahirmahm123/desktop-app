@@ -21,7 +21,6 @@
 //
 
 import { enumValueName, getDistanceFromLatLonInKm } from "../helpers/helpers";
-import { IsServerSupportIPv6 } from "@/helpers/helpers_servers";
 import {
   VpnTypeEnum,
   VpnStateEnum,
@@ -318,12 +317,8 @@ export default {
       // save the info about the first applicable server (which is not in skipSvrs)
       let fallbackSvr = null;
 
-      let getGatewayId = function (gatewayName) {
-        return gatewayName.split(".")[0];
-      };
-
       let selectedGwId = rootState.settings.serverEntry
-        ? getGatewayId(rootState.settings.serverEntry.gateway)
+        ? rootState.settings.serverEntry.flag
         : null;
 
       const funcGetPing = getters["funcGetPing"];
@@ -332,8 +327,8 @@ export default {
         if (!curSvr) continue;
 
         // skip servers which user excluded from the 'fastest server' list
-        const curGwID = getGatewayId(curSvr.gateway);
-        if (skipSvrs.find((ss) => curGwID == getGatewayId(ss))) continue;
+        const curGwID = curSvr.flag;
+        if (skipSvrs.find((ss) => curGwID === ss)) continue;
 
         if (!fallbackSvr && selectedGwId === curGwID) fallbackSvr = curSvr;
 
@@ -381,8 +376,7 @@ export default {
             // get nearest server
             for (let i = 0; i < sortedSvrs.length; i++) {
               let curSvr = sortedSvrs[i];
-              if (skipSvrs != null && skipSvrs.includes(curSvr.gateway))
-                continue;
+              if (skipSvrs != null && skipSvrs.includes(curSvr.flag)) continue;
               retSvr = curSvr;
               break;
             }
@@ -404,10 +398,10 @@ export default {
           vpnType = rootState.settings.vpnType;
 
         let customPortsType = PortTypeEnum.UDP; // type of applicable custom ports (null or PortTypeEnum.UDP/PortTypeEnum.TCP)
-        let ports = state.servers.config.ports.wireguard;
+        let ports = state.servers.wireguard;
         if (vpnType === VpnTypeEnum.OpenVPN) {
           customPortsType = null; // OpenVPN supports both UDP and TCP ports
-          ports = state.servers.config.ports.openvpn;
+          ports = state.servers.openvpn;
         }
         if (!ports) ports = [];
 
@@ -652,7 +646,13 @@ export default {
     servers(context, value) {
       // Update servers data and hashes: {servers, serversHashed}
       // (avoid doing all calculations in mutation to do not freeze the UI!)
-      const serversInfoObj = updateServers(context.state.servers, value);
+      console.log("Servers List: ", value);
+      const servers = {
+        wireguard: value.servers.wireguard,
+        openvpn: value.servers.openvpn,
+      };
+      console.log(servers);
+      const serversInfoObj = updateServers(servers, value);
       // Apply new servers data
       context.commit("setServersData", serversInfoObj);
       // notify 'settings' module about updated servers list
@@ -739,23 +739,11 @@ function updateFirewallSettings(context) {
 
 function getActiveServers(state, rootState) {
   const vpnType = rootState.settings.vpnType;
-  const enableIPv6InTunnel = rootState.settings.enableIPv6InTunnel;
-  const showGatewaysWithoutIPv6 = rootState.settings.showGatewaysWithoutIPv6;
 
   if (vpnType === VpnTypeEnum.OpenVPN) {
-    // IPv6 in not implemented for OpenVPN
-    return state.servers.openvpn;
+    return state.servers.servers.openvpn;
   }
-
-  let wgServers = state.servers.wireguard;
-  if (enableIPv6InTunnel == true && showGatewaysWithoutIPv6 != true) {
-    // show only servers which support IPv6
-    return wgServers.filter((s) => {
-      return IsServerSupportIPv6(s) === true;
-    });
-  }
-
-  return wgServers;
+  return state.servers.servers.wireguard;
 }
 
 function findServerByIp(servers, ip) {
@@ -774,9 +762,9 @@ function findServerByIp(servers, ip) {
 
 function findServerByHostname(servers, hostname) {
   for (const srv of servers) {
-    if (!srv || !srv.hosts) continue;
+    if (!srv || !srv.servers) continue;
     for (const host of srv.hosts) {
-      if (host.hostname == hostname) return srv;
+      if (host.ip == hostname) return srv;
     }
   }
 }
@@ -804,7 +792,7 @@ function updateServers(oldServers, newServers) {
     if (retObj == null) retObj = {};
     for (let i = 0; i < servers.length; i++) {
       let svr = servers[i];
-      retObj[svr.gateway] = svr; // hash
+      retObj[svr.ip] = svr; // hash
     }
     return retObj;
   }
@@ -819,7 +807,7 @@ function updateServers(oldServers, newServers) {
     return a.city.localeCompare(b.city);
   }
   newServers.wireguard.sort(compare);
-  newServers.openvpn.sort(compare);
+  // newServers.openvpn.sort(compare);
 
   return {
     servers: newServers,

@@ -31,7 +31,11 @@ function GetResourcesPath() {
   }
   return process.resourcesPath;
 }
-
+export const MainDomain = "goldenguardvpn.com";
+export const FullDomain = "https://" + MainDomain;
+export const NewPinUrl = `${FullDomain}/get-pin`;
+export const PrivacyPolicyUrl = `${FullDomain}/privacy-policy`;
+export const TermsOfServiceUrl = `${FullDomain}/terms-of-service`;
 export default {
   MinRequiredDaemonVer: "3.13.4",
 
@@ -40,9 +44,8 @@ export default {
   UpdateWindowWidth: 600,
 
   // shellOpenExternal(...) allows only URLs started with this prefix
-  URLsAllowedPrefixes: ["https://www.ivpn.net", "https://ivpn.net"],
-  URLApps: "https://www.ivpn.net/apps/",
-
+  URLsAllowedPrefixes: ["https://www." + MainDomain, FullDomain],
+  URLApps: `https://www.${MainDomain}/download/`,
   IsDebug,
   GetResourcesPath,
 };

@@ -472,17 +472,6 @@ func (s *Service) getServerCountryCode(params types.ConnectionParams, isEntrySer
 	return ""
 }
 
-type hostBaseInterface interface {
-	apiTypes.OpenVPNServerHostInfo | apiTypes.WireGuardServerHostInfo
-	GetHostInfoBase() apiTypes.HostInfoBase
-}
-
-type serverBaseInterface interface {
-	apiTypes.WireGuardServerInfo | apiTypes.OpenvpnServerInfo
-	GetServerInfoBase() apiTypes.ServerInfoBase
-	GetHostsInfoBase() []apiTypes.HostInfoBase
-}
-
 // Return country code of server
 func getServerCountryCode(service *Service, serverHosts []apiTypes.ServerListItem) string {
 	for _, pHost := range serverHosts {

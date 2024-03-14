@@ -40,7 +40,6 @@ func (a *API) doRequest(urlPath string, requestType string, request interface{},
 			return nil, err
 		}
 	}
-
 	bodyBuffer := bytes.NewBuffer(data)
 	req, err := newRequest(urlPath, requestType, headers, bodyBuffer)
 	if err != nil {

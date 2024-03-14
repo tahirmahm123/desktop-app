@@ -30,7 +30,7 @@ function InstallDaemon(onInstallationStarted, done) {
   try {
     let cmd = spawn(
       "/Applications/IVPN.app/Contents/MacOS/IVPN Installer.app/Contents/MacOS/IVPN Installer",
-      ["--install_helper"]
+      ["--install_helper"],
     );
 
     if (onInstallationStarted != null) onInstallationStarted();
@@ -63,7 +63,7 @@ function TryStartDaemon(done) {
   try {
     let cmd = spawn(
       "/Applications/IVPN.app/Contents/MacOS/IVPN Installer.app/Contents/MacOS/IVPN Installer",
-      ["--start_helper"]
+      ["--start_helper"],
     );
 
     cmd.stderr.on("data", (err) => {
@@ -96,7 +96,7 @@ function IsDaemonInstallationRequired(onResultFunc) {
   try {
     let cmd = spawn(
       "/Applications/IVPN.app/Contents/MacOS/IVPN Installer.app/Contents/MacOS/IVPN Installer",
-      ["--is_helper_installation_required"]
+      ["--is_helper_installation_required"],
     );
 
     cmd.on("error", (err) => {
@@ -125,7 +125,7 @@ function InstallDaemonIfRequired(onInstallationStarted, done) {
     });
   } catch (e) {
     console.log(
-      `Failed to run [[IVPN Installer --is_helper_installation_required]]: ${e}`
+      `Failed to run [[IVPN Installer --is_helper_installation_required]]: ${e}`,
     );
     if (done) done(-1);
   }

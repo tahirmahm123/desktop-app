@@ -32,36 +32,32 @@
 <script>
 const sender = window.ipcSender;
 
+import { VpnStateEnum } from "@/store/types";
+
 export default {
   computed: {},
 
   methods: {
-    async ChangeHop(isMultihop) {
+    ChangeHop(isMultihop) {
       if (this.$store.state.settings.isMultiHop === isMultihop) return;
+      if (
+        this.$store.state.vpnState.connectionState !== VpnStateEnum.DISCONNECTED
+      ) {
+        sender.showMessageBox({
+          type: "info",
+          buttons: ["OK"],
+          message: "You are now connected to VPN",
+          detail:
+            "You can change Multi-Hop settings only when VPN is disconnected.",
+        });
+        return;
+      }
 
       this.$store.dispatch(
         `settings/isMultiHop`,
         !this.$store.state.settings.isMultiHop,
       );
-
-      if (
-        this.$store.getters["vpnState/isConnected"] ||
-        this.$store.getters["vpnState/isConnecting"]
-      ) {
-        // Re-connect
-        try {
-          await sender.Connect();
-        } catch (e) {
-          console.error(e);
-          sender.showMessageBoxSync({
-            type: "error",
-            buttons: ["OK"],
-            message: `Failed to connect: ` + e,
-          });
-        }
-      }
     },
-
     showServersList(isExitServer) {
       this.onShowServersPressed(isExitServer);
     },

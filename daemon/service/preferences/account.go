@@ -24,7 +24,6 @@ package preferences
 
 import (
 	"fmt"
-	"strings"
 )
 
 type Capability string
@@ -35,42 +34,10 @@ const (
 
 // AccountStatus contains information about current account
 type AccountStatus struct {
-	Active         bool
-	ActiveUntil    int64
-	CurrentPlan    string
-	PaymentMethod  string
-	IsRenewable    bool
-	WillAutoRebill bool
-	IsFreeTrial    bool
-	Capabilities   []string
-	Upgradable     bool
-	UpgradeToPlan  string
-	UpgradeToURL   string
-	Limit          int
-}
-
-func (a AccountStatus) IsInitialized() bool {
-	return len(a.CurrentPlan) > 0 || len(a.Capabilities) > 0
-}
-
-func (a AccountStatus) IsHasCapability(cap Capability) bool {
-	for _, c := range a.Capabilities {
-		if strings.ToLower(c) == string(cap) {
-			return true
-		}
-	}
-	return false
+	Active      bool
+	ActiveUntil int64
 }
 
 func (a AccountStatus) IsCanConnectMultiHop() error {
-	if !a.IsInitialized() {
-		// It could be that account status is not known. We allow MH in this case.
-		// It can happen on upgrading from an old version (which did not keep s._preferences.Account)
-		return nil
-	}
-
-	if a.IsHasCapability(MultiHop) {
-		return nil
-	}
 	return fmt.Errorf("MultiHop connections are not allowed for the current subscription plan. Please upgrade your subscription to Pro")
 }

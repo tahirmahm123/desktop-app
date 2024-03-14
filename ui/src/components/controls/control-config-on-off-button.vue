@@ -1,17 +1,8 @@
 <template>
-  <div>
+  <div class="mainScreenCards">
     <div class="switchButton">
       <div align="left">
-        <button
-          v-if="onTextClick"
-          class="noBordersTextBtnEx"
-          v-on:click="onTextClick"
-          :title="textClickTooltip"
-        >
-          <div class="large_text">{{ text }}</div>
-        </button>
-        <div v-else class="large_text">{{ text }}</div>
-
+        <div class="large_text">{{ text }}</div>
         <div style="height: 5px" />
         <div class="small_text">
           {{ description }}
@@ -46,8 +37,6 @@ export default {
     "description",
     "checkedColor",
     "switcherOpacity",
-    "onTextClick",
-    "textClickTooltip",
   ],
   computed: {
     switcherStyle: function () {
@@ -79,14 +68,10 @@ export default {
   justify-content: space-between;
   align-items: center;
 }
-
-button.noBordersTextBtnEx {
-  @extend .noBordersTextBtn;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  width: 100%;
+.mainScreenCards {
+  border: 1px solid rgba(139, 154, 171, 0.17);
+  border-radius: 12px;
+  width: 50%;
+  margin-right: 10px;
 }
 </style>

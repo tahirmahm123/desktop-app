@@ -21,20 +21,22 @@
 //
 
 import { createApp } from "vue";
-
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
+import "@/main_style.js";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap";
+import "@/assets/css/style.scss";
 
 const sender = window.ipcSender;
 
-import "@/main_style.js";
+// import "@/main_style.js";
 
 const app = createApp(App);
 app.use(store);
 app.use(router);
 app.mount("#app");
-
 // Waiting for "change view" requests from main thread
 const ipcRenderer = sender.GetSafeIpcRenderer();
 ipcRenderer.on("main-change-view-request", (event, arg) => {

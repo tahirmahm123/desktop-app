@@ -8,6 +8,7 @@
 
 <script>
 export default {
+  components: {},
   props: {
     loading: {
       type: Boolean,
@@ -15,11 +16,11 @@ export default {
     },
     color: {
       type: String,
-      default: "#3385ff",
+      default: "#FA7C7F",
     },
     radius: {
       type: Number,
-      default: 50,
+      default: 70,
     },
   },
   data() {
@@ -67,7 +68,7 @@ export default {
   //border-top-color: #66a3ff;
   //border-top-color: #a0a0a0;
 
-  border-top-color: #3385ff;
+  border-top-color: #fd2411;
   opacity: 1;
 
   animation: spin 2s linear infinite;

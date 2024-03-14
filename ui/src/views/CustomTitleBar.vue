@@ -30,6 +30,7 @@
 
 <script>
 import { IsWindowHasFrame } from "@/platform/platform";
+
 const sender = window.ipcSender;
 
 export default {
@@ -77,11 +78,7 @@ export default {
 
   height: 24px;
   width: 100%;
-
-  position: absolute;
-
   z-index: 100;
-
   display: flex;
   justify-content: flex-end;
 }

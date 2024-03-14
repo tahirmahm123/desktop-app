@@ -44,7 +44,7 @@ async function executeOpenSSlCommand(opensslArgs) {
 
 export async function ValidateFileOpenSSLCertificate(
   fileToValidate,
-  signSha256FileBase64
+  signSha256FileBase64,
 ) {
   let tmpSignSha256File = signSha256FileBase64
     .split(".")
@@ -94,7 +94,7 @@ export async function ValidateFileOpenSSLCertificate(
 export async function ValidateDataOpenSSLCertificate(
   dataToValidate,
   sha256SignatureInBase64,
-  dataName
+  dataName,
 ) {
   let tmpFileToValidate = path.join(os.tmpdir(), `tmp_${dataName}`);
   let tmpSignFileBase64 = tmpFileToValidate + ".sign.sha256.base64";
@@ -104,7 +104,7 @@ export async function ValidateDataOpenSSLCertificate(
 
     let retValue = await ValidateFileOpenSSLCertificate(
       tmpFileToValidate,
-      tmpSignFileBase64
+      tmpSignFileBase64,
     );
 
     return retValue;

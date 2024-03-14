@@ -29,11 +29,11 @@
     </div>
   </div>
 </template>
+
 <script>
 import { PingQuality } from "@/store/types";
-import { IsServerSupportIPv6 } from "@/helpers/helpers_servers";
 
-import Image_speedometer from "@/assets/speedometer.svg";
+import Image_speedometer from "@/assets/flash.svg";
 import Image_shuffle from "@/assets/shuffle.svg";
 import Image_iconStatusGood from "@/assets/iconStatusGood.svg";
 import Image_iconStatusModerate from "@/assets/iconStatusModerate.svg";
@@ -42,8 +42,6 @@ import Image_iconStatusBad from "@/assets/iconStatusBad.svg";
 export default {
   props: {
     server: Object,
-    serverHostName: String, // in use on Main view to show selected host for selected server
-    isFavoriteServersView: Boolean,
     isLargeText: Boolean,
 
     isSingleLine: Boolean,
@@ -53,10 +51,6 @@ export default {
 
     isFastestServer: Boolean,
     isRandomServer: Boolean,
-
-    onExpandClick: Function,
-    isExpanded: Boolean,
-    SecondLineMaxWidth: String,
   },
   data: () => ({
     isImgLoadError: false,
@@ -79,27 +73,14 @@ export default {
       if (!this.server.city) return this.server.country;
 
       if (this.isCountryFirst) {
-        if (this.isFullName === "true")
-          return `${this.server.country}, ${this.server.city}`;
-        return `${this.server.country_code}, ${this.server.city}`;
+        if (this.isFullName === "true") return `${this.server.country}`;
+        return `${this.server.flag}, ${this.server.name}`;
       } else {
         if (this.isFullName === "true")
           return `${this.server.city}, ${this.server.country}`;
         return `${this.server.city}, ${this.server.country_code}`;
       }
     },
-    selectedHostInfo: function () {
-      if (!this.serverHostName) return "";
-      return "(" + this.serverHostName.split(".")[0] + ")";
-    },
-    isp: function () {
-      if (!this.server || !this.server.isp) return "";
-      return "(ISP: " + this.server.isp + ")";
-    },
-    showISPInfo: function () {
-      return this.$store.state.settings.showISPInfo;
-    },
-
     multilineFirstLine: function () {
       if (!this.server) return "";
       if (this.isCountryFirst) return this.server.country;
@@ -107,19 +88,7 @@ export default {
     },
     multilineSecondLine: function () {
       if (!this.server) return "";
-
-      if (this.isFavoriteServersView && this.$store.state.settings.showHosts) {
-        // only for favorite hosts (host object extended by all properties from parent server object +favHostParentServerObj +favHost)
-        let favHost = this.server.favHost;
-        // if favorite server has only one host: show it as a host
-        if (this.server.hosts.length === 1) {
-          favHost = this.server.hosts[0];
-        }
-        if (favHost)
-          return `${favHost.hostname} (${Math.round(favHost.load)}%)`;
-      }
-
-      if (this.isCountryFirst) return this.server.city;
+      if (this.isCountryFirst) return this.server.name;
       return this.server.country;
     },
     isCountryFlagInUse: function () {
@@ -128,20 +97,18 @@ export default {
     isShowIPVersionBage: function () {
       return (
         this.$store.state.settings.enableIPv6InTunnel && // IPv6 enabled
-        this.$store.state.settings.showGatewaysWithoutIPv6 && // and we show both types of servers (IPv4 and IPv6)
-        this.isIPv6 === true
+        this.$store.state.settings.showGatewaysWithoutIPv6 // and we show both types of servers (IPv4 and IPv6)
       );
     },
     isIPv6: function () {
-      return IsServerSupportIPv6(this.server);
+      return this.server.isIPv6 == true;
     },
     serverImage: function () {
       if (this.isFastestServer === true) return Image_speedometer;
       if (this.isRandomServer === true) return Image_shuffle;
       if (!this.server) return `/flags/unk.svg`;
       try {
-        const ccode = this.server.country_code.toUpperCase();
-        return `/flags/svg/${ccode}.svg`;
+        return `/flags/svg/${this.server.country_code.toLowerCase()}.svg`;
       } catch (e) {
         console.log(e);
         return null;

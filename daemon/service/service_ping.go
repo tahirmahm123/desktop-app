@@ -37,7 +37,6 @@ import (
 	"github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
 	"github.com/tahirmahm123/vpn-desktop-app/daemon/helpers"
 	"github.com/tahirmahm123/vpn-desktop-app/daemon/ping"
-	protocolTypes "github.com/tahirmahm123/vpn-desktop-app/daemon/protocol/types"
 	"github.com/tahirmahm123/vpn-desktop-app/daemon/vpn"
 )
 
@@ -143,7 +142,7 @@ func (s *Service) PingServers(firstPhaseTimeoutMs int, vpnTypePrioritized vpn.Ty
 	onGeoLookupChan := make(chan *types.GeoLookupResponse, 1)
 	if firstPhaseTimeoutMs >= 2000 {
 		go func() {
-			geoLocation, _, err := s._api.GeoLookup(2000, protocolTypes.IPvAny)
+			geoLocation, _, err := s._api.GeoLookup()
 			if err != nil {
 				log.Warning("(pinging) unable to obtain geo-location (fastest server detection could be not accurate):", err)
 				return
@@ -198,8 +197,8 @@ func (s *Service) ping_getHosts(vpnTypePrioritized vpn.Type, skipSecondPhase boo
 		return nil, fmt.Errorf("unable to get servers list: %w", err)
 	}
 
-	svrsWg := servers.ServersGenericWireguard()
-	svrsOvpn := servers.ServersGenericOpenvpn()
+	svrsWg := servers.ServerList.WireGuardServers
+	svrsOvpn := servers.ServerList.OpenVPNServers
 	uniqueHosts := make(map[string]pingHost, len(svrsWg)+len(svrsOvpn)) // map[hostIP]hostObject
 
 	getVpnPriorityFunc := func(vpnType vpn.Type, vpnTypePrioritized vpn.Type) int {
@@ -272,7 +271,7 @@ func (s *Service) ping_sortHosts(hosts []pingHost, currentLocation *types.GeoLoo
 	// sorting by priority and by location
 	cLat, cLot := float64(0), float64(0)
 	if currentLocation != nil {
-		cLat, cLot = float64(currentLocation.Latitude), float64(currentLocation.Longitude)
+		cLat, cLot = float64(currentLocation.Latitude()), float64(currentLocation.Longitude())
 	}
 
 	sort.Slice(hosts, func(i, j int) bool {

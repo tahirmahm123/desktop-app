@@ -1,17 +1,17 @@
 <template>
-  <div class="flexColumn">
+  <div>
     <div class="settingsTitle">ACCOUNT SETTINGS</div>
 
-    <div class="flexColumn">
+    <div class="flexColumn" style="height: min-content">
       <spinner :loading="isProcessing" />
 
       <div class="flexRowSpace">
         <div class="flexColumn">
-          <div class="settingsGrayDescriptionFont">Account ID</div>
+          <div class="settingsGrayDescriptionFont">Username</div>
 
-          <div class="settingsBigBoldFont" id="accountID">
+          <div class="settingsBigBoldFont" id="username">
             <label class="settingsBigBoldFont selectable">
-              {{ this.$store.state.account.session.AccountID }}
+              {{ this.$store.state.account.session.Username }}
             </label>
           </div>
           <div>
@@ -30,7 +30,7 @@
           </div>
         </div>
 
-        <div ref="qrcode" class="qrcode"></div>
+        <!--        <div ref="qrcode" class="qrcode"></div>-->
       </div>
 
       <!-- ACCOUNT EXPIRATION TEXT -->
@@ -68,26 +68,27 @@
               Upgrade
             </button>
           </div>
-          <div v-if="IsActive && IsShowActiveUntil">
+
+          <div v-if="IsActive">
             <div class="settingsGrayDescriptionFont">Active until</div>
             <div class="defColor" style="margin-top: 5px; margin-bottom: 4px">
               {{ ActiveUntil }}
             </div>
 
-            <button
-              class="noBordersTextBtn settingsLinkText"
-              v-on:click="addMoreTime"
-            >
-              Add more time
-            </button>
+            <!--            <button
+                          class="noBordersTextBtn settingsLinkText"
+                          v-on:click="addMoreTime"
+                        >
+                          Add more time
+                        </button>-->
           </div>
         </div>
       </div>
 
       <div class="proAcountDescriptionBlock" v-if="IsCanUpgradeToPro">
         <p>
-          <strong>IVPN PRO</strong> gives you more possibilities to stay safe
-          and protected:
+          <strong>VPN PRO</strong> gives you more possibilities to stay safe and
+          protected:
         </p>
 
         <div>
@@ -98,12 +99,39 @@
           <div class="i">*</div>
           Use <strong>Multi-Hop</strong> connections
         </div>
+        <div>
+          <div class="i">*</div>
+          Turn on <strong>Port forwarding</strong>
+        </div>
         <p>Login to the website to change subscription plan</p>
       </div>
     </div>
 
     <div class="flexRow">
-      <button id="logoutButton" v-on:click="logOut()">LOG OUT</button>
+      <button id="logoutButton" class="master" v-on:click="logOut()">
+        LOG OUT
+      </button>
+    </div>
+    <div class="subscriptionDetails">
+      <div class="settingsBoldFont" style="margin-bottom: 16px">
+        Important Links:
+      </div>
+
+      <div class="flexRowAlignTop">
+        <div style="min-width: 170px; margin-right: 17px">
+          <div class="settingsGrayDescriptionFont">Website</div>
+          <div class="defColor" style="margin-top: 5px; margin-bottom: 4px">
+            <a href="#" v-on:click="openWebsite">{{ this.WebsiteUrl }}</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="settingsGrayDescriptionFont">Support:</div>
+          <div class="defColor" style="margin-top: 5px; margin-bottom: 4px">
+            <a href="#" v-on:click="contactUs">Help and Support Desk</a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -111,8 +139,9 @@
 <script>
 import spinner from "@/components/controls/control-spinner.vue";
 import { dateDefaultFormat } from "@/helpers/helpers";
+import config from "@/config";
 
-import qrcode from "qrcode-generator";
+// import qrcode from "qrcode-generator";
 
 const sender = window.ipcSender;
 
@@ -123,26 +152,29 @@ export default {
   data: function () {
     return {
       isProcessing: false,
+      AppName: config.AppName,
+      WebsiteUrl: config.AppUrl,
+      SupportUrl: config.SupportUrl,
     };
   },
   mounted() {
     // generating QRcode
-    const typeNumber = 2;
-    const errorCorrectionLevel = "M";
-    const qr = qrcode(typeNumber, errorCorrectionLevel);
+    // const typeNumber = 2;
+    // const errorCorrectionLevel = "M";
+    // const qr = qrcode(typeNumber, errorCorrectionLevel);
 
-    let accId = "";
-    if (
-      this.$store.state.account != null &&
-      this.$store.state.account.session != null &&
-      this.$store.state.account.session.AccountID != null
-    ) {
-      accId = this.$store.state.account.session.AccountID;
-    }
-
-    qr.addData(accId);
-    qr.make();
-    this.$refs.qrcode.innerHTML = qr.createSvgTag(3, 10);
+    // let accId = "";
+    // if (
+    //   this.$store.state.account != null &&
+    //   this.$store.state.account.session != null &&
+    //   this.$store.state.account.session.Username != null
+    // ) {
+    //   accId = this.$store.state.account.session.Username;
+    // }
+    //
+    // qr.addData(accId);
+    // qr.make();
+    // this.$refs.qrcode.innerHTML = qr.createSvgTag(3, 10);
 
     // request account status (if not exists)
     if (this.$store.getters["account/isAccountStateExists"] !== true)
@@ -152,21 +184,18 @@ export default {
     async logOut() {
       // check: is it is necessary to warn user about enabled firewall?
       let isNeedPromptFirewallStatus = false;
-      if (this.$store.state.vpnState.firewallState.IsEnabled == true) {
-        isNeedPromptFirewallStatus = true;
-        if (
+      if (this.$store.state.vpnState.firewallState.IsEnabled === true) {
+        isNeedPromptFirewallStatus = !(
           this.$store.state.vpnState.firewallState.IsPersistent === false &&
           this.$store.state.settings.firewallDeactivateOnDisconnect === true &&
           this.$store.getters["vpnState/isDisconnected"] === false
-        ) {
-          isNeedPromptFirewallStatus = false;
-        }
+        );
       }
 
       // show dialog ("confirm to logout")
       let needToDisableFirewall = true;
       let needToResetSettings = false;
-      const mes = "Do you really want to log out IVPN account?";
+      const mes = `Do you really want to log out ${this.AppName} account?`;
       const mesResetSettings = "Reset application settings to defaults";
 
       if (isNeedPromptFirewallStatus == true) {
@@ -248,11 +277,11 @@ export default {
     async accountStatusRequest() {
       await sender.AccountStatus();
     },
-    upgrade() {
-      sender.shellOpenExternal(`https://www.ivpn.net/account`);
+    openWebsite() {
+      sender.shellOpenExternal(this.WebsiteUrl);
     },
-    addMoreTime() {
-      sender.shellOpenExternal(`https://www.ivpn.net/account`);
+    contactUs() {
+      sender.shellOpenExternal(this.SupportUrl);
     },
   },
   computed: {
@@ -268,22 +297,14 @@ export default {
       );
     },
     IsActive: function () {
-      return this.$store.state.account.accountStatus.Active;
-    },
-    IsShowActiveUntil: function () {
-      // Disable active until and Add more time when product name = Member VPN Pro Account
-      // https://github.com/ivpn/desktop-app-shadow/issues/135
-      // TODO: this is bad practice. The team account attribute have to be provideded by backend
-      if (this.CurrentPlan == "Member VPN Pro Account") return false;
-
-      return true;
+      return true; //this.$store.state.account.accountStatus.Active;
     },
     IsCanUpgradeToPro: function () {
       return (
         this.IsAccountStateExists &&
         this.$store.state.account.accountStatus.Upgradable &&
-        this.$store.state.account.accountStatus.CurrentPlan.toLowerCase() !=
-          "ivpn pro"
+        this.$store.state.account.accountStatus.CurrentPlan.toLowerCase() !==
+          "vpn pro"
       );
     },
   },
@@ -363,23 +384,20 @@ export default {
   margin-top: 6px;
 }
 
-#accountID {
+#username {
   margin-top: 3px;
   margin-bottom: 7px;
 }
 
 #logoutButton {
-  @extend .noBordersBtn;
   padding: 5px;
   margin-right: auto;
   margin-left: auto;
-
   font-weight: 500;
   font-size: 10px;
   line-height: 12px;
-
   letter-spacing: 1px;
-
-  color: #8b9aab;
+  background: rgba(240, 78, 82, 0.33);
+  color: #ebc553;
 }
 </style>

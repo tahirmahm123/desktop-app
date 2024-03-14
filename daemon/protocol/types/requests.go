@@ -23,7 +23,6 @@
 package types
 
 import (
-	api_types "github.com/tahirmahm123/vpn-desktop-app/daemon/api/types"
 	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/dns"
 	"github.com/tahirmahm123/vpn-desktop-app/daemon/service/preferences"
 	service_types "github.com/tahirmahm123/vpn-desktop-app/daemon/service/types"
@@ -219,19 +218,14 @@ type ResumeConnection struct {
 	RequestBase
 }
 
-// SessionNew - create new session
+// VerifyPin - create new session
 //
 // When force is set to true - all active sessions will be deleted prior to creating a new one if user reached session limit.
 // Initial call to /sessin/new should always be performed with force set to false, to display special form, when sessions limit is reached.
 // IVPN client apps have to set force to true only when customer clicks Log all other clients button.
-type SessionNew struct {
+type VerifyPin struct {
 	RequestBase
-	AccountID  string
-	ForceLogin bool
-
-	CaptchaID       string
-	Captcha         string
-	Confirmation2FA string
+	Code string
 }
 
 // SessionDelete logout from current device
@@ -282,9 +276,4 @@ type APIRequest struct {
 type ParanoidModeSetPasswordReq struct {
 	RequestBase
 	NewSecret string
-}
-
-type CheckAccessiblePorts struct {
-	RequestBase
-	PortsToTest []api_types.PortInfo // in case of empty - will be tested all known ports
 }

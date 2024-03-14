@@ -41,16 +41,6 @@ type SessionNewRequest struct {
 	Confirmation2FA string `json:"confirmation,omitempty"`
 }
 
-// SessionDeleteRequest request to delete session
-type SessionDeleteRequest struct {
-	Session string `json:"session_token"`
-}
-
-// SessionStatusRequest request to get session status
-type SessionStatusRequest struct {
-	Session string `json:"session_token"`
-}
-
 // SessionWireGuardKeySetRequest request to set new WK key for a session
 type SessionWireGuardKeySetRequest struct {
 	Session            string `json:"session_token"`
@@ -59,41 +49,8 @@ type SessionWireGuardKeySetRequest struct {
 	KemPublicKeys
 }
 
-// UserLoginRequest request to create new session
-type UserLoginRequest struct {
-	Username string        `json:"username"`
-	Password string        `json:"password"`
-	Device   DeviceDetails `json:"deviceDetails"`
-}
-type DeviceDetails struct {
-	Type string `json:"type"`
-	Name string `json:"name"`
-	Id   string `json:"id"`
-}
-type UserDeviceDetails struct {
-	Type string `json:"type"`
-	Name string `json:"name"`
-}
-
-// UserStatusRequest request logout user
-type UserStatusRequest struct {
-}
-
 // ServerListRequest ServerList request
 type ServerListRequest struct {
-}
-
-// UserLogoutRequest request logout user
-type UserLogoutRequest struct {
-}
-
-// DeviceLogoutRequest request to Logout any other Device
-type DeviceLogoutRequest struct {
-	DeviceId int `json:"device_id"`
-}
-
-// DeviceLogoutAllRequest request to logout all other Devices
-type DeviceLogoutAllRequest struct {
 }
 
 // WGKeyUpdateRequest request for rotation of WG keys

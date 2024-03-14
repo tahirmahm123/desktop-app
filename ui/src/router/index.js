@@ -25,6 +25,7 @@ import Main from "../views/Component-Main.vue";
 import AccountLimit from "../views/AccountLimit.vue";
 import Settings from "../views/Component-Settings.vue";
 import Update from "../views/dialogs/Dlg-Update.vue";
+import GetHelp from "../views/GetHelp.vue";
 
 const mainRoutes = [
   {
@@ -36,6 +37,11 @@ const mainRoutes = [
     path: "/account_limit",
     name: "AccountLimit",
     component: AccountLimit,
+  },
+  {
+    path: "/get-help",
+    name: "gethelp",
+    component: GetHelp,
   },
   {
     path: "/settings/:view",

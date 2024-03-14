@@ -22,7 +22,7 @@ export function SentryIsAbleToUse() {
 export function SentryInit() {
   if (!DSN) {
     console.error(
-      "Sentry DSN is not defined. Sending diagnostic reports functionality will not work"
+      "Sentry DSN is not defined. Sending diagnostic reports functionality will not work",
     );
     return;
   }
@@ -102,7 +102,7 @@ export function SentrySendDiagnosticReport(
       // divide field data on multiple smaller portions
       let fields = chunkString(
         eventAdditionalDataObject[propName],
-        maxFieldSize
+        maxFieldSize,
       );
       for (let i = 0; i < fields.length; i++) {
         objectToSend[`${propName} ${i}`] = fields[i];

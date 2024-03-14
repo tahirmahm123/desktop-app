@@ -12,13 +12,6 @@
           </a>
         </div>
       </router-link>
-      <!-- <router-link to="/servers">
-        <div :class="['side-menu-item', active === 'location' ? 'active' : '']">
-          <a href="#">
-            <span class="ms-1">Locations</span>
-          </a>
-        </div>
-      </router-link> -->
       <router-link to="/settings/general">
         <div :class="['side-menu-item', active === 'settings' ? 'active' : '']">
           <a href="#">
@@ -26,15 +19,8 @@
           </a>
         </div>
       </router-link>
-      <router-link to="/get-pin">
-        <div :class="['side-menu-item', active === 'settings' ? 'active' : '']">
-          <a href="#">
-            <span class="">Get Pin</span>
-          </a>
-        </div>
-      </router-link>
       <router-link to="/get-help">
-        <div :class="['side-menu-item', active === 'settings' ? 'active' : '']">
+        <div :class="['side-menu-item', active === 'gethelp' ? 'active' : '']">
           <a href="#">
             <span class="">Get Help</span>
           </a>

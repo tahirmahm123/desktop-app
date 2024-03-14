@@ -18,6 +18,8 @@
 </template>
 
 <script>
+// import LottieAnimation from "lottie-vuejs/src/LottieAnimation.vue";
+
 export default {
   props: ["onChecked", "isChecked", "isProgress", "checkedColor"],
   computed: {
@@ -31,6 +33,9 @@ export default {
     },
   },
 
+  components: {
+    // LottieAnimation,
+  },
   methods: {
     DoSwitch(e) {
       if (!this.isConnected) e.preventDefault();
@@ -42,6 +47,7 @@ export default {
   },
 };
 </script>
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .switch {
@@ -74,7 +80,7 @@ label.btn-connection {
   border: 3px solid #fff;
   color: black !important;
   cursor: pointer;
-  z-index: 10000;
+  z-index: 1;
   padding: 13.626px 27.253px;
 }
 .btn-connection:hover {
